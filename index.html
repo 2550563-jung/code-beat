@@ -132,6 +132,49 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .rtabs.three{grid-template-columns:repeat(3,1fr)}
 .rtabs.four{grid-template-columns:repeat(4,1fr)}
 .rtabs.seven{grid-template-columns:repeat(4,1fr)}
+.toasts{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;width:min(92vw,380px);pointer-events:none}
+.toast{display:flex;flex-direction:column;gap:2px;padding:11px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--accent);box-shadow:0 10px 30px rgba(0,0,0,.45);animation:tin .3s ease-out;transition:opacity .4s,transform .4s}
+.toast b{font-size:14px}.toast span{font-size:12px;color:var(--muted)}
+.toast.out{opacity:0;transform:translateY(-8px)}
+@keyframes tin{from{opacity:0;transform:translateY(-10px)}}
+.mods{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.chip small{font-family:var(--f-num);font-size:11px;opacity:.8}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.startrow{display:grid;grid-template-columns:1fr auto;gap:8px}
+.startrow .ghost{padding-inline:22px}
+.startrow .ghost:disabled{opacity:.4;cursor:default}
+.navrow .daily{background:transparent;border-color:var(--accent);color:var(--accent)}
+.navrow .daily span{font-weight:400;color:var(--muted);font-size:12px}
+.tutban{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-radius:10px;border:1px dashed var(--accent);font-size:13px}
+.tutban div{display:flex;gap:6px}
+.emo{display:flex;flex-wrap:wrap;gap:6px}
+.emo .emoji{font-size:16px;padding:5px 9px}
+.board .nicklink{all:unset;cursor:pointer;font-weight:600}
+.board .nicklink:hover,.board .nicklink:focus-visible{text-decoration:underline}
+.ttl{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:600;vertical-align:1px}
+.ttl.big{margin:6px 0 0;font-size:13px;padding:3px 10px}
+.board li.wrp{grid-template-columns:2.6em 1fr auto auto}
+.board li.wdel{grid-template-columns:2.6em 1fr auto auto}
+.board li.wrp.wdel{grid-template-columns:2.6em 1fr auto auto auto}
+.board .rp{padding:4px 9px}
+.achgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.ach{display:flex;flex-direction:column;gap:2px;padding:9px 11px;border-radius:8px;background:var(--panel);opacity:.45}
+.ach.on{opacity:1;box-shadow:inset 3px 0 0 var(--accent)}
+.ach b{font-size:13px}.ach span{font-size:12px;color:var(--muted)}.ach small{font-size:11px;color:var(--accent)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--line);flex:0 0 auto}
+.dot.on{background:var(--great)}
+.seg5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.seg5 button{padding:9px 0;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font:inherit;font-weight:600;cursor:pointer}
+.seg5 button[aria-checked="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mini{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.mini .text{padding:8px 10px}
+.tplist{display:flex;flex-direction:column;gap:4px}
+.tprow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:6px 10px;border-radius:8px;background:var(--panel);font-size:13px}
+.tprow b{font-family:var(--f-num)}
+@media (max-width:420px){.grid4{grid-template-columns:repeat(2,1fr)}.achgrid{grid-template-columns:1fr}}
 .clist{display:flex;flex-direction:column;gap:8px}
 .lv-card{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel)}
 .lv-card h3{margin:0;font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px;min-width:0}
@@ -212,7 +255,8 @@ a.go.off{opacity:.45;pointer-events:none}
         <p class="sub">떨어지는 노트가 판정선에 닿는 순간 누르세요. 맵마다 레인 수가 다르고, 어려운 맵일수록 점수 배율이 높아요.</p>
       </div>
       <div class="acct"><span id="acctName">로그인하지 않았어요</span><button class="small" id="acctBtn">로그인</button></div>
-      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small wide2" id="setBtn">설정</button></div>
+      <div class="tutban" id="tutBan" hidden><span>처음이세요? 1분이면 끝나는 튜토리얼로 시작해 보세요.</span><div><button class="small" id="tutGo">튜토리얼</button><button class="small" id="tutNo">닫기</button></div></div>
+      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small wide daily" id="dailyBtn">오늘의 도전 <span id="dailySub"></span></button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small" id="profBtn">프로필 · 업적</button><button class="small" id="friendBtn">친구</button><button class="small wide2" id="setBtn">설정</button></div>
       <div class="total"><span>누적 점수 · 맵·난이도별 최고 기록 합계</span><b id="totalScore">0</b></div>
       <div>
         <p class="label">맵 · 쉬운 순서 · <span id="unlockCount"></span></p>
@@ -223,8 +267,12 @@ a.go.off{opacity:.45;pointer-events:none}
         <p class="label">난이도</p>
         <div class="seg" id="diffs" role="radiogroup" aria-label="난이도"></div>
       </div>
+      <div>
+        <p class="label">모드 · 켜면 점수 배율이 달라져요</p>
+        <div class="mods" id="mods"></div>
+      </div>
       <div class="mult" id="multLine"></div>
-      <button class="go" id="startBtn">시작</button>
+      <div class="startrow"><button class="go" id="startBtn">시작</button><button class="ghost" id="practiceBtn">연습</button></div>
       <p class="hint" id="keyHint"></p>
       <button class="go" id="installBtn" hidden>홈 화면에 추가</button>
       <button class="ghost" id="appsBtn">앱 받기 · PC · 안드로이드 · 아이폰</button>
@@ -248,6 +296,8 @@ a.go.off{opacity:.45;pointer-events:none}
         <div class="ctl"><div class="lab">입력 보정 <span class="val" id="offsetOut">측정 전</span></div><button class="small" id="calibBtn">박자 측정</button></div>
         <div class="ctl"><div class="lab">키 배치</div><button class="small" id="keysBtn">키 설정</button></div>
       </div>
+      <div class="ctl"><label class="check"><input type="checkbox" id="cvdMode"> 색약 모드 · 레인과 판정 색을 구분하기 쉬운 색으로 바꿔요</label></div>
+      <button class="small" id="tutAgain">튜토리얼 다시 하기</button>
       <div class="ctl"><div class="lab">계정 <span class="val" id="setAcctName"></span></div><button class="small" id="setAcctBtn">로그인 · 계정</button></div>
       <button class="small" id="adminBtn" hidden>관리자 도구</button>
       <button class="go" id="setBack">돌아가기</button>
@@ -283,6 +333,8 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="ctl" id="adTools"><p class="label" style="margin:0">테스트 도구 · 이 기기에서만, 관리자 계정일 때만 적용</p>
       <label class="check"><input type="checkbox" id="adInv"> 무적 · 체력과 과부하로 실패하지 않아요. 이 판은 기록·랭킹·잠금 해제에 안 들어가요.</label>
       <label class="check"><input type="checkbox" id="adUnlock"> 모든 레벨 잠금 해제</label></div>
+      <p class="label" style="margin:0">신고된 레벨</p>
+      <div class="clist" id="adReports"></div>
       <p class="label" style="margin:0">플레이어</p>
       <div class="rpick"><input class="text" id="adSearch" maxlength="12" placeholder="닉네임 검색" autocomplete="off"><button class="small" id="adSearchBtn">검색</button></div>
       <div class="clist" id="adPlayers"></div>
@@ -300,6 +352,57 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="shgrid" id="shGrid"></div>
       <p class="keymsg" id="shMsg"></p>
       <button class="go" id="shBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="daily" hidden>
+    <div class="panel">
+      <h2>오늘의 도전</h2>
+      <p class="sub"><b id="dyDate"></b> · 매일 자정(한국 시간)에 새 맵이 나와요. 모두 같은 맵, 같은 난이도로 겨뤄요.</p>
+      <p class="rline" id="dyInfo"></p>
+      <div class="total"><span>오늘 내 최고 기록</span><b id="dyBest">—</b></div>
+      <p class="rline" id="dyBonus"></p>
+      <button class="go" id="dyStart">도전하기</button>
+      <p class="label" style="margin:0">오늘의 랭킹</p>
+      <ol class="board" id="dyBoard"></ol>
+      <p class="keymsg" id="dyMsg"></p>
+      <button class="ghost" id="dyBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="practice" hidden>
+    <div class="panel">
+      <h2>연습 모드</h2>
+      <p class="rline" id="prMap"></p>
+      <div class="ctl"><label for="prFrom">시작 <output id="prFromOut">1마디</output></label><input type="range" id="prFrom" min="1" max="25" step="1" value="1"></div>
+      <div class="ctl"><label for="prTo">끝 <output id="prToOut">8마디</output></label><input type="range" id="prTo" min="1" max="25" step="1" value="8"></div>
+      <div class="ctl"><span class="lab">곡 속도</span>
+        <div class="seg5" id="prRate" role="radiogroup" aria-label="곡 속도"><button role="radio" data-r="0.5">0.5×</button><button role="radio" data-r="0.75">0.75×</button><button role="radio" data-r="1">1×</button><button role="radio" data-r="1.25">1.25×</button><button role="radio" data-r="1.5">1.5×</button></div></div>
+      <label class="check"><input type="checkbox" id="prLoop" checked> 구간이 끝나면 처음부터 반복</label>
+      <p class="hint" id="prInfo" style="text-align:left;margin:0"></p>
+      <button class="go" id="prGo">연습 시작</button>
+      <button class="ghost" id="prBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="profile" hidden>
+    <div class="panel">
+      <div><h2 id="pfName">프로필</h2><span class="ttl big" id="pfTitle" hidden></span></div>
+      <div class="ctl" id="pfTitleBox" hidden><label for="pfTitleSel">내 칭호 · 랭킹에서 닉네임 옆에 보여요</label><select class="text" id="pfTitleSel"></select></div>
+      <button class="small" id="pfFriend" hidden>친구 추가</button>
+      <div id="pfBody" class="ctl"></div>
+      <p class="keymsg" id="pfMsg"></p>
+      <button class="ghost" id="pfBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="friends" hidden>
+    <div class="panel">
+      <h2>친구</h2>
+      <div class="rpick"><input class="text" id="frNick" maxlength="12" placeholder="친구 닉네임" autocomplete="off"><button class="small" id="frAdd">추가</button></div>
+      <div class="clist" id="frList"></div>
+      <p class="keymsg" id="frMsg"></p>
+      <button class="ghost" id="frBack">돌아가기</button>
     </div>
   </section>
 
@@ -341,7 +444,7 @@ a.go.off{opacity:.45;pointer-events:none}
   <section class="screen" id="rank" hidden>
     <div class="panel">
       <h2>랭킹</h2>
-      <div class="rtabs three" role="tablist"><button role="tab" id="rtTotal" aria-selected="true">누적 점수</button><button role="tab" id="rtMap" aria-selected="false">맵별 점수</button><button role="tab" id="rtLevel" aria-selected="false" hidden>이 레벨</button></div>
+      <div class="rtabs seven" role="tablist"><button role="tab" id="rtTotal" aria-selected="true">누적</button><button role="tab" id="rtMap" aria-selected="false">맵별</button><button role="tab" id="rtSeason" aria-selected="false">시즌</button><button role="tab" id="rtFriends" aria-selected="false">친구</button><button role="tab" id="rtLevel" aria-selected="false" hidden>이 레벨</button></div>
       <div class="rpick" id="rankPick" hidden><select class="text" id="rankMap" aria-label="맵"></select><select class="text" id="rankDiff" aria-label="난이도"></select></div>
       <p class="rline" id="rankTitle" hidden></p>
       <ol class="board" id="board"></ol>
@@ -412,6 +515,14 @@ a.go.off{opacity:.45;pointer-events:none}
             <div class="grid2"><button class="small" id="eExport">파일로 저장</button><label class="small filebtn" for="eImport">파일 불러오기</label></div>
             <input type="file" id="eImport" accept=".cbeat,.json,application/json" hidden>
             <p class="hint" style="text-align:left;margin:0">.cbeat 파일에 노트·설정·음악이 함께 담겨요. 다른 기기나 친구에게 옮길 때 쓰세요.</p></div>
+          <div class="ctl"><span class="lab">구간 편집 · 마디 단위</span>
+            <div class="grid2"><label class="mini">시작 마디 <input class="text" type="number" id="eRgFrom" min="1" value="1"></label><label class="mini">끝 마디 <input class="text" type="number" id="eRgTo" min="1" value="4"></label></div>
+            <div class="grid4"><button class="small" id="eRgCopy">복사</button><button class="small" id="eRgCut">잘라내기</button><button class="small" id="eRgFlip">좌우 반전</button><button class="small" id="eRgDel">지우기</button></div>
+            <div class="grid2"><label class="mini">붙여넣을 마디 <input class="text" type="number" id="eRgAt" min="1" value="5"></label><button class="small" id="eRgPaste">붙여넣기</button></div></div>
+          <div class="ctl"><span class="lab">곡 중간 BPM 바꾸기</span>
+            <div id="eTempoList" class="tplist"></div>
+            <div class="grid3"><label class="mini">마디 <input class="text" type="number" id="eTempoBar" min="2" value="9"></label><label class="mini">BPM <input class="text" type="number" id="eTempoBpm" min="60" max="260" value="150"></label><button class="small" id="eTempoAdd">추가</button></div>
+            <p class="hint" style="text-align:left;margin:0">그 마디부터 노트가 내려오는 박자가 바뀌어요. mp3를 쓰면 곡의 템포 변화에 맞춰 주세요.</p></div>
           <div class="ctl"><span class="lab">자동 채우기 · 지금 노트를 지우고 새로 만들어요</span>
             <div class="grid2"><select class="text" id="eGenDens"><option value="0">쉬움</option><option value="1" selected>보통</option><option value="2">어려움</option></select><button class="small" id="eGen">자동 채우기</button></div></div>
           <button class="ghost" id="eClear">노트 모두 지우기</button>
@@ -423,7 +534,7 @@ a.go.off{opacity:.45;pointer-events:none}
     <footer class="etools">
       <select class="text" id="eSnap" aria-label="배치 간격"><option value="4">1/4</option><option value="2">1/8</option><option value="1" selected>1/16</option></select>
       <button class="small" id="eTool" aria-pressed="false">홀드</button>
-      <button class="small" id="eUndo">되돌리기</button>
+      <button class="small" id="eUndo" title="Ctrl+Z">되돌리기</button><button class="small" id="eRedo" title="Ctrl+Y">다시</button>
       <button class="small" id="ePlay">▶ 듣기</button>
       <button class="small" id="eTest">테스트</button>
       <button class="small" id="eUp" style="background:var(--accent);color:#1b1407;border-color:var(--accent)">업로드</button>
@@ -443,6 +554,7 @@ a.go.off{opacity:.45;pointer-events:none}
         <div class="total"><span>방 코드 · 친구에게 알려 주세요</span><b id="mpCodeOut"></b></div>
         <p class="label" style="margin:0">참가자</p>
         <ol class="board" id="mpPlayers"></ol>
+        <div class="emo" id="mpEmo" aria-label="반응 보내기"></div>
         <div class="ctl" id="mpHostBox"><p class="label" style="margin:0">맵 · 방장이 골라요</p>
           <div class="rpick"><select class="text" id="mpMap" aria-label="맵"></select><select class="text" id="mpDiff" aria-label="난이도"></select></div>
           <button class="go" id="mpStart">모두 시작</button></div>
@@ -486,10 +598,11 @@ a.go.off{opacity:.45;pointer-events:none}
         <div class="stat"><span style="color:var(--miss)">미스</span><b id="rM"></b></div>
       </div>
       <p class="rline" id="rRankLine" hidden></p>
-      <div class="ctl" id="rMultiBox" hidden><p class="label" style="margin:0">이번 판 방 순위</p><ol class="board" id="rMulti"></ol></div>
+      <div class="ctl" id="rMultiBox" hidden><p class="label" style="margin:0">이번 판 방 순위</p><ol class="board" id="rMulti"></ol><div class="emo" id="rEmo" aria-label="반응 보내기"></div></div>
       <p class="rline" id="rLoginHint" hidden>로그인하면 이 기록이 랭킹에 올라가요. <button class="small" id="rLoginBtn">로그인</button></p>
       <div class="mult" id="rMult"></div>
       <p class="failnote" id="rFailNote" hidden>실패한 판의 점수는 기록에 남지 않아요.</p>
+      <button class="ghost" id="rReplay" hidden>방금 판 리플레이 보기</button>
       <div class="btns"><button class="go" id="retryBtn">다시 하기</button><button class="ghost" id="backBtn">맵 선택</button></div>
     </div>
   </section>
@@ -506,6 +619,7 @@ a.go.off{opacity:.45;pointer-events:none}
     </div>
     <div class="sheet-arrow" id="iosArrow" aria-hidden="true">▼</div>
   </div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
   <div class="updbar" id="updBar" hidden role="status"><span>새 업데이트가 있어요</span><button class="small" id="updNotes">내용</button><button class="small" id="updNow">지금 적용</button></div>
   <div class="sheet" id="updSheet" hidden role="dialog" aria-label="업데이트 내용">
     <div class="sheet-in"><b id="updTitle">업데이트 내용</b><ol id="updList"></ol><button class="go" id="updClose">확인</button></div>
@@ -726,7 +840,7 @@ function buildChart(s,lead,diff){
 /* community levels become regular map objects */
 function commMap(L){
   const m=L.music||{};
-  return {id:'c:'+L.id,community:true,levelId:L.id,name:L.title,author:L.author||'',lanes:L.lanes,bpm:L.bpm,
+  return {id:'c:'+L.id,community:true,levelId:L.id,name:L.title,author:L.author||'',lanes:L.lanes,bpm:L.bpm,tempo:Array.isArray(m.tempo)?m.tempo:null,
     key:m.key,sc:m.scale,scale:SC[m.scale]||SC.minor,prog:m.prog,lead:m.lead,drive:m.drive,
     bars:INTRO+L.bars+1,chart:L.notes||[],level:0,tier:0,busy:1,seed:1,
     audio:m.audio?{url:m.audio.url||'',offset:+m.audio.offset||0,duration:+m.audio.duration||0}:null};
@@ -875,7 +989,7 @@ function playStep(i,t){
   }
   if(lead[i]>=0)tone(t,degPitch(s,lead[i]),holdSteps[i]?holdSteps[i]*stepDur:stepDur*1.6,s.lead,lv,lc);
 }
-function scheduler(){const ahead=ctx.currentTime+.15;while(nextStep<totalSteps&&T0+nextStep*stepDur<ahead){playStep(nextStep,T0+nextStep*stepDur);nextStep++}}
+function scheduler(){const ahead=ctx.currentTime+.15;while(nextStep<totalSteps&&T0+stT(nextStep)<ahead){playStep(nextStep,T0+stT(nextStep));nextStep++}}
 
 async function start(){
   ensureAudio();if(ctx.state!=='running'){try{await ctx.resume()}catch(e){}}
@@ -883,19 +997,19 @@ async function start(){
   let abuf=null;const pre=sel.type==='community'?sel.level:null;
   if(pre&&pre.music&&pre.music.audio){abuf=pre.audioBuf||await loadAudio(pre.music.audio.url);if(!abuf)return}
   clearInterval(timer);newBus();
-  map=sel.type==='community'?commMap(sel.level):MAPS[mapIdx];lead=buildSong(map);
-  beatDur=60/map.bpm;stepDur=beatDur/4;totalSteps=barsOf(map)*16;
+  map=sel.map?sel.map:sel.type==='community'?commMap(sel.level):MAPS[mapIdx];lead=buildSong(map);
+  setTempo(map,sel.practice?PR.rate:1);totalSteps=barsOf(map)*16;
   if(sel.type==='community'&&!sel.test&&!sel.counted){sel.counted=true;API.call('bb_count_play',{p_id:sel.level.id}).catch(()=>{})}
-  T0=ctx.currentTime+.5;
-  if(abuf&&map.audio){const src=ctx.createBufferSource();src.buffer=abuf;src.connect(bus);const ss=T0+INTRO*16*stepDur-map.audio.offset/1000,nw=ctx.currentTime+.03;if(ss>=nw)src.start(ss);else src.start(nw,nw-ss)}
-  notes=buildChart(map,lead,DIFFS[diffIdx].id).map(n=>({...n,t:T0+n.step*stepDur,tEnd:n.len?T0+(n.step+n.len)*stepDur:0,done:false}));
-  laneNotes=Array.from({length:map.lanes},()=>[]);notes.forEach(n=>laneNotes[n.lane].push(n));
+  T0=ctx.currentTime+.5;if(sel.practice)practiceT0();
+  if(abuf&&map.audio){const src=ctx.createBufferSource();src.buffer=abuf;src.connect(bus);const rt=sel.practice?PR.rate:1;src.playbackRate.value=rt;const ss=T0+stT(INTRO*16)-map.audio.offset/1000/rt,nw=ctx.currentTime+.03;if(ss>=nw)src.start(ss);else src.start(nw,(nw-ss)*rt)}
+  notes=buildChart(map,lead,DIFFS[diffIdx].id).map(n=>({...n,t:T0+stT(n.step),tEnd:n.len?T0+stT(n.step+n.len):0,done:false}));
+  applyMods();laneNotes=Array.from({length:map.lanes},()=>[]);notes.forEach(n=>laneNotes[n.lane].push(n));
   ptr=new Array(map.lanes).fill(0);pressed=new Array(map.lanes).fill(0);
-  firstNoteT=notes[0].t;endTime=T0+totalSteps*stepDur+.6;
+  firstNoteT=notes[0].t;endTime=sel.practice?practiceEnd():T0+stT(totalSteps)+.6;
   runMult=(map.community?commMult(map):mapMult(map)*DIFFS[diffIdx].mult)*speedMult(speed);
-  runInv=adminOn('inv');JC=notes.length+notes.filter(n=>n.len).length;holdSteps={};notes.forEach(n=>{if(n.len)holdSteps[n.step]=Math.max(holdSteps[n.step]||0,n.len)});activeHold=new Array(map.lanes).fill(null);
+  runMult*=modMult(RUNMODS);runInv=adminOn('inv')||!!sel.practice||!!sel.tutorial;JC=notes.length+notes.filter(n=>n.len).length;holdSteps={};notes.forEach(n=>{if(n.len)holdSteps[n.step]=Math.max(holdSteps[n.step]||0,n.len)});activeHold=new Array(map.lanes).fill(null);
   stats={perfect:0,great:0,good:0,miss:0,acc:0};hp=100;heat=0;lastTick=performance.now();death=null;combo=0;maxCombo=0;shownScore=0;lastJ=null;bursts=[];
-  nextStep=0;timer=setInterval(scheduler,25);scheduler();
+  nextStep=sel.practice?PR.s0:0;timer=setInterval(scheduler,25);scheduler();
   state='play';show(null);$('#pauseBtn').hidden=false;resize();
   if(sel.multi)mpStartLive();
 }
@@ -917,28 +1031,28 @@ function tailJudge(n,k,noHp){
   else{if(k==='perfect'){combo++;maxCombo=Math.max(maxCombo,combo)}bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2||SKIN.hit==='spark')spawnSparks(n.lane,k);lastJ={k,early:false,t:performance.now(),hold:true}}
   if(!noHp){hp=Math.max(runInv?1:0,Math.min(100,hp+HP[k]));if(hp<=0)die('hp')}
 }
-function press(l){
+function press(l,at){
   if(state==='calib'){calibTap();return}
-  if(state!=='play'||l<0||l>=map.lanes)return;
+  if(state!=='play'||l<0||l>=map.lanes)return;if(sel.replay&&at===undefined)return;
   pressed[l]=performance.now();
-  const t=playNow(),arr=laneNotes[l];let bn=null,bd=1;
+  const t=at!==undefined?at:playNow(),arr=laneNotes[l];if(REC)REC.push([Math.round((t-T0)*1000),l]);let bn=null,bd=1;
   for(let i=ptr[l];i<arr.length;i++){const n=arr[i];if(n.done)continue;const d=t-n.t;if(d<-WIN.go-.05)break;if(Math.abs(d)<bd){bd=Math.abs(d);bn=n}}
   const hit=bn&&bd<=WIN.go;hitSound(l,map.lanes,hit);
   if(hit){judge(bn,t-bn.t)}
   else if(t>=firstNoteT-WIN.go){heat+=HEAT.tap;if(heat>=100){heat=100;if(!runInv)die('overload')}}
 }
-function release(l){
-  if(l<0||l>=pressed.length)return;pressed[l]=0;
+function release(l,at){
+  if(l<0||l>=pressed.length)return;if(sel.replay&&at===undefined)return;if(REC&&state==='play'&&pressed[l])REC.push([Math.round(((at!==undefined?at:playNow())-T0)*1000),l,0]);pressed[l]=0;
   const h=activeHold[l];if(!h||state!=='play')return;
   activeHold[l]=null;h.holding=false;h.tail=true;
-  if(playNow()<h.tEnd-.12){h.broken=true;tailJudge(h,'miss')}else tailJudge(h,'perfect');
+  if((at!==undefined?at:playNow())<h.tEnd-.12){h.broken=true;tailJudge(h,'miss')}else tailJudge(h,'perfect');
 }
 function update(){
   if(state==='calib'){calibFrame();return}
   if(state==='dying'){if(performance.now()-death.t>1100)finish(death.reason);return}
   if(state!=='play')return;
   const pn=performance.now();heat=Math.max(0,heat-HEAT.decay*(pn-lastTick)/1000);lastTick=pn;
-  const t=playNow();
+  const t=playNow();if(sel.replay)replayFeed(t);
   for(let l=0;l<map.lanes;l++){const arr=laneNotes[l];
     while(ptr[l]<arr.length&&arr[ptr[l]].done)ptr[l]++;
     for(let i=ptr[l];i<arr.length;i++){const n=arr[i];if(n.t>t)break;if(!n.done&&t-n.t>WIN.go)judge(n,null)}
@@ -955,10 +1069,11 @@ function die(reason){
 }
 const rankOf=a=>a>=97?'S':a>=92?'A':a>=85?'B':a>=70?'C':'D';
 const fmt=n=>Math.round(n).toLocaleString('ko-KR');
-function multText(m,di,sp){return `<span>맵 ×${mapMult(m).toFixed(2)}</span><span>난이도 ×${DIFFS[di].mult.toFixed(1)}</span><span>속도 ×${speedMult(sp).toFixed(2)}</span><span>합계 <b>×${(mapMult(m)*DIFFS[di].mult*speedMult(sp)).toFixed(2)}</b></span>`}
+function multText(m,di,sp,mo){const mm=modMult(mo);return `<span>맵 ×${mapMult(m).toFixed(2)}</span><span>난이도 ×${DIFFS[di].mult.toFixed(1)}</span><span>속도 ×${speedMult(sp).toFixed(2)}</span>${mm!==1?`<span>모드 ×${mm.toFixed(2)}</span>`:''}<span>합계 <b>×${(mapMult(m)*DIFFS[di].mult*speedMult(sp)*mm).toFixed(2)}</b></span>`}
 function finish(fail){
+  if(sel.practice&&PR.loop&&!fail&&state==='play'){stopRun();achGrant('practice');toast('구간을 한 번 끝냈어요','처음부터 다시 반복해요 · 그만하려면 일시정지',1800);start();return}
   stopRun();state='result';$('#pauseBtn').hidden=true;
-  const sc=score(),acc=stats.acc/JC*100,key=map.community?map.id:map.id+'-'+DIFFS[diffIdx].id,test=!!sel.test||runInv;
+  const sc=score(),acc=stats.acc/JC*100,key=map.fixedKey||(map.community?map.id:map.id+'-'+DIFFS[diffIdx].id),test=!!sel.test||!!sel.noRecord||runInv;
   const before=map.community?0:unlockedCount();
   const isNew=!fail&&!test&&sc>(best[key]||0);if(isNew){best[key]=sc;LS.set('bam-bakja-best-v2',best)}
   const opened=!map.community&&unlockedCount()>before&&MAPS[map.level]?MAPS[map.level]:null;
@@ -968,22 +1083,22 @@ function finish(fail){
   const r=fail?'F':rankOf(acc);
   $('#rRank').textContent=r;$('#rRank').style.color=fail?COL.miss:r==='S'?COL.perfect:r==='A'?COL.great:r==='B'?COL.good:COL.muted;
   $('#rFail').hidden=!fail;$('#rFail').textContent=fail==='overload'?'과부하로 실패':'체력 소진으로 실패';$('#rFailNote').hidden=!fail;
-  $('#rSong').textContent=map.community?`${test?'테스트 · ':'커뮤니티 · '}${map.name} · ${map.lanes}레인`:`Lv.${map.level} ${map.name} · ${map.lanes}레인 · ${DIFFS[diffIdx].name}`;
-  $('#backBtn').textContent=sel.multi?'방으로':sel.test?'에디터로':map.community?'레벨 목록':'맵 선택';$('#quitBtn').textContent=$('#backBtn').textContent;
+  $('#rSong').textContent=map.label?`${sel.replay?'리플레이 · ':''}${map.label} · ${map.lanes}레인`:sel.tutorial?'튜토리얼 · 2레인':map.community?`${test?'테스트 · ':'커뮤니티 · '}${map.name} · ${map.lanes}레인`:`Lv.${map.level} ${map.name} · ${map.lanes}레인 · ${DIFFS[diffIdx].name}`;
+  $('#backBtn').textContent=sel.backLabel?sel.backLabel:sel.multi?'방으로':sel.test?'에디터로':map.community?'레벨 목록':'맵 선택';$('#quitBtn').textContent=$('#backBtn').textContent;
   $('#rScore').textContent=fmt(sc);$('#rNew').hidden=!isNew;
   $('#rAcc').textContent=acc.toFixed(2)+'%';$('#rCombo').textContent=maxCombo+' / '+JC;
   $('#rP').textContent=stats.perfect;$('#rG').textContent=stats.great;$('#rO').textContent=stats.good;$('#rM').textContent=stats.miss;
-  $('#rMult').innerHTML=map.community?`<span>레벨 밀도 ×${commMult(map).toFixed(2)}</span><span>속도 ×${speedMult(speed).toFixed(2)}</span><span>합계 <b>×${runMult.toFixed(2)}</b></span>`:multText(map,diffIdx,speed);
+  $('#rMult').innerHTML=map.community?`<span>레벨 밀도 ×${commMult(map).toFixed(2)}</span><span>속도 ×${speedMult(speed).toFixed(2)}</span><span>합계 <b>×${runMult.toFixed(2)}</b></span>`:multText(map,diffIdx,speed,RUNMODS);
   if(test)$('#rFailNote').hidden=true;
-  $('#rInv').hidden=!runInv;
+  $('#rInv').hidden=!runInv;afterFinish(fail,sc,acc,key,test);
   renderMenu();show('result');
   if(typeof updAfterLevel==='function')updAfterLevel();
 }
 function pause(){if(state!=='play')return;state='pause';ctx.suspend();$('#pauseBtn').hidden=true;show('pause')}
 function resume(){state='play';ctx.resume();$('#pauseBtn').hidden=false;show(null)}
 function toMenu(){stopRun();state='menu';$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();renderMenu();show('menu');resize()}
-function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop'].forEach(s=>$('#'+s).hidden=s!==id)}
-function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
+function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends'].forEach(s=>$('#'+s).hidden=s!==id)}
+function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.back){const f=sel.back;sel={type:'builtin'};f();return}if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
 
 /* ---------- calibration (tap along to a metronome) ---------- */
 const CB={bpm:100,lead:4,taps:16};
@@ -1062,20 +1177,20 @@ function renderMenu(){
       <span class="best">${lk?'잠김<b>🔒</b>':`최고<b>${b?fmt(b):'—'}</b>`}</span></button>`}).join('');
   $('#diffs').innerHTML=DIFFS.map((d,i)=>`<button role="radio" id="diff-${d.id}" aria-checked="${i===diffIdx}" data-i="${i}">${d.name}</button>`).join('');
   const m=MAPS[mapIdx];
-  $('#multLine').innerHTML=multText(m,diffIdx,speed);
+  $('#multLine').innerHTML=multText(m,diffIdx,speed,MODS);
   $('#keyHint').innerHTML=`PC ${getKeys(m.lanes).map(k=>`<kbd>${keyNameLong(k)}</kbd>`).join(' ')} · 모바일은 레인을 터치<br>미스가 쌓여 체력이 0이 되거나, 노트 없이 마구 누르면 과부하로 실패해요${m.level>=5?'<br>긴 막대는 홀드 노트예요. 끝까지 누르고 있다가 떼세요':''}`;
   $('#offsetOut').textContent=offsetMs===null?'측정 전':(offsetMs>0?'+':'')+offsetMs+'ms';
   $('#calibBtn').textContent=offsetMs===null?'박자 측정':'다시 측정';
   $('#speed').value=speed;$('#speedOut').textContent=(+speed).toFixed(1);
-  $('#totalScore').textContent=fmt(Object.keys(best).filter(k=>!k.startsWith('c:')).reduce((a,k)=>a+best[k],0));
-  renderAcct();
+  $('#totalScore').textContent=fmt(Object.keys(best).filter(k=>!k.startsWith('c:')&&!k.startsWith('d:')).reduce((a,k)=>a+best[k],0));
+  renderAcct();if(typeof renderMenuExtra==='function')renderMenuExtra();
 }
 $('#songs').addEventListener('click',e=>{const b=e.target.closest('.song');if(!b)return;if(!isUnlocked(+b.dataset.i)){$('#unlockHint').textContent=`Lv${+b.dataset.i} ${MAPS[+b.dataset.i-1].name}을(를) 보통 이상 난이도로 깨면 열려요.`;return}mapIdx=+b.dataset.i;LS.set('bam-bakja-map',mapIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
 $('#diffs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;diffIdx=+b.dataset.i;LS.set('bam-bakja-diff',diffIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
 $('#hsVol').value=hsVol;$('#hsOut').textContent=hsVol?hsVol+'%':'끔';
 $('#hsVol').addEventListener('input',e=>{hsVol=+e.target.value;LS.set('bam-bakja-hitvol',hsVol);$('#hsOut').textContent=hsVol?hsVol+'%':'끔'});
 $('#hsVol').addEventListener('change',()=>{ensureAudio();if(ctx.state!=='running')ctx.resume();const n=MAPS[mapIdx].lanes;for(let i=0;i<n;i++)setTimeout(()=>hitSound(i,n,true),i*160)});
-$('#speed').addEventListener('input',e=>{speed=+e.target.value;LS.set('bam-bakja-speed',speed);$('#speedOut').textContent=speed.toFixed(1);$('#multLine').innerHTML=multText(MAPS[mapIdx],diffIdx,speed)});
+$('#speed').addEventListener('input',e=>{speed=+e.target.value;LS.set('bam-bakja-speed',speed);$('#speedOut').textContent=speed.toFixed(1);$('#multLine').innerHTML=multText(MAPS[mapIdx],diffIdx,speed,MODS)});
 $('#calibBtn').onclick=()=>openCalib(false);
 function openSettings(){state='settings';renderMenu();$('#adminBtn').hidden=!(typeof acct!=='undefined'&&acct&&(acct.admin||acct.mod));$('#adminBtn').textContent=typeof acct!=='undefined'&&acct&&acct.admin?'관리자 도구':'부관리자 도구';$('#setAcctName').textContent=typeof acct!=='undefined'&&acct?acct.nick:'로그인 안 함';show('settings')}
 $('#setBtn').onclick=openSettings;
@@ -1159,8 +1274,7 @@ function draw(){
   }
   g.globalAlpha=1;g.strokeStyle=COL.line;g.lineWidth=1;
   for(let l=0;l<=lanes;l++){const x=Math.round(fx+l*laneW)+.5;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke()}
-  const k0=Math.floor((now-base)/bd)-1,k1=k0+Math.ceil((hitY/pps)/bd)+3;
-  for(let k=k0;k<=k1;k++){const y=hitY-(base+k*bd-now)*pps;if(y<0||y>H)continue;g.globalAlpha=k%4===0?.35:.12;g.fillStyle=COL.ink;g.fillRect(fx,Math.round(y),fw,1)}
+  drawBeatLines(now,pps,base,bd);
   if(QS().fx>2){const hg=g.createLinearGradient(0,hitY-26,0,hitY+26);hg.addColorStop(0,'transparent');hg.addColorStop(.5,COL.lc[0]);hg.addColorStop(1,'transparent');g.globalAlpha=.22+pulse*.25;g.fillStyle=hg;g.fillRect(fx,hitY-26,fw,52)}
   drawLineOn(g,SKIN.line,fx,fw,hitY,pulse,now*1000);g.globalAlpha=.75;g.fillStyle=COL.ink;
   const inset=Math.min(6,laneW*.08);
@@ -1177,9 +1291,9 @@ function draw(){
           if(n.holding&&QS().fx){g.globalAlpha=.18+.12*Math.sin(pn/70);g.fillRect(fx+n.lane*laneW,hitY-H*.22,laneW,H*.22)}
           g.globalAlpha=1}}
       if(y>H+nh)continue;
-      g.fillStyle=c;if(QS().fx&&SKIN.note==='bar'){g.globalAlpha=.25;rr(x-3,y-nh/2-3,w+6,nh+6,8);g.fill()}
+      g.fillStyle=c;if(QS().fx&&SKIN.note==='bar'&&hidA(y)>.5){g.globalAlpha=.25;rr(x-3,y-nh/2-3,w+6,nh+6,8);g.fill()}
       if(QS().fx>2){const tl=Math.min(90,pps*.12),tg=g.createLinearGradient(0,y-nh/2-tl,0,y-nh/2);tg.addColorStop(0,'transparent');tg.addColorStop(1,c);g.globalAlpha=.35;g.fillStyle=tg;g.fillRect(x+w*.15,y-nh/2-tl,w*.7,tl);g.fillStyle=c}
-      g.globalAlpha=1;if(QS().fx>2){g.shadowColor=c;g.shadowBlur=22}drawNoteOn(g,SKIN.note,x,y,w,nh,c);g.shadowBlur=0;
+      const ha=hidA(y);if(ha<=0){g.globalAlpha=1;continue}g.globalAlpha=ha;if(QS().fx>2){g.shadowColor=c;g.shadowBlur=22}drawNoteOn(g,SKIN.note,x,y,w,nh,c);g.shadowBlur=0;
       if(SKIN.note==='bar'){g.fillStyle=COL.ink;g.globalAlpha=.55;g.fillRect(x+6,y-nh/2+3,Math.max(0,w-12),2)}g.globalAlpha=1;
     }
     bursts=bursts.filter(b=>pn-b.t<360);
@@ -1209,14 +1323,14 @@ function draw(){
     const lx=Math.max(14,fx+14);
     g.textAlign='left';g.textBaseline='top';g.fillStyle=COL.ink;g.font='700 20px '+F.num;
     g.fillText(String(Math.round(shownScore)).padStart(7,'0'),lx,18);
-    g.font='600 12px '+F.body;g.fillStyle=COL.muted;g.fillText(map.community?`${map.name} · ×${runMult.toFixed(2)}`:`Lv.${map.level} ${map.name} · ${DIFFS[diffIdx].name} · ×${runMult.toFixed(2)}`,lx,44);
+    g.font='600 12px '+F.body;g.fillStyle=COL.muted;g.fillText(hudLabel(),lx,44,Math.max(120,W-lx-12));
     const bw=Math.min(140,fw*.4);
     const bar=(y,label,v,c)=>{g.font='600 11px '+F.body;g.fillStyle=COL.muted;g.textBaseline='middle';g.fillText(label,lx,y+3);
       g.fillStyle=COL.line;rr(lx+42,y,bw,6,3);g.fill();if(v>0){g.fillStyle=c;rr(lx+42,y,bw*v/100,6,3);g.fill()}};
     bar(66,'체력',hp,hp>50?COL.great:hp>25?COL.perfect:COL.miss);
     bar(80,'과부하',heat,heat>=HEAT.warn?COL.miss:COL.muted);
-    if(runInv){g.font='600 11px '+F.body;g.fillStyle=COL.good;g.textBaseline='middle';g.fillText('무적',lx+42+bw+8,73)}
-    if(sel.multi)drawMulti(pn);
+    if(runInv){g.font='600 11px '+F.body;g.fillStyle=COL.good;g.textBaseline='middle';g.fillText(sel.practice||sel.tutorial?'연습':'무적',lx+42+bw+8,73)}
+    if(sel.multi)drawMulti(pn);if(sel.tutorial)drawTutorial(now);
     if(heat>=HEAT.warn&&state==='play'){const a=(heat-HEAT.warn)/(100-HEAT.warn);g.strokeStyle=COL.miss;g.globalAlpha=.3+.5*a*(.6+.4*Math.sin(pn/60));g.lineWidth=4;g.strokeRect(fx+2,2,fw-4,H-4);
       g.globalAlpha=1;g.font='15px '+F.display;g.textAlign='center';g.fillStyle=COL.miss;g.fillText('과부하 주의',fx+fw/2,H*.62)}
     if(hp<=25&&state==='play'){g.fillStyle=COL.miss;g.globalAlpha=.08+.06*Math.sin(pn/120);g.fillRect(0,0,W,H);g.globalAlpha=1}
@@ -1324,7 +1438,7 @@ async function doLogin(){
     m.textContent='기록을 동기화하는 중…';
     const got=await syncScores();
     m.textContent=`'${r.nick}'(으)로 로그인했어요.`+(got.down||got.up?` 기록 ${got.down}개를 받아오고 ${got.up}개를 올렸어요.`:' 기록이 이미 맞춰져 있어요.');
-    $('#aOut').hidden=false;loadWallet();
+    $('#aOut').hidden=false;loadWallet();seasonChecked=false;onLogin();
     if(afterLogin){const f=afterLogin;afterLogin=null;setTimeout(f,800)}
   }catch(e){m.textContent=errText(e);authFail(e)}
   finally{$('#aGo').disabled=false}
@@ -1344,12 +1458,14 @@ async function submitResult(key,sc,acc,combo){
   try{
     const sub=await API.call('bb_submit_score',{p_token:acct.token,p_key:key,p_score:sc,p_acc:Math.round(acc*100)/100,p_combo:combo});
     const got=sub&&+sub.coins||0;if(got){WAL.coins+=got}
+    if(sub&&sub.daily_bonus)LS.set('cb-daily-bonus',kstDay());
+    if(sub&&sub.improved)uploadReplay(key,sc);
     const r=await API.call('bb_my_rank',{p_token:acct.token,p_key:key});
     if(state!=='result')return;
     const parts=[];
-    if(r&&r.map)parts.push(`${key.startsWith('c:')?'이 레벨':'이 맵'} 랭킹 <b>${r.map}위</b> / ${r.map_count}명`);
-    if(r&&!key.startsWith('c:')&&r.total)parts.push(`누적 랭킹 <b>${r.total}위</b> / ${r.total_count}명`);
-    if(got)parts.unshift(`<b>+${got} 코인</b>`);
+    if(r&&r.map)parts.push(`${key.startsWith('c:')?'이 레벨':key.startsWith('d:')?'오늘의 도전':'이 맵'} 랭킹 <b>${r.map}위</b> / ${r.map_count}명`);
+    if(r&&!key.startsWith('c:')&&!key.startsWith('d:')&&r.total)parts.push(`누적 랭킹 <b>${r.total}위</b> / ${r.total_count}명`);
+    if(got)parts.unshift(`<b>+${got} 코인</b>`+(sub.daily_bonus?' (오늘의 도전 보너스 포함)':''));
     rl.innerHTML=parts.join(' · ')||'랭킹에 올렸어요.';
   }catch(e){rl.textContent='랭킹에 올리지 못했어요. '+errText(e);authFail(e);if(!acct)hint.hidden=false}
 }
@@ -1359,7 +1475,7 @@ $('#rLoginBtn').onclick=()=>openAcct(()=>goBack());
 const RK={tab:'total',mapIdx:0,diffIdx:1,level:null,from:'menu'};
 let rankReq=0;
 function openRank(level){
-  RK.from=state==='comm'?'comm':'menu';RK.mapIdx=mapIdx;RK.diffIdx=diffIdx;RK.level=level||null;RK.tab=level?'level':'total';
+  RK.from=state==='comm'?'comm':'menu';RK.mapIdx=mapIdx;RK.diffIdx=diffIdx;RK.level=level||null;RK.tab=level?'level':(RK.tab==='level'?'total':RK.tab);
   $('#rankMap').innerHTML=MAPS.map((m,i)=>`<option value="${i}">Lv${m.level} ${m.name} · ${m.lanes}키</option>`).join('');
   $('#rankDiff').innerHTML=DIFFS.map((d,i)=>`<option value="${i}">${d.name}</option>`).join('');
   $('#rankMap').value=RK.mapIdx;$('#rankDiff').value=RK.diffIdx;
@@ -1367,44 +1483,45 @@ function openRank(level){
 }
 async function loadRank(){
   const id=++rankReq,board=$('#board'),msg=$('#rankMsg'),title=$('#rankTitle');
-  $('#rtTotal').setAttribute('aria-selected',RK.tab==='total');$('#rtMap').setAttribute('aria-selected',RK.tab==='map');$('#rtLevel').setAttribute('aria-selected',RK.tab==='level');
+  for(const [b,t] of [['#rtTotal','total'],['#rtMap','map'],['#rtSeason','season'],['#rtFriends','friends'],['#rtLevel','level']])$(b).setAttribute('aria-selected',RK.tab===t);
   $('#rtLevel').hidden=!RK.level;$('#rankPick').hidden=RK.tab!=='map';
-  title.hidden=RK.tab!=='level';if(RK.level)title.textContent=`${RK.level.title} · ${RK.level.author||''}`;
+  title.hidden=!(RK.tab==='level'||RK.tab==='season'||RK.tab==='friends');
+  if(RK.tab==='level')title.textContent=`${RK.level.title} · ${RK.level.author||''}`;
+  else if(RK.tab==='season'){const [y,m]=seasonKey().split('-');title.textContent=`${y}년 ${+m}월 시즌 · 이번 달에 세운 기록만 합쳐요 · 월말 상위 10명에게 한정 아이템`}
+  else if(RK.tab==='friends')title.textContent='나와 친구들의 누적 점수';
   board.textContent='';msg.textContent='불러오는 중…';
+  const key=RK.tab==='level'?'c:'+RK.level.id:MAPS[RK.mapIdx].id+'-'+DIFFS[RK.diffIdx].id;
   try{
     let rows;
-    if(RK.tab==='total')rows=(await API.call('bb_total_leaderboard',{p_limit:100})||[]).map(r=>({pos:r.pos,nick:r.nick,pts:r.total,sub:r.maps+'개 맵'}));
-    else{const key=RK.tab==='level'?'c:'+RK.level.id:MAPS[RK.mapIdx].id+'-'+DIFFS[RK.diffIdx].id;
-      rows=(await API.call('bb_leaderboard',{p_key:key,p_limit:100})||[]).map(r=>({pos:r.pos,nick:r.nick,pts:r.score,sub:r.acc>0?(+r.acc).toFixed(1)+'%':''}))}
+    if(RK.tab==='total')rows=(await API.call('bb_total_leaderboard_v2',{p_limit:100})||[]).map(r=>({pos:r.pos,nick:r.nick,title:r.title,pts:r.total,sub:r.maps+'개 맵'}));
+    else if(RK.tab==='season')rows=(await API.call('bb_season_leaderboard',{p_season:seasonKey(),p_limit:100})||[]).map(r=>({pos:r.pos,nick:r.nick,title:r.title,pts:r.total,sub:r.maps+'개 맵'}));
+    else if(RK.tab==='friends'){if(!acct){if(id===rankReq)msg.textContent='친구 랭킹은 로그인하면 볼 수 있어요.';return}
+      rows=(await API.call('bb_friends_board',{p_token:acct.token,p_key:''})||[]).map(r=>({pos:r.pos,nick:r.nick,title:r.title,pts:r.pts}))}
+    else rows=(await API.call('bb_leaderboard_v2',{p_key:key,p_limit:100})||[]).map(r=>({pos:r.pos,nick:r.nick,title:r.title,pts:r.score,sub:r.acc>0?(+r.acc).toFixed(1)+'%':'',replay:r.has_replay?key:null}));
     if(id!==rankReq)return;
-    const me=acct?acct.nick.toLowerCase():'';
-    for(const r of rows){
-      const li=document.createElement('li');if(r.nick.toLowerCase()===me)li.className='me';
-      const p=document.createElement('span');p.className='pos';p.textContent=r.pos;
-      const w=document.createElement('span');w.className='who';w.textContent=r.nick;
-      if(r.sub||li.className){const sm=document.createElement('small');sm.textContent=(li.className?'나 · ':'')+r.sub;w.appendChild(sm)}
-      const s=document.createElement('span');s.className='pts';s.textContent=fmt(r.pts);
-      li.append(p,w,s);
-      if(isStaff()){const b=document.createElement('button');b.className='small';b.textContent='지우기';b.style.marginLeft='6px';b.dataset.nick=r.nick;b.dataset.key=RK.tab==='total'?'':(RK.tab==='level'?'c:'+RK.level.id:MAPS[RK.mapIdx].id+'-'+DIFFS[RK.diffIdx].id);li.style.gridTemplateColumns='2.6em 1fr auto auto';li.appendChild(b)}
-      board.appendChild(li);
+    fillBoard(board,rows,()=>{state='rank';show('rank');loadRank()});
+    if(isStaff()&&RK.tab!=='friends'&&RK.tab!=='season'){
+      [...board.children].forEach((li,i)=>{const r=rows[i];const b=document.createElement('button');b.className='small';b.textContent='지우기';b.dataset.nick=r.nick;b.dataset.key=RK.tab==='total'?'':key;li.classList.add('wdel');li.appendChild(b)});
+      board.onclick=(prev=>async e=>{const b=e.target.closest('button[data-nick]');if(!b){prev&&prev(e);return}
+        if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말?';b.classList.add('liked');return}
+        try{const n=await API.call('bb_admin_delete_score',{p_token:acct.token,p_nick:b.dataset.nick,p_key:b.dataset.key});$('#rankMsg').textContent=`${b.dataset.nick}의 기록 ${n}개를 지웠어요.`;loadRank()}
+        catch(err){$('#rankMsg').textContent=errText(err);authFail(err)}})(board.onclick);
     }
-    msg.textContent=rows.length?(acct?'게임을 마치면 최고 기록이 자동으로 올라가요.':'로그인하면 내 기록도 랭킹에 올라가요.'):'아직 기록이 없어요. 첫 기록의 주인공이 되어 보세요.';
+    msg.textContent=rows.length?(RK.tab==='friends'?'친구는 친구 화면에서 추가해요. 이름을 누르면 프로필이 보여요.':acct?'게임을 마치면 최고 기록이 자동으로 올라가요. 이름을 누르면 프로필, ▶는 리플레이예요.':'로그인하면 내 기록도 랭킹에 올라가요.'):RK.tab==='friends'?'아직 기록이 있는 친구가 없어요.':'아직 기록이 없어요. 첫 기록의 주인공이 되어 보세요.';
   }catch(e){if(id===rankReq)msg.textContent=errText(e)}
 }
 $('#rankBtn').onclick=()=>openRank();
-$('#board').addEventListener('click',async e=>{const b=e.target.closest('button[data-nick]');if(!b||!isStaff())return;
-  if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말?';b.classList.add('liked');return}
-  try{const n=await API.call('bb_admin_delete_score',{p_token:acct.token,p_nick:b.dataset.nick,p_key:b.dataset.key});$('#rankMsg').textContent=`${b.dataset.nick}의 기록 ${n}개를 지웠어요.`;loadRank()}
-  catch(err){$('#rankMsg').textContent=errText(err);authFail(err)}});
 $('#rankBack').onclick=()=>RK.from==='comm'?openComm(true):toMenu();
 $('#rtTotal').onclick=()=>{RK.tab='total';loadRank()};
 $('#rtMap').onclick=()=>{RK.tab='map';loadRank()};
+$('#rtSeason').onclick=()=>{RK.tab='season';loadRank()};
+$('#rtFriends').onclick=()=>{RK.tab='friends';loadRank()};
 $('#rtLevel').onclick=()=>{RK.tab='level';loadRank()};
 $('#rankMap').onchange=e=>{RK.mapIdx=+e.target.value;loadRank()};
 $('#rankDiff').onchange=e=>{RK.diffIdx=+e.target.value;loadRank()};
 
 /* ---------- community levels ---------- */
-const CM={sort:'new',q:'',offset:0,items:[],more:false,liked:new Set(),del:null,busy:false};
+const CM={sort:'new',q:'',offset:0,items:[],more:false,liked:new Set(),del:null,busy:false,rep:null};
 function openComm(keep){state='comm';show('comm');if(!keep||!CM.items.length)loadComm(true);else renderComm();loadLikes()}
 async function loadLikes(){
   if(!acct)return;
@@ -1444,7 +1561,11 @@ function renderComm(note){
     mk('rank','랭킹');
     if(me&&L.author.toLowerCase()===me){mk('edit','수정');mk('del',CM.del===L.id?'정말 삭제':'삭제',CM.del===L.id?'liked':'')}
     else if(isStaff())mk('adel',CM.del===L.id?'정말 강제 삭제':'강제 삭제',CM.del===L.id?'liked':'');
-    c.appendChild(acts);list.appendChild(c);
+    if(!(me&&L.author.toLowerCase()===me))mk('report',CM.rep===L.id?'신고 취소':'신고');
+    c.appendChild(acts);
+    if(CM.rep===L.id){const rr=document.createElement('div');rr.className='acts';const lb=document.createElement('span');lb.className='hint';lb.style.margin='0';lb.textContent='신고 이유:';rr.appendChild(lb);
+      for(const [k,v] of Object.entries(REASONS)){const b=document.createElement('button');b.className='small';b.dataset.act='rep:'+k;b.textContent=v;rr.appendChild(b)}c.appendChild(rr)}
+    list.appendChild(c);
   }
   $('#cMore').hidden=!CM.more;
   $('#cMsg').textContent=note||(CM.items.length?'':CM.sort==='mine'?'아직 올린 레벨이 없어요. 레벨 에디터에서 만들어 보세요.':CM.q?'검색 결과가 없어요.':'아직 올라온 레벨이 없어요. 첫 레벨을 만들어 보세요.');
@@ -1455,6 +1576,8 @@ $('#cList').addEventListener('click',async e=>{
   const id=b.closest('.lv-card').dataset.id,L=CM.items.find(x=>x.id===id);if(!L)return;
   const act=b.dataset.act,msg=$('#cMsg');
   if(act!=='del'&&act!=='adel')CM.del=null;
+  if(act==='report'){if(!acct){openAcct(()=>openComm(true));$('#aMsg').textContent='신고하려면 먼저 로그인하세요.';return}CM.rep=CM.rep===id?null:id;renderComm();return}
+  if(act.startsWith('rep:')){try{CM.busy=true;await API.call('bb_report_level',{p_token:acct.token,p_id:id,p_reason:act.slice(4)});CM.rep=null;renderComm('신고했어요. 관리자가 확인할게요.')}catch(err){msg.textContent=errText(err);authFail(err)}finally{CM.busy=false}return}
   try{
     if(act==='play'){CM.busy=true;msg.textContent='레벨을 불러오는 중…';const full=await fetchLevel(id);msg.textContent='';sel={type:'community',level:full};start()}
     else if(act==='rank')openRank(L);
@@ -1509,6 +1632,7 @@ function edFromData(d){
   const m=d.music||{};
   L.music={key:Math.max(40,Math.min(72,Math.round(+m.key||57))),scale:SC[m.scale]?m.scale:'minor',lead:LEADS[m.lead]?m.lead:'square',drive:[0,1,2].includes(+m.drive)?+m.drive:1,
     prog:Array.isArray(m.prog)&&m.prog.length===4?m.prog.map(x=>[Math.max(-12,Math.min(12,Math.round(+x[0]||0))),x[1]==='m'?'m':'M']):PROGS[0].p.map(x=>x.slice())};
+  if(Array.isArray(m.tempo)){const tp=m.tempo.filter(x=>Array.isArray(x)&&x[0]>=1&&x[0]<L.bars*16&&x[1]>=60&&x[1]<=260).map(x=>[Math.round(+x[0]),Math.round(+x[1])]).slice(0,64);if(tp.length)L.music.tempo=tp}
   const au=d.audio||(d.music&&d.music.audio);
   if(au&&typeof au==='object'){const url=typeof au.url==='string'&&/^https:\/\/nkeeayhodmauifevmaga\.supabase\.co\/storage\/v1\/object\/public\/cb-audio\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.mp3$/.test(au.url)?au.url:'';
     L.audio={url,offset:Math.max(0,Math.min(600000,Math.round(+au.offset||0))),duration:Math.max(0,+au.duration||0),name:String(au.name||'').slice(0,80)}}
@@ -1547,6 +1671,8 @@ function edFill(){
   $('#eAudioBox').hidden=!ed.audio;$('#eAudioDel').disabled=!ed.audio;
   $('#eAudioInfo').textContent=ed.audio?`${ed.audio.name||'음악'} · ${Math.floor(ed.audio.duration/60)}:${String(Math.round(ed.audio.duration%60)).padStart(2,'0')}`+(ed.audioBuf?'':' · 불러오는 중')+(ed.audio.url?' · 업로드됨':' · 아직 업로드 안 됨'):'음악 파일이 없으면 코드 진행으로 자동 연주돼요.';
   if(ed.audio){$('#eOff').value=Math.min(20000,ed.audio.offset);$('#eOffOut').textContent=ed.audio.offset+'ms';if(ed.audio.url)$('#eRights').checked=true}
+  for(const id of ['#eRgFrom','#eRgTo','#eRgAt','#eTempoBar'])$(id).max=ed.bars;
+  renderTempo();edEstimate();edInfo();
   edNeed=true;
 }
 function edResize(){if(state!=='editor')return;const dpr=Math.min(QS().dpr,devicePixelRatio||1);EW=ecv.clientWidth;EH=ecv.clientHeight;ecv.width=EW*dpr;ecv.height=EH*dpr;eg.setTransform(dpr,0,0,dpr,0,0);
@@ -1557,11 +1683,11 @@ function edPrune(){
   for(const [k,len] of [...ed.holds]){const st=Math.floor(k/8);if(!ed.notes.has(k)||len<2||st+len>ed.bars*16)ed.holds.delete(k)}
   for(const [k,len] of ed.holds){const st=Math.floor(k/8),l=k%8;for(let x=st+1;x<=st+len;x++){const kk=x*8+l;if(kk!==k&&ed.notes.has(kk)){ed.notes.delete(kk);ed.holds.delete(kk)}}}
 }
-function edChanged(){edPrune();edNeed=true;edSave();edInfo()}
+function edChanged(){edPrune();edNeed=true;edSave();edEstimate();edInfo()}
 function edInfo(){const secs=Math.round(ed.bars*4*60/ed.bpm),bar=Math.floor(Math.max(0,EV.scroll)/16)+1;
-  $('#eInfo').textContent=`노트 ${ed.notes.size}${ed.holds.size?` (홀드 ${ed.holds.size})`:''} · ${bar}/${ed.bars}마디 · ${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`}
-function pushUndo(){edUndo.push({notes:[...ed.notes],holds:[...ed.holds],lanes:ed.lanes,bars:ed.bars});if(edUndo.length>100)edUndo.shift()}
-function edUndoDo(){const u=edUndo.pop();if(!u){edToast('되돌릴 작업이 없어요');return}ed.notes=new Set(u.notes);ed.holds=new Map(u.holds||[]);edHoldStart=null;ed.lanes=u.lanes;ed.bars=u.bars;edFill();edChanged()}
+  $('#eInfo').textContent=`노트 ${ed.notes.size}${ed.holds.size?` (홀드 ${ed.holds.size})`:''} · ${bar}/${ed.bars}마디 · ${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`+(ed.music.tempo?' · 템포 변화 '+ed.music.tempo.length:'')+edEst}
+function pushUndo(){edRedo=[];edUndo.push({notes:[...ed.notes],holds:[...ed.holds],lanes:ed.lanes,bars:ed.bars});if(edUndo.length>100)edUndo.shift()}
+function edUndoDo(){const u=edUndo.pop();if(!u){edToast('되돌릴 작업이 없어요');return}edRedo.push(edSnap());ed.notes=new Set(u.notes);ed.holds=new Map(u.holds||[]);edHoldStart=null;ed.lanes=u.lanes;ed.bars=u.bars;edFill();edChanged()}
 function edPreviewNote(step,lane){
   ensureAudio();if(ctx.state!=='running')ctx.resume();
   const m=edMap();lead=buildSong(m);map=m;
@@ -1599,7 +1725,8 @@ ecv.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaMode===1?e.de
 function edClamp(v){return Math.max(-2,Math.min(ed.bars*16-4,v))}
 function edKey(e){
   const tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;
-  if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();edUndoDo()}
+  if((e.ctrlKey||e.metaKey)&&(e.code==='KeyY'||(e.code==='KeyZ'&&e.shiftKey))){e.preventDefault();edRedoDo()}
+  else if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();edUndoDo()}
   else if(e.code==='Space'){e.preventDefault();edTogglePlay()}
   else if(e.code==='ArrowUp'||e.code==='ArrowDown'){e.preventDefault();EV.scroll=edClamp(EV.scroll+(e.code==='ArrowUp'?4:-4));edNeed=true;edInfo()}
 }
@@ -1608,12 +1735,12 @@ function edMap(){return commMap({id:NIL_ID,title:ed.title||'제목 없는 레벨
 async function edTogglePlay(){
   if(edPlay){edStop();return}
   ensureAudio();if(ctx.state!=='running'){try{await ctx.resume()}catch(e){}}
-  const m=edMap();map=m;lead=buildSong(m);beatDur=60/m.bpm;stepDur=beatDur/4;totalSteps=barsOf(m)*16;
+  const m=edMap();map=m;lead=buildSong(m);setTempo(m,1);totalSteps=barsOf(m)*16;
   clearInterval(timer);newBus();
   const startStep=Math.max(0,Math.floor(Math.max(0,EV.scroll)/16)*16);
-  nextStep=INTRO*16+startStep;T0=ctx.currentTime+.15-nextStep*stepDur;
+  nextStep=INTRO*16+startStep;T0=ctx.currentTime+.15-stT(nextStep);
   let songStart=null;
-  if(ed.audio&&ed.audioBuf){const src=ctx.createBufferSource();src.buffer=ed.audioBuf;src.connect(bus);songStart=T0+INTRO*16*stepDur-ed.audio.offset/1000;const nw=ctx.currentTime+.03;if(songStart>=nw)src.start(songStart);else src.start(nw,nw-songStart)}
+  if(ed.audio&&ed.audioBuf){const src=ctx.createBufferSource();src.buffer=ed.audioBuf;src.connect(bus);songStart=T0+stT(INTRO*16)-ed.audio.offset/1000;const nw=ctx.currentTime+.03;if(songStart>=nw)src.start(songStart);else src.start(nw,nw-songStart)}
   else if(ed.audio){edToast('음악을 아직 불러오지 못했어요')}
   timer=setInterval(scheduler,25);scheduler();edPlay={from:startStep,songStart};$('#ePlay').textContent='■ 멈춤';
 }
@@ -1621,7 +1748,7 @@ function edStop(){clearInterval(timer);timer=null;stopBus();edPlay=null;tapTimes
 function edFrame(){
   if(!ed)return;
   let ph=null;
-  if(edPlay){ph=(songNow()-T0)/stepDur-INTRO*16;if(ph>ed.bars*16+12){edStop()}else{EV.scroll=Math.max(-2,ph-3);edNeed=true;edInfo()}}
+  if(edPlay){ph=tSt(songNow()-T0)-INTRO*16;if(ph>ed.bars*16+12){edStop()}else{EV.scroll=Math.max(-2,ph-3);edNeed=true;edInfo()}}
   if(!edNeed)return;edNeed=false;
   const G=edGeo(),R=EV.rowH,yOf=s=>G.baseY-(s-EV.scroll)*R;
   eg.fillStyle=COL.bg;eg.fillRect(0,0,EW,EH);
@@ -1646,6 +1773,7 @@ function edFrame(){
   for(const k of ed.notes){const st=Math.floor(k/8),l=k%8;if(st<sA-1||st>sB+1)continue;const y=yOf(st),x=G.gx+l*G.lw+ins,w=G.lw-ins*2;
     eg.fillStyle=laneColor(l,ed.lanes);eg.beginPath();eg.roundRect?eg.roundRect(x,y-nh/2,w,nh,4):eg.rect(x,y-nh/2,w,nh);eg.fill();
     eg.fillStyle=COL.ink;eg.globalAlpha=.5;eg.fillRect(x+4,y-nh/2+2,Math.max(0,w-8),1.5);eg.globalAlpha=1}
+  if(ed.music.tempo){eg.font='600 11px '+F.num;eg.textAlign='left';eg.textBaseline='bottom';for(const [st,b] of ed.music.tempo){if(st<sA-2||st>sB+2)continue;const y=yOf(st);eg.fillStyle=COL.lc[3];eg.globalAlpha=.9;eg.fillRect(G.gx,y-1,G.lw*ed.lanes,2);eg.fillText('♩='+b,G.gx+G.lw*ed.lanes+4,y-2);eg.globalAlpha=1}}
   if(ph!==null){const y=yOf(ph);eg.fillStyle=COL.lc[0];eg.fillRect(G.gx-6,y-1,G.lw*ed.lanes+12,2)}
   if(!ed.notes.size){eg.fillStyle=COL.muted;eg.font='600 14px '+F.body;eg.textAlign='center';eg.fillText('칸을 눌러 노트를 놓으세요 · 끌어서 위아래로 이동',EW/2,EH*.4)}
 }
@@ -1687,8 +1815,8 @@ $('#eGen').onclick=()=>{pushUndo();const gn=genNotes(+$('#eGenDens').value);ed.n
 $('#eClear').onclick=()=>{if(edConfirm!=='clear'){edConfirm='clear';$('#eClear').textContent='한 번 더 누르면 모두 지워요';return}
   edConfirm=null;pushUndo();ed.notes=new Set();ed.holds=new Map();$('#eClear').textContent='노트 모두 지우기';edChanged();edToast('노트를 모두 지웠어요 · 되돌리기 가능')};
 $('#eNewLevel').onclick=()=>{if(edConfirm!=='new'){edConfirm='new';$('#eNewLevel').textContent='한 번 더 누르면 새로 시작해요';return}
-  edConfirm=null;if(edPlay)edStop();ed=newLevel();edUndo=[];EV.scroll=0;edFill();edChanged();$('#eSet').hidden=true;edToast('새 레벨을 시작했어요')};
-$('#eUndo').onclick=edUndoDo;
+  edConfirm=null;if(edPlay)edStop();ed=newLevel();edUndo=[];edRedo=[];EV.scroll=0;edFill();edChanged();$('#eSet').hidden=true;edToast('새 레벨을 시작했어요')};
+$('#eUndo').onclick=edUndoDo;$('#eRedo').onclick=edRedoDo;
 $('#ePlay').onclick=edTogglePlay;
 $('#eTest').onclick=()=>{if(!ed.notes.size){edToast('노트를 먼저 놓아 주세요');return}
   if(edPlay)edStop();
@@ -1715,7 +1843,7 @@ $('#eUp').onclick=async()=>{
     const wasNew=!ed.id;
     const id=await API.call('bb_save_level',{p_token:acct.token,p_id:ed.id,p_title:t,p_desc:ed.desc,p_lanes:ed.lanes,p_bpm:ed.bpm,p_bars:ed.bars,p_music:edMusic(),p_notes:edNotesArr()});
     ed.id=id;ed.title=t;edSave();edFill();CM.items=[];
-    edToast(wasNew?'업로드했어요. 커뮤니티 레벨에 올라갔어요':'고친 내용을 올렸어요');
+    edToast(wasNew?'업로드했어요. 커뮤니티 레벨에 올라갔어요':'고친 내용을 올렸어요');achGrant('creator');
   }catch(e){edToast(errText(e));authFail(e)}
   finally{b.disabled=false}
 };
@@ -1726,8 +1854,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&edPlay)edS
 let edPk=null,tapTimes=[];
 function edPeaks(){
   edPk=null;if(!ed.audio||!ed.audioBuf)return;
-  const b=ed.audioBuf,sr=b.sampleRate,ch=b.getChannelData(0),sd=60/ed.bpm/4,n=ed.bars*16,out=new Float32Array(n);let mx=0;
-  for(let s=0;s<n;s++){const a=Math.floor((ed.audio.offset/1000+s*sd)*sr),e=Math.min(ch.length,Math.floor(a+sd*sr));let m=0;
+  const b=ed.audioBuf,sr=b.sampleRate,ch=b.getChannelData(0),n=ed.bars*16,out=new Float32Array(n);let mx=0;setTempoLocal({bpm:ed.bpm,tempo:ed.music.tempo});
+  for(let s=0;s<n;s++){const t0=localStT(s),sd=localStT(s+1)-t0,a=Math.floor((ed.audio.offset/1000+t0)*sr),e=Math.min(ch.length,Math.floor(a+sd*sr));let m=0;
     for(let i=Math.max(0,a);i<e;i+=16){const v=Math.abs(ch[i]);if(v>m)m=v}out[s]=m;if(m>mx)mx=m}
   if(mx>0)for(let s=0;s<n;s++)out[s]/=mx;edPk=out;edNeed=true;
 }
@@ -1830,7 +1958,7 @@ async function mpJoin(code,creating){
   ch.on('broadcast',{event:'msg'},({payload})=>mpOnMsg(payload));
   ch.subscribe(async st=>{
     if(MP.ch!==ch)return;
-    if(st==='SUBSCRIBED'){await mpTrack();mpMsg(creating?'방을 만들었어요. 친구에게 방 코드를 알려 주세요.':'');renderMulti()}
+    if(st==='SUBSCRIBED'){await mpTrack();setRoom(code);mpMsg(creating?'방을 만들었어요. 친구에게 방 코드를 알려 주세요.':'');renderMulti()}
     else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){mpMsg('방에 연결하지 못했어요. 잠시 뒤 다시 시도해 주세요.')}
   });
   renderMulti();
@@ -1838,7 +1966,7 @@ async function mpJoin(code,creating){
 const mpTrack=()=>MP.ch&&MP.ch.track({nick:MP.me,at:MP.at,map:MP.map,diff:MP.diff});
 async function mpLeave(silent){
   clearInterval(MP.liveT);
-  const ch=MP.ch;MP.ch=null;MP.code='';MP.players=[];
+  const ch=MP.ch;if(MP.code)setRoom(null);MP.ch=null;MP.code='';MP.players=[];
   if(ch&&MP.client){try{await ch.untrack()}catch(e){}try{await MP.client.removeChannel(ch)}catch(e){}}
   if(!silent){if(sel.multi)sel={type:'builtin'};renderMulti()}
 }
@@ -1866,6 +1994,7 @@ function mpOnMsg(p){
     if(state!=='multi')openMulti(true);mpMsg('곧 시작해요!');
     setTimeout(()=>{if(sel.multi&&MP.ch&&(state==='multi'||state==='result'))start()},1500);
   }
+  else if(p.t==='emo'&&nick){showEmo(nick,+p.i)}
   else if(p.t==='live'&&nick){MP.live[nick]={score:+p.score||0,combo:+p.combo||0,hp:+p.hp||0,dead:!!p.dead,at:performance.now()}}
   else if(p.t==='final'&&nick&&+p.round===MP.round){MP.results[nick]={score:Math.max(0,+p.score||0),acc:+p.acc||0,combo:+p.combo||0,fail:!!p.fail};
     MP.live[nick]={...(MP.live[nick]||{}),score:Math.max(0,+p.score||0),done:true};
@@ -1894,14 +2023,16 @@ function boardRows(el,rows,sub){
 }
 function renderMpResults(){
   if(!sel.multi)return;
-  boardRows($('#rMulti'),mpStandings(),r=>(r.me?'나 · ':'')+(r.done?(r.fail?'실패':r.acc.toFixed(1)+'%'):'플레이 중'));
+  const st=mpStandings();
+  boardRows($('#rMulti'),st,r=>[emoOf(r.nick),(r.me?'나':''),(r.done?(r.fail?'실패':r.acc.toFixed(1)+'%'):'플레이 중')].filter(Boolean).join(' · '));
+  if(st.length>=2&&st.every(r=>r.done)&&st[0].me&&!st[0].fail&&!runInv)achGrant('multi_win');
 }
 function renderMulti(){
   const inRoom=!!MP.code;
   $('#mpJoin').hidden=inRoom;$('#mpRoom').hidden=!inRoom;$('#mpBack').hidden=inRoom;
   if(!inRoom)return;
   $('#mpCodeOut').textContent=MP.code;
-  boardRows($('#mpPlayers'),MP.players.map((p,i)=>({nick:p.nick,me:p.nick===MP.me,score:null,host:i===0})),r=>[r.host?'방장':'',r.me?'나':''].filter(Boolean).join(' · '));
+  boardRows($('#mpPlayers'),MP.players.map((p,i)=>({nick:p.nick,me:p.nick===MP.me,score:null,host:i===0})),r=>[emoOf(r.nick),r.host?'방장':'',r.me?'나':''].filter(Boolean).join(' · '));
   $('#mpHostBox').hidden=!MP.host;
   if(MP.host&&!$('#mpMap').options.length){
     $('#mpMap').innerHTML=MAPS.map((m,i)=>`<option value="${i}"${isUnlocked(i)?'':' disabled'}>Lv${m.level} ${m.name} · ${m.lanes}키${isUnlocked(i)?'':' (잠김)'}</option>`).join('');
@@ -1919,7 +2050,8 @@ function drawMulti(pn){
   g.textBaseline='middle';
   rows.forEach((r,i)=>{g.globalAlpha=r.stale?.45:.9;g.fillStyle=r.me?COL.lc[0]:COL.line;rr(x-w,y-10,w,20,6);g.fill();
     g.fillStyle=r.me?'#1b1407':COL.ink;g.font='600 12px '+F.body;g.textAlign='left';g.fillText(`${i+1} ${r.nick}`,x-w+8,y);
-    g.font='700 12px '+F.num;g.textAlign='right';g.fillText(fmt(r.score),x-8,y);y+=24});
+    g.font='700 12px '+F.num;g.textAlign='right';g.fillText(fmt(r.score),x-8,y);
+    const em=emoOf(r.nick);if(em){g.globalAlpha=1;g.font='600 13px '+F.body;g.fillStyle=COL.ink;g.textAlign='right';g.fillText(em,x-w-6,y)}y+=24});
   g.globalAlpha=1;
 }
 $('#multiBtn').onclick=()=>openMulti();
@@ -1986,7 +2118,7 @@ const ADM=Object.assign({inv:false,unlock:false},LS.get('cb-admin-tools',{}));
 function adminOn(k){return !!(acct&&acct.admin&&ADM[k])}
 function openAdmin(){
   if(!isStaff()){openSettings();return}
-  state='admin';$('#adTools').hidden=!acct.admin;$('#adTitle').textContent=acct.admin?'관리자 도구':'부관리자 도구';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();
+  state='admin';$('#adTools').hidden=!acct.admin;$('#adTitle').textContent=acct.admin?'관리자 도구':'부관리자 도구';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();loadReports();
 }
 let adArm=null;
 async function loadAdminPlayers(){
@@ -2041,9 +2173,9 @@ $('#adminBtn').onclick=openAdmin;
 /* ---------- skins ---------- */
 const SHOP={
   note:[['bar','기본 막대'],['orb','구슬'],['ring','고리'],['diamond','다이아'],['arrow','화살표'],['cross','십자'],['hex','육각'],['neon','네온'],
-    ['pixel','픽셀'],['moon','초승달'],['music','음표'],['star','별'],['heart','하트'],['gem','보석'],['flame','횃불'],['crown','왕관']],
+    ['pixel','픽셀'],['moon','초승달'],['music','음표'],['star','별'],['heart','하트'],['gem','보석'],['flame','횃불'],['crown','왕관'],['laurel','월계관 · 시즌 한정']],
   theme:[['night','밤 · 기본'],['mono','모노'],['sunset','노을'],['ocean','바다'],['forest','숲'],['midnight','심야'],['matcha','말차'],['ice','얼음'],
-    ['lava','용암'],['candy','사탕'],['cyber','사이버'],['sakura','벚꽃'],['retro','레트로'],['royal','로열'],['gold','황금'],['galaxy','은하']],
+    ['lava','용암'],['candy','사탕'],['cyber','사이버'],['sakura','벚꽃'],['retro','레트로'],['royal','로열'],['gold','황금'],['galaxy','은하'],['champion','챔피언 · 시즌 한정']],
   hit:[['ring','링 · 기본'],['spark','불꽃'],['bubble','물방울'],['ripple','물결'],['shock','충격파'],['stardust','별가루'],['petal','꽃잎'],
     ['bolt','번개'],['hearts','하트'],['flame','화염'],['confetti','색종이']],
   sound:[['drum','드럼 · 기본'],['clap','박수'],['wood','우드블록'],['chip','8비트'],['electro','일렉트로'],['bell','종소리']],
@@ -2051,7 +2183,7 @@ const SHOP={
   bg:[['none','없음 · 기본'],['stars','별빛'],['bubbles','물방울'],['rain','비'],['snow','눈'],['grid','네온 격자']],
   judge:[['basic','기본'],['outline','외곽선'],['english','영어'],['pop','통통'],['retro','레트로']]};
 const PRICE={'note:bar':0,'note:orb':300,'note:ring':400,'note:diamond':500,'note:arrow':500,'note:cross':500,'note:hex':600,'note:neon':800,'note:pixel':900,
-  'note:moon':900,'note:music':1000,'note:star':1200,'note:heart':1200,'note:gem':1500,'note:flame':1800,'note:crown':3000,
+  'note:moon':900,'note:music':1000,'note:star':1200,'note:heart':1200,'note:gem':1500,'note:flame':1800,'note:crown':3000,'note:laurel':-1,'theme:champion':-1,
   'theme:night':0,'theme:mono':400,'theme:sunset':600,'theme:ocean':600,'theme:forest':600,'theme:midnight':600,'theme:matcha':700,'theme:ice':800,
   'theme:lava':800,'theme:candy':900,'theme:cyber':1000,'theme:sakura':1000,'theme:retro':1200,'theme:royal':1500,'theme:gold':2000,'theme:galaxy':2500,
   'hit:ring':0,'hit:spark':400,'hit:bubble':500,'hit:ripple':500,'hit:shock':600,'hit:stardust':700,'hit:petal':800,'hit:bolt':900,'hit:hearts':900,
@@ -2076,7 +2208,8 @@ const THEMES={night:null,
   retro:{bg:'#020a03',line:'#123a18',lc:['#b6ff9e','#33ff66','#1fcc4f','#7dff8f','#d9ffd0']},
   royal:{bg:'#120a1c',line:'#33204a',lc:['#ffe28a','#a46bff','#e0b84c','#7d3cff','#f3d9ff']},
   gold:{bg:'#14100a',line:'#3a2e1a',lc:['#fffbe0','#ffd700','#ffb300','#e6a700','#fff1a8']},
-  galaxy:{bg:'#05030f',line:'#241a45',lc:['#ffffff','#7cc8ff','#ff7ce6','#a77bff','#ffd27c']}};
+  galaxy:{bg:'#05030f',line:'#241a45',lc:['#ffffff','#7cc8ff','#ff7ce6','#a77bff','#ffd27c']},
+  champion:{bg:'#120d05',line:'#3a2c10',lc:['#fff4c2','#ffcc33','#ff8a3d','#e85d75','#ffe680']}};
 const COL0={bg:COL.bg,line:COL.line,lc:COL.lc.slice()};
 let WAL={coins:0,owned:[],equipped:{}};
 const SKIN=Object.assign({note:'bar',theme:'night',hit:'ring',sound:'drum',line:'basic',bg:'none',judge:'basic'},LS.get('cb-skin',{}));
@@ -2086,12 +2219,12 @@ function applySkin(){
   COL.bg=t?t.bg:COL0.bg;COL.line=t?t.line:COL0.line;const lc=t?t.lc:COL0.lc;for(let i=0;i<5;i++)COL.lc[i]=lc[i];
   if(t){root.setProperty('--bg',t.bg);root.setProperty('--line',t.line);lc.forEach((c,i)=>root.setProperty('--lc'+i,c))}
   else{['--bg','--line','--lc0','--lc1','--lc2','--lc3','--lc4'].forEach(k=>root.removeProperty(k))}
-  glowCache.clear();
+  cvdApply();glowCache.clear();
 }
 function setWallet(w){
   if(!w)return;WAL={coins:+w.coins||0,owned:Array.isArray(w.owned)?w.owned:[],equipped:w.equipped||{}};
   for(const slot of SLOTS){const v=WAL.equipped[slot];SKIN[slot]=v&&PRICE[slot+':'+v]!==undefined?v:SKIN[slot]}
-  LS.set('cb-skin',SKIN);applySkin();if(state==='shop')renderShop();
+  LS.set('cb-skin',SKIN);applySkin();if(state==='shop')renderShop();if(typeof onWallet==='function')onWallet();
 }
 function rrOn(c,x,y,w,h,r){c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r):c.rect(x,y,w,h)}
 function drawNoteOn(c,kind,x,y,w,nh,col){
@@ -2115,6 +2248,9 @@ function drawNoteOn(c,kind,x,y,w,nh,col){
       c.fillStyle='rgba(255,240,180,.75)';c.beginPath();c.ellipse(cx,y+s*.35,s*.38,s*.5,0,0,7);c.fill();break}
     case 'crown':{const hw=Math.min(w*.36,nh*1.5),hh=nh*.85;c.beginPath();c.moveTo(cx-hw,y+hh*.6);c.lineTo(cx-hw,y-hh*.5);c.lineTo(cx-hw*.5,y);c.lineTo(cx,y-hh);c.lineTo(cx+hw*.5,y);c.lineTo(cx+hw,y-hh*.5);c.lineTo(cx+hw,y+hh*.6);c.closePath();c.fill();
       c.fillStyle='rgba(255,255,255,.6)';c.beginPath();c.arc(cx,y+hh*.15,hh*.22,0,7);c.fill();break}
+    case 'laurel':{const s=Math.min(w*.3,nh*1.1);c.save();c.lineWidth=2;c.strokeStyle=col;c.beginPath();c.arc(cx,y+s*.2,s*.9,Math.PI*.95,Math.PI*2.05);c.stroke();
+      for(let i=0;i<5;i++){for(const sd of [-1,1]){const a=Math.PI*(1.05+i*.11),px=cx+sd*Math.cos(a)*s*.9*-1,py=y+s*.2+Math.sin(a)*s*.9;c.beginPath();c.ellipse(px,py,s*.28,s*.13,sd*(a-Math.PI*1.5)+(sd>0?.6:-.6),0,7);c.fill()}}
+      c.fillStyle='#fff';c.globalAlpha*=.8;c.beginPath();c.arc(cx,y-s*.25,s*.18,0,7);c.fill();c.restore();break}
     default:rrOn(c,x,y-nh/2,w,nh,6);c.fill();
   }
 }
@@ -2206,6 +2342,7 @@ function renderShop(){
   const grid=$('#shGrid');grid.textContent='';
   for(const [id,name] of SHOP[shTab]){
     const key=shTab+':'+id,price=PRICE[key],owned=price===0||WAL.owned.includes(key),on=SKIN[shTab]===id;
+    if(price<0&&!owned)continue;
     const card=document.createElement('div');card.className='shcard'+(on?' on':'');
     const cv=document.createElement('canvas');card.appendChild(cv);
     const b=document.createElement('b');b.textContent=name;
@@ -2256,7 +2393,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261108085143';
+const BUILD_ID='20261108122627';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2287,6 +2424,522 @@ setInterval(()=>{if(updInfo&&$('#updBar').hidden&&!BUSY_STATES.includes(state))$
 
 /* ---------- startup: refresh the saved login ---------- */
 if(acct)API.call('bb_me',{p_token:acct.token}).then(r=>{if(r&&r.nick&&(r.nick!==acct.nick||!!r.admin!==!!acct.admin||!!r.mod!==!!acct.mod))setAcct({...acct,nick:r.nick,admin:!!r.admin,mod:!!r.mod});loadWallet();return syncScores()}).catch(authFail);
+
+/* ====================================================================
+   v2 features: toasts, mods, tempo changes, practice, replays, daily
+   challenge, achievements & titles, check-in, seasons, friends, profiles,
+   reports, multiplayer reactions, colour-blind mode, tutorial
+   ==================================================================== */
+var MODS, RUNMODS={}, RUNPERM=null, REC=null, TMAP=null, PR, LAST_RUN=null;
+
+/* ---------- small helpers ---------- */
+function toast(text,sub,ms){
+  const box=$('#toasts');if(!box)return;const d=document.createElement('div');d.className='toast';
+  const b=document.createElement('b');b.textContent=text;d.appendChild(b);
+  if(sub){const s=document.createElement('span');s.textContent=sub;d.appendChild(s)}
+  box.appendChild(d);while(box.children.length>3)box.firstChild.remove();setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),450)},ms||3600);
+}
+const kstDay=(off)=>new Date(Date.now()+9*3600e3+(off||0)*864e5).toISOString().slice(0,10);
+const seasonKey=()=>kstDay().slice(0,7);
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e};
+function keyTitle(k){
+  if(k.startsWith('d:')){const [,m,d]=k.slice(2).split('-');return `오늘의 도전 ${+m}/${+d}`}
+  if(k.startsWith('c:'))return '커뮤니티 레벨';
+  const i=k.lastIndexOf('-'),m=MAPS.find(x=>x.id===k.slice(0,i)),d=DIFFS.find(x=>x.id===k.slice(i+1));
+  return m?`Lv${m.level} ${m.name}${d?' · '+d.name:''}`:k;
+}
+
+/* ---------- mods ---------- */
+MODS=Object.assign({mirror:false,random:false,hidden:false},LS.get('cb-mods',{}));
+const MOD_INFO={mirror:{n:'미러',d:'좌우 반전',m:1},random:{n:'랜덤',d:'레인 섞기',m:1.02},hidden:{n:'히든',d:'노트가 판정선 앞에서 사라져요',m:1.06}};
+function modMult(m){if(!m||!MODS)return 1;let x=1;for(const k in MOD_INFO)if(m&&m[k])x*=MOD_INFO[k].m;return x}
+const modNames=m=>Object.keys(MOD_INFO).filter(k=>m&&m[k]).map(k=>MOD_INFO[k].n);
+function applyMods(){
+  const n=map.lanes;
+  if(sel.replay){RUNMODS=sel.replay.mods||{};RUNPERM=sel.replay.perm||null;sel.replay.i=0}
+  else if(sel.tutorial){RUNMODS={};RUNPERM=null}
+  else{RUNMODS={...MODS};RUNPERM=null;
+    if(RUNMODS.random&&n>1){const p=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}RUNPERM=p}}
+  if(RUNPERM&&RUNPERM.length!==n)RUNPERM=null;
+  for(const x of notes){let l=x.lane;if(RUNMODS.mirror)l=n-1-l;if(RUNPERM)l=RUNPERM[l];x.lane=l}
+  if(sel.practice){notes=notes.filter(x=>x.step>=PR.fs&&x.step<PR.ts)}
+  REC=sel.replay?null:[];
+}
+function hidA(y){if(!RUNMODS.hidden)return 1;const a=hitY-H*.45,b=hitY-H*.22;return y<=a?1:y>=b?0:1-(y-a)/(b-a)}
+function hudLabel(){
+  const base=map.label||(map.community?map.name:`Lv.${map.level} ${map.name} · ${DIFFS[diffIdx].name}`);
+  if(sel.tutorial)return '튜토리얼 · 실패 없음';
+  const pre=sel.replay?`리플레이 · ${sel.who||''} · `:sel.practice?`연습 ×${PR.rate} · `:'';
+  const md=modNames(RUNMODS);
+  return pre+base+(md.length?' · '+md.join('·'):'')+` · ×${runMult.toFixed(2)}`;
+}
+
+/* ---------- tempo changes (community levels) ---------- */
+function setTempo(m,rate){
+  rate=rate||1;beatDur=60/(m.bpm*rate);stepDur=beatDur/4;TMAP=null;
+  if(Array.isArray(m.tempo)&&m.tempo.length){
+    const segs=[{s:0,t:0,sd:stepDur}];
+    for(const [st,b] of m.tempo.slice().sort((a,c)=>a[0]-c[0])){const s=st+INTRO*16,L=segs[segs.length-1],sd=60/(b*rate)/4;
+      if(s<=L.s){L.sd=sd;continue}segs.push({s,t:L.t+(s-L.s)*L.sd,sd})}
+    TMAP=segs;
+  }
+}
+function stT(s){if(!TMAP)return s*stepDur;let i=TMAP.length-1;while(i>0&&TMAP[i].s>s)i--;const q=TMAP[i];return q.t+(s-q.s)*q.sd}
+function tSt(t){if(!TMAP)return t/stepDur;let i=TMAP.length-1;while(i>0&&TMAP[i].t>t)i--;const q=TMAP[i];return q.s+(t-q.t)/q.sd}
+function drawBeatLines(now,pps,base,bd){
+  if(!TMAP||!notes.length||!(state==='play'||state==='pause'||state==='result'||state==='dying')){
+    const k0=Math.floor((now-base)/bd)-1,k1=k0+Math.ceil((hitY/pps)/bd)+3;
+    for(let k=k0;k<=k1;k++){const y=hitY-(base+k*bd-now)*pps;if(y<0||y>H)continue;g.globalAlpha=k%4===0?.35:.12;g.fillStyle=COL.ink;g.fillRect(fx,Math.round(y),fw,1)}
+    return;
+  }
+  let s=Math.floor(tSt(now-base)/4)*4-4;
+  for(let i=0;i<400;i++,s+=4){const y=hitY-(base+stT(s)-now)*pps;if(y<0)break;if(y>H)continue;g.globalAlpha=s%16===0?.35:.12;g.fillStyle=COL.ink;g.fillRect(fx,Math.round(y),fw,1)}
+}
+
+/* ---------- start-of-run hooks ---------- */
+function practiceT0(){T0=ctx.currentTime+.5-stT(PR.s0)}
+function practiceEnd(){return Math.max(T0+stT(PR.ts)+.4,notes.reduce((a,n)=>Math.max(a,n.tEnd||n.t),0)+.4)}
+
+/* ---------- replays ---------- */
+function replayFeed(t){
+  const R=sel.replay;if(!R||!R.ev)return;const ev=R.ev;
+  while(R.i<ev.length){const e=ev[R.i],at=T0+e[0]/1000;if(at>t)break;R.i++;if(e[2]===0)release(e[1],at);else press(e[1],at)}
+}
+function encodeEv(ev){const out=[];let last=0;for(const e of ev){out.push(e[0]-last,e[1]*2+(e[2]===0?1:0));last=e[0]}return out}
+function decodeEv(a){const ev=[];let t=0;for(let i=0;i+1<a.length;i+=2){t+=a[i];const l=a[i+1]>>1;ev.push(a[i+1]&1?[t,l,0]:[t,l])}return ev}
+function makeReplay(key){return{v:1,key,mods:{...RUNMODS},perm:RUNPERM,speed,ev:encodeEv(REC||[])}}
+async function playReplay(rp,who,back){
+  const key=rp.key;if(!key){toast('리플레이를 열 수 없어요');return}
+  const prev={mapIdx,diffIdx,speed};const restore=()=>{mapIdx=prev.mapIdx;diffIdx=prev.diffIdx;speed=prev.speed};
+  let s={type:'builtin'};
+  try{
+    if(key.startsWith('c:')){const L=await fetchLevel(key.slice(2));s={type:'community',level:L,test:false,counted:true}}
+    else if(key.startsWith('d:')){s={type:'builtin',map:dailyMap(key.slice(2))};diffIdx=1}
+    else{const i=key.lastIndexOf('-'),mi=MAPS.findIndex(m=>m.id===key.slice(0,i)),di=DIFFS.findIndex(d=>d.id===key.slice(i+1));
+      if(mi<0||di<0)throw{code:'no_level'};mapIdx=mi;diffIdx=di}
+  }catch(e){toast('리플레이를 열 수 없어요',errText(e));return}
+  if(+rp.speed>=1&&+rp.speed<=4)speed=+rp.speed;
+  sel={...s,replay:{...rp,ev:decodeEv(Array.isArray(rp.ev)?rp.ev:[]),i:0},who:who||'',noRecord:true,
+    back:()=>{restore();(back||toMenu)()},backLabel:'돌아가기'};
+  start();
+}
+async function watchReplay(key,nick,back){
+  try{const r=await API.call('bb_get_replay',{p_key:key,p_nick:nick});
+    if(!r||!r.data){toast('리플레이가 없어요','이 기록은 리플레이가 저장되기 전에 세워졌어요');return}
+    playReplay(JSON.parse(r.data),r.nick,back)}
+  catch(e){toast('리플레이를 불러오지 못했어요',errText(e))}
+}
+async function uploadReplay(key,sc){
+  if(!acct||!LAST_RUN||LAST_RUN.key!==key)return;
+  try{await API.call('bb_save_replay',{p_token:acct.token,p_key:key,p_score:sc,p_data:JSON.stringify(LAST_RUN.rp)})}catch(e){}
+}
+
+/* ---------- after a run ---------- */
+function afterFinish(fail,sc,acc,key,test){
+  const inv=$('#rInv');
+  if(sel.replay){inv.hidden=false;inv.textContent=`리플레이 · ${sel.who||''}`}
+  else if(sel.practice){inv.hidden=false;inv.textContent='연습 모드 · 기록 안 남음'}
+  else if(sel.tutorial){inv.hidden=false;inv.textContent='튜토리얼'}
+  else inv.textContent='무적 모드 · 기록 안 남음';
+  const canReplay=!sel.replay&&!sel.practice&&!sel.tutorial&&!sel.multi&&REC&&REC.length>0;
+  if(canReplay){const back=sel.back||(sel.type==='community'?(sel.test?()=>openEditor(null,true):()=>openComm(true)):()=>toMenu());
+    LAST_RUN={key,sel:{...sel},back,rp:makeReplay(key)}}
+  $('#rReplay').hidden=!canReplay;
+  if(sel.tutorial&&!fail){LS.set('cb-tut-done',1);achGrant('tutorial')}
+  if(sel.practice&&!fail)achGrant('practice');
+  if(!fail&&!test)achCheckRun({sc,acc,key,fail});
+}
+$('#rReplay').onclick=()=>{if(!LAST_RUN)return;const L=LAST_RUN;const base={...L.sel};delete base.back;delete base.backLabel;delete base.replay;
+  sel={...base,replay:{...L.rp,ev:decodeEv(L.rp.ev),i:0},who:acct?acct.nick:'나',noRecord:true,back:L.back,backLabel:'돌아가기'};
+  const sp=speed;speed=L.rp.speed||speed;const b=L.back;sel.back=()=>{speed=sp;b()};start()};
+
+/* ---------- daily challenge ---------- */
+function dailyMap(day){
+  const h=hashStr('cb-daily-'+day),pool=MAPS.filter(m=>m.lanes===4&&m.level>=20&&m.level<=110),base=pool[h%pool.length];
+  const [,mo,d]=day.split('-');
+  return {...base,id:'daily',seed:(h%900000)+1000,fixedKey:'d:'+day,daily:day,name:`오늘의 도전 ${+mo}/${+d}`,label:`오늘의 도전 ${+mo}월 ${+d}일 · 보통`};
+}
+let dailyReq=0;
+function openDaily(){
+  state='daily';show('daily');
+  const day=kstDay(),m=dailyMap(day),b=best['d:'+day];
+  $('#dyDate').textContent=day.replace(/-/g,'. ');
+  $('#dyInfo').textContent=`${m.lanes}키 · ${m.bpm} BPM · ${fmtLen(m)} · Lv${m.level} 수준 · 난이도 보통 고정`;
+  $('#dyBest').textContent=b?fmt(b):'—';
+  $('#dyBonus').textContent=acct?(LS.get('cb-daily-bonus','')===day?'오늘 보너스를 받았어요. 기록은 계속 올릴 수 있어요.':'오늘 처음 깨면 보너스 200 코인!'):'로그인하면 랭킹에 오르고 보너스 200 코인을 받아요.';
+  loadDailyBoard(day);
+}
+async function loadDailyBoard(day){
+  const id=++dailyReq,board=$('#dyBoard'),msg=$('#dyMsg');board.textContent='';msg.textContent='불러오는 중…';
+  try{const rows=await API.call('bb_leaderboard_v2',{p_key:'d:'+day,p_limit:50})||[];if(id!==dailyReq)return;
+    fillBoard(board,rows.map(r=>({pos:r.pos,nick:r.nick,title:r.title,pts:r.score,sub:r.acc>0?(+r.acc).toFixed(1)+'%':'',replay:r.has_replay?'d:'+day:null})),()=>openDaily());
+    msg.textContent=rows.length?'':'아직 오늘 기록이 없어요. 첫 기록의 주인공이 되어 보세요.'}
+  catch(e){if(id===dailyReq)msg.textContent=errText(e)}
+}
+$('#dailyBtn').onclick=openDaily;
+$('#dyBack').onclick=()=>toMenu();
+$('#dyStart').onclick=()=>{if(offsetMs===null){openCalib(false);return}
+  const day=kstDay(),pd=diffIdx;diffIdx=1;
+  sel={type:'builtin',map:dailyMap(day),daily:true,back:()=>{diffIdx=pd;openDaily()},backLabel:'오늘의 도전'};start()};
+
+/* ---------- shared leaderboard rows (titles, profile links, replays) ---------- */
+function fillBoard(board,rows,back){
+  board.textContent='';const me=acct?acct.nick.toLowerCase():'';
+  for(const r of rows){
+    const li=el('li');const mine=r.nick.toLowerCase()===me;if(mine)li.className='me';
+    const p=el('span','pos',r.pos);
+    const w=el('span','who');const nb=el('button','nicklink',r.nick);nb.dataset.prof=r.nick;w.appendChild(nb);
+    if(r.title&&ACHT[r.title]){w.appendChild(el('span','ttl',ACHT[r.title]))}
+    const subt=(mine?'나 · ':'')+(r.sub||'');if(subt){w.appendChild(el('small',null,subt))}
+    const s=el('span','pts',fmt(r.pts));
+    li.append(p,w,s);
+    if(r.replay){const b=el('button','small rp','▶');b.title='리플레이 보기';b.setAttribute('aria-label',r.nick+' 리플레이 보기');b.dataset.rpKey=r.replay;b.dataset.rpNick=r.nick;li.appendChild(b);li.classList.add('wrp')}
+    board.appendChild(li);
+  }
+  board.onclick=e=>{const pb=e.target.closest('[data-prof]');if(pb){openProfile(pb.dataset.prof,back);return}
+    const rb=e.target.closest('[data-rp-key]');if(rb)watchReplay(rb.dataset.rpKey,rb.dataset.rpNick,back)};
+}
+
+/* ---------- achievements & titles ---------- */
+const ACH=[
+  {id:'tutorial',n:'첫 수업',d:'튜토리얼을 끝까지 해요',t:'새내기'},
+  {id:'clear1',n:'첫 걸음',d:'레벨 1개를 보통 이상으로 깨요',t:'초보 연주자'},
+  {id:'clear10',n:'열 걸음',d:'레벨 10개를 깨요',t:'견습 연주자'},
+  {id:'clear50',n:'쉰 걸음',d:'레벨 50개를 깨요',t:'연주자'},
+  {id:'clear100',n:'백 걸음',d:'레벨 100개를 깨요',t:'베테랑'},
+  {id:'legend',n:'전설의 문턱',d:'Lv180을 깨서 전설 단계를 열어요',t:'전설의 문턱'},
+  {id:'clear200',n:'완주',d:'200개 레벨을 모두 깨요',t:'코드 비트 마스터'},
+  {id:'hard10',n:'도전자',d:'어려움으로 맵 10개를 깨요',t:'도전자'},
+  {id:'combo100',n:'집중력',d:'퍼펙트 콤보 100',t:'집중하는'},
+  {id:'combo500',n:'무아지경',d:'퍼펙트 콤보 500',t:'무아지경'},
+  {id:'allperfect',n:'완벽주의자',d:'한 판을 모두 퍼펙트로 (노트 20개 이상)',t:'완벽주의자'},
+  {id:'acc99',n:'정밀 기계',d:'정확도 99% 이상으로 깨요',t:'정밀 기계'},
+  {id:'hidden',n:'눈 감고도',d:'히든 모드로 깨요',t:'눈 감고도'},
+  {id:'practice',n:'연습벌레',d:'연습 모드로 한 구간을 끝까지',t:'연습벌레'},
+  {id:'daily1',n:'오늘의 주인공',d:'오늘의 도전을 깨요',t:'오늘의 주인공'},
+  {id:'daily7',n:'꾸준함',d:'오늘의 도전을 서로 다른 7일 깨요',t:'꾸준한'},
+  {id:'streak7',n:'개근상',d:'7일 연속 출석',t:'개근상'},
+  {id:'multi_win',n:'승부사',d:'2명 이상 멀티플레이에서 1등',t:'승부사'},
+  {id:'creator',n:'작곡가',d:'커뮤니티 레벨을 올려요',t:'작곡가'},
+  {id:'collector',n:'수집가',d:'상점 아이템 5개 모으기',t:'수집가'},
+  {id:'friend3',n:'인싸',d:'친구 3명 추가',t:'인싸'},
+  {id:'season',n:'시즌 챔피언',d:'월간 시즌 상위 10명 안에 들어요',t:'시즌 챔피언'}];
+const ACHT=Object.fromEntries(ACH.map(a=>[a.id,a.t]));
+let achLocal=new Set((LS.get('cb-ach',[])||[]).filter(x=>ACHT[x]));
+let achPending=new Set(),achT=0;
+function achGrant(id){
+  if(!ACHT[id]||achLocal.has(id))return;
+  achLocal.add(id);LS.set('cb-ach',[...achLocal]);
+  const a=ACH.find(x=>x.id===id);toast('업적 달성 · '+a.n,`칭호 '${a.t}'을(를) 얻었어요`+(acct?' · +100 코인':''));
+  if(acct){achPending.add(id);clearTimeout(achT);achT=setTimeout(achFlush,600)}
+}
+async function achFlush(){
+  if(!acct||!achPending.size)return;const ids=[...achPending];achPending.clear();
+  try{const r=await API.call('bb_unlock_achievements',{p_token:acct.token,p_ids:ids});achMerge(r);if(r&&r.coins){loadWallet()}}catch(e){ids.forEach(i=>achPending.add(i));authFail(e)}
+}
+let myTitle=null;
+function achMerge(r){if(!r)return;if(Array.isArray(r.all)){for(const a of r.all)if(ACHT[a])achLocal.add(a);LS.set('cb-ach',[...achLocal])}if('title' in r)myTitle=r.title}
+async function achSync(){if(!acct)return;try{const r=await API.call('bb_unlock_achievements',{p_token:acct.token,p_ids:[...achLocal].filter(x=>x!=='season')});achMerge(r);if(r&&r.coins)toast(`업적 보상 +${r.coins} 코인`,'이 기기에서 얻은 업적이 계정에 들어갔어요');loadWallet()}catch(e){authFail(e)}}
+function achCheckProgress(){
+  const cleared=MAPS.reduce((a,_,i)=>a+(clearedMap(i)?1:0),0);
+  if(cleared>=1)achGrant('clear1');if(cleared>=10)achGrant('clear10');if(cleared>=50)achGrant('clear50');if(cleared>=100)achGrant('clear100');if(cleared>=MAPS.length)achGrant('clear200');
+  if(MAPS.length>=180&&clearedMap(179))achGrant('legend');
+  if(MAPS.filter(m=>best[m.id+'-hard']>0).length>=10)achGrant('hard10');
+  const days=Object.keys(best).filter(k=>k.startsWith('d:')&&best[k]>0).length;if(days>=1)achGrant('daily1');if(days>=7)achGrant('daily7');
+}
+function achCheckRun(r){
+  if(maxCombo>=100)achGrant('combo100');if(maxCombo>=500)achGrant('combo500');
+  if(JC>=20&&stats.perfect===JC)achGrant('allperfect');
+  if(r.acc>=99)achGrant('acc99');
+  if(RUNMODS.hidden)achGrant('hidden');
+  achCheckProgress();
+}
+function onWallet(){if(WAL.owned.length>=5)achGrant('collector')}
+
+/* ---------- login extras: check-in, season reward, achievements ---------- */
+let seasonChecked=false;
+async function onLogin(){
+  if(!acct)return;
+  achSync();
+  if(LS.get('cb-checkin','')!==kstDay()+acct.nick){
+    try{const r=await API.call('bb_checkin',{p_token:acct.token});LS.set('cb-checkin',kstDay()+acct.nick);
+      if(r&&!r.already){toast(`출석 ${r.streak}일째 · +${r.reward} 코인`,r.streak<7?`내일도 오면 +${50+25*Math.min(6,r.streak)} 코인`:'7일 넘게 이어서 최대 보상을 받고 있어요');loadWallet()}
+      if(r&&r.streak>=7)achGrant('streak7')}catch(e){authFail(e)}
+  }
+  if(!seasonChecked){seasonChecked=true;
+    try{const r=await API.call('bb_season_claim',{p_token:acct.token});
+      if(r&&r.pos){toast(`${r.season} 시즌 ${r.pos}위 보상!`,`+${fmt(r.coins)} 코인 · 한정 ${r.items.includes('theme:champion')?'노트와 테마':'노트'}를 받았어요`,6000);achLocal.add('season');LS.set('cb-ach',[...achLocal]);loadWallet()}}catch(e){}
+  }
+}
+
+/* ---------- profiles ---------- */
+let profBack=null,profNick='';
+async function openProfile(nick,back){
+  profBack=back||(()=>toMenu());state='profile';show('profile');
+  const mine=!nick||(acct&&nick.toLowerCase()===acct.nick.toLowerCase());
+  profNick=nick||(acct?acct.nick:'');
+  const box=$('#pfBody'),msg=$('#pfMsg');box.textContent='';msg.textContent='';
+  $('#pfName').textContent=profNick||'내 프로필';$('#pfTitle').textContent='';$('#pfTitle').hidden=true;
+  $('#pfFriend').hidden=true;$('#pfTitleBox').hidden=!mine||!acct;
+  if(!profNick){renderProfile(null,true);msg.textContent='로그인하면 기록과 업적이 계정에 저장되고, 다른 사람도 내 프로필을 볼 수 있어요.';return}
+  msg.textContent='불러오는 중…';
+  try{const p=await API.call('bb_profile',{p_nick:profNick});msg.textContent='';
+    if(mine){for(const a of p.ach||[])if(ACHT[a])achLocal.add(a);LS.set('cb-ach',[...achLocal]);myTitle=p.title}
+    renderProfile(p,mine);
+    if(!mine&&acct){const fr=await API.call('bb_friends',{p_token:acct.token})||[];const is=fr.some(f=>f.nick.toLowerCase()===p.nick.toLowerCase());
+      const b=$('#pfFriend');b.hidden=false;b.textContent=is?'친구 삭제':'친구 추가';b.dataset.on=is?'1':''}
+  }catch(e){msg.textContent=errText(e);authFail(e)}
+}
+function renderProfile(p,mine){
+  const box=$('#pfBody');box.textContent='';
+  if(p){$('#pfName').textContent=p.nick+(p.admin?' · 관리자':p.mod?' · 부관리자':'');
+    if(p.title&&ACHT[p.title]){$('#pfTitle').hidden=false;$('#pfTitle').textContent=ACHT[p.title]}}
+  const st=el('div','stats');
+  const add=(k,v)=>{const s=el('div','stat');s.append(el('span',null,k),el('b',null,v));st.appendChild(s)};
+  if(p){add('누적 점수',fmt(p.total));add('누적 순위',p.rank?p.rank+'위':'—');add('플레이',fmt(p.plays)+'판');add('평균 정확도',p.avg_acc!=null?(+p.avg_acc).toFixed(1)+'%':'—');
+    add('기록한 맵',p.maps+'개');add('오늘의 도전',p.dailies+'일');add('만든 레벨',p.levels+'개');add('연속 출석',p.streak?p.streak+'일':'—');
+    add('가입',String(p.since).slice(0,10));add('친구',p.friends+'명')}
+  else{const cleared=MAPS.reduce((a,_,i)=>a+(clearedMap(i)?1:0),0);add('깬 레벨',cleared+'개');add('누적 점수',$('#totalScore').textContent)}
+  box.appendChild(st);
+  if(p&&p.top&&p.top.length){box.appendChild(el('p','label','자주 한 맵'));const ol=el('ol','board');
+    p.top.forEach((t,i)=>{const li=el('li');li.append(el('span','pos',i+1),el('span','who',keyTitle(t.key)),el('span','pts',t.n+'판'));ol.appendChild(li)});box.appendChild(ol)}
+  if(p&&p.equipped&&Object.keys(p.equipped).length){
+    const names=[];for(const k of SLOTS){const v=p.equipped[k];const it=v&&(SHOP[k]||[]).find(x=>x[0]===v);if(it&&PRICE[k+':'+v]!==0)names.push(it[1])}
+    if(names.length){box.appendChild(el('p','label','장착한 아이템'));box.appendChild(el('p','rline',names.join(' · ')))}}
+  const have=new Set(p&&!mine?(p.ach||[]):[...achLocal,...((p&&p.ach)||[])]);
+  box.appendChild(el('p','label',`업적 ${[...have].filter(x=>ACHT[x]).length} / ${ACH.length}`));
+  const grid=el('div','achgrid');
+  for(const a of ACH){const c=el('div','ach'+(have.has(a.id)?' on':''));c.append(el('b',null,a.n),el('span',null,a.d),el('small',null,'칭호 · '+a.t));grid.appendChild(c)}
+  box.appendChild(grid);
+  if(mine&&acct){const s=$('#pfTitleSel');s.innerHTML='';const o=el('option',null,'칭호 없음');o.value='';s.appendChild(o);
+    for(const a of ACH)if(have.has(a.id)){const x=el('option',null,a.t);x.value=a.id;s.appendChild(x)}s.value=myTitle&&have.has(myTitle)?myTitle:''}
+}
+$('#pfTitleSel').onchange=async e=>{if(!acct)return;const v=e.target.value;
+  try{await API.call('bb_set_title',{p_token:acct.token,p_ach:v});myTitle=v||null;$('#pfTitle').hidden=!v;$('#pfTitle').textContent=v?ACHT[v]:'';$('#pfMsg').textContent=v?`칭호를 '${ACHT[v]}'(으)로 바꿨어요. 랭킹에 닉네임과 함께 보여요.`:'칭호를 뺐어요.'}
+  catch(err){$('#pfMsg').textContent=errText(err);authFail(err)}};
+$('#pfFriend').onclick=async()=>{if(!acct)return;const on=$('#pfFriend').dataset.on==='1';
+  try{await API.call(on?'bb_friend_remove':'bb_friend_add',{p_token:acct.token,p_nick:profNick});$('#pfFriend').dataset.on=on?'':'1';$('#pfFriend').textContent=on?'친구 추가':'친구 삭제';$('#pfMsg').textContent=on?'친구에서 뺐어요.':`${profNick}을(를) 친구로 추가했어요.`;if(!on)checkFriendAch()}
+  catch(err){$('#pfMsg').textContent=errText(err);authFail(err)}};
+$('#pfBack').onclick=()=>{const f=profBack;profBack=null;(f||toMenu)()};
+$('#profBtn').onclick=()=>openProfile(acct?acct.nick:'');
+
+/* ---------- friends ---------- */
+async function checkFriendAch(){try{const fr=await API.call('bb_friends',{p_token:acct.token})||[];if(fr.length>=3)achGrant('friend3')}catch(e){}}
+function openFriends(){
+  if(!acct){openAcct(()=>openFriends());$('#aMsg').textContent='친구 기능은 로그인하면 쓸 수 있어요.';return}
+  state='friends';show('friends');$('#frMsg').textContent='';loadFriends();
+}
+async function loadFriends(){
+  const list=$('#frList'),msg=$('#frMsg');msg.textContent='불러오는 중…';
+  try{const rows=await API.call('bb_friends',{p_token:acct.token})||[];list.textContent='';
+    for(const f of rows){const c=el('article','lv-card');
+      const h=el('h3');const dot=el('i','dot'+(f.online?' on':''));dot.title=f.online?'접속 중':'오프라인';h.append(dot,el('span',null,f.nick));if(f.title&&ACHT[f.title])h.appendChild(el('span','ttl',ACHT[f.title]));
+      const m=el('div','meta',`누적 ${fmt(f.total)}`+(f.online?' · 접속 중':'')+(f.room?` · 멀티 방 ${f.room}`:'')+(f.mutual?' · 서로 친구':''));
+      const a=el('div','acts');
+      if(f.room){const j=el('button','small play','방 참가');j.dataset.act='join';j.dataset.room=f.room;a.appendChild(j)}
+      const pb=el('button','small','프로필');pb.dataset.act='prof';pb.dataset.nick=f.nick;a.appendChild(pb);
+      const rb=el('button','small','삭제');rb.dataset.act='del';rb.dataset.nick=f.nick;a.appendChild(rb);
+      c.append(h,m,a);list.appendChild(c)}
+    msg.textContent=rows.length?`친구 ${rows.length}명 · 친구가 멀티 방에 있으면 바로 참가할 수 있어요.`:'아직 친구가 없어요. 닉네임으로 추가해 보세요.';
+    if(rows.length>=3)achGrant('friend3');
+  }catch(e){msg.textContent=errText(e);authFail(e)}
+}
+$('#frList').addEventListener('click',async e=>{const b=e.target.closest('button[data-act]');if(!b)return;
+  if(b.dataset.act==='prof'){openProfile(b.dataset.nick,()=>openFriends());return}
+  if(b.dataset.act==='join'){openMulti(true);mpJoin(b.dataset.room,false);return}
+  if(b.dataset.act==='del'){if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말 삭제';b.classList.add('liked');return}
+    try{await API.call('bb_friend_remove',{p_token:acct.token,p_nick:b.dataset.nick});loadFriends()}catch(err){$('#frMsg').textContent=errText(err)}}});
+async function addFriend(){const n=$('#frNick').value.trim();if(!n)return;
+  try{await API.call('bb_friend_add',{p_token:acct.token,p_nick:n});$('#frNick').value='';await loadFriends();$('#frMsg').textContent=`${n}을(를) 친구로 추가했어요.`}
+  catch(e){$('#frMsg').textContent=e.code==='self_friend'?'나 자신은 친구로 추가할 수 없어요.':e.code==='too_many_friends'?'친구는 100명까지 추가할 수 있어요.':errText(e);authFail(e)}}
+$('#frAdd').onclick=addFriend;
+$('#frNick').addEventListener('keydown',e=>{if(e.key==='Enter')addFriend()});
+$('#frBack').onclick=()=>toMenu();
+$('#friendBtn').onclick=openFriends;
+function setRoom(code){if(acct)API.call('bb_set_room',{p_token:acct.token,p_room:code||null}).catch(()=>{})}
+
+/* ---------- multiplayer reactions ---------- */
+const EMO=['👍','😂','😮','🔥','😭','👏','안녕하세요!','한 판 더?','잘했어요!','아깝다!','준비됐어요','ㅋㅋㅋ'];
+let emoLast=0;
+function renderEmoBars(){for(const id of ['#mpEmo','#rEmo']){const box=$(id);if(!box||box.children.length)continue;
+  EMO.forEach((t,i)=>{const b=el('button','small'+(i<6?' emoji':''),t);b.dataset.i=i;box.appendChild(b)});
+  box.onclick=e=>{const b=e.target.closest('button[data-i]');if(!b||!MP.ch)return;const now=Date.now();if(now-emoLast<1200)return;emoLast=now;
+    const p={t:'emo',nick:MP.me,i:+b.dataset.i};mpSend(p);showEmo(MP.me,p.i)}}}
+function showEmo(nick,i){if(!(i>=0&&i<EMO.length))return;MP.emo=MP.emo||{};MP.emo[nick]={i,at:performance.now()};
+  if(state==='multi')renderMulti();else if(state==='result')renderMpResults();
+  setTimeout(()=>{if(state==='multi')renderMulti();else if(state==='result')renderMpResults()},3600)}
+function emoOf(nick){const e=MP.emo&&MP.emo[nick];return e&&performance.now()-e.at<3500?EMO[e.i]:''}
+renderEmoBars();
+
+/* ---------- reports (community levels) ---------- */
+const REASONS={copyright:'저작권',offensive:'불쾌한 내용',broken:'플레이 불가',spam:'도배',other:'기타'};
+async function loadReports(){
+  const list=$('#adReports');if(!list)return;list.textContent='';
+  try{const rows=await API.call('bb_mod_reports',{p_token:acct.token})||[];
+    for(const r of rows){const c=el('article','lv-card');
+      const h=el('h3');h.appendChild(el('span',null,r.title));
+      const m=el('div','meta',`만든 사람 ${r.author} · 신고 ${r.reports}건 · ${(r.reasons||[]).map(x=>REASONS[x]||x).join(', ')} · ${String(r.last_at).slice(0,10)}`);
+      const a=el('div','acts');
+      const mk=(act,t,cls)=>{const b=el('button','small'+(cls?' '+cls:''),t);b.dataset.act=act;b.dataset.id=r.level_id;a.appendChild(b)};
+      mk('play','플레이해 보기','play');mk('ok','문제없음');mk('adel','강제 삭제');
+      c.append(h,m,a);list.appendChild(c)}
+    if(!rows.length)list.appendChild(el('p','hint','신고된 레벨이 없어요.'));
+  }catch(e){list.appendChild(el('p','hint',errText(e)))}
+}
+$('#adReports').addEventListener('click',async e=>{const b=e.target.closest('button[data-act]');if(!b)return;const id=b.dataset.id,msg=$('#adMsg');
+  try{
+    if(b.dataset.act==='play'){const L=await fetchLevel(id);sel={type:'community',level:L,test:true,noRecord:true,back:()=>openAdmin(),backLabel:'관리자 도구'};start();return}
+    if(b.dataset.act==='ok'){await API.call('bb_mod_resolve_reports',{p_token:acct.token,p_id:id});msg.textContent='신고를 처리했어요.';loadReports();return}
+    if(b.dataset.act==='adel'){if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말 강제 삭제';b.classList.add('liked');return}
+      await API.call('bb_admin_delete_level',{p_token:acct.token,p_id:id});msg.textContent='레벨을 강제 삭제했어요.';CM.items=[];loadReports()}
+  }catch(err){msg.textContent=errText(err);authFail(err)}});
+
+/* ---------- colour-blind mode ---------- */
+function cvdApply(){
+  const root=document.documentElement.style,on=!!LS.get('cb-cvd',false);
+  if(!window.__J0)window.__J0={perfect:COL.perfect,great:COL.great,good:COL.good,miss:COL.miss};
+  const J=on?{perfect:'#F0E442',great:'#56B4E9',good:'#E69F00',miss:'#D55E00'}:window.__J0;
+  for(const k in J){COL[k]=J[k];if(on)root.setProperty('--'+k,J[k]);else root.removeProperty('--'+k)}
+  if(on){const lc=['#E69F00','#56B4E9','#009E73','#F0E442','#CC79A7'];for(let i=0;i<5;i++){COL.lc[i]=lc[i];root.setProperty('--lc'+i,lc[i])}}
+}
+$('#cvdMode').checked=!!LS.get('cb-cvd',false);
+$('#cvdMode').onchange=e=>{LS.set('cb-cvd',e.target.checked);applySkin()};
+
+/* ---------- practice ---------- */
+PR=Object.assign({from:1,to:8,rate:1,loop:true},LS.get('cb-practice',{}));
+function practiceBars(){return barsOf(MAPS[mapIdx])-INTRO}
+function openPractice(){
+  state='practice';show('practice');
+  const m=MAPS[mapIdx],nb=practiceBars();
+  $('#prMap').textContent=`Lv${m.level} ${m.name} · ${m.lanes}키 · ${DIFFS[diffIdx].name}`;
+  for(const id of ['#prFrom','#prTo']){$(id).max=nb;$(id).min=1}
+  PR.from=Math.max(1,Math.min(nb,PR.from|0));PR.to=Math.max(PR.from,Math.min(nb,PR.to|0||nb));
+  renderPractice();
+}
+function renderPractice(){
+  $('#prFrom').value=PR.from;$('#prTo').value=PR.to;$('#prFromOut').textContent=PR.from+'마디';$('#prToOut').textContent=PR.to+'마디';
+  $('#prRate').querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',+b.dataset.r===PR.rate));
+  $('#prLoop').checked=!!PR.loop;
+  const m=MAPS[mapIdx],ch=buildChart(m,buildSong(m),DIFFS[diffIdx].id),fs=INTRO*16+(PR.from-1)*16,ts=INTRO*16+PR.to*16,n=ch.filter(x=>x.step>=fs&&x.step<ts).length;
+  $('#prInfo').textContent=n?`이 구간 노트 ${n}개 · 실패하지 않고, 기록과 랭킹에는 들어가지 않아요.`:'이 구간에는 노트가 없어요. 범위를 넓혀 주세요.';$('#prGo').disabled=!n;
+  LS.set('cb-practice',{from:PR.from,to:PR.to,rate:PR.rate,loop:PR.loop});
+}
+$('#prFrom').oninput=e=>{PR.from=+e.target.value;if(PR.to<PR.from)PR.to=PR.from;renderPractice()};
+$('#prTo').oninput=e=>{PR.to=+e.target.value;if(PR.from>PR.to)PR.from=PR.to;renderPractice()};
+$('#prRate').onclick=e=>{const b=e.target.closest('button');if(!b)return;PR.rate=+b.dataset.r;renderPractice()};
+$('#prLoop').onchange=e=>{PR.loop=e.target.checked;renderPractice()};
+$('#prGo').onclick=()=>{if(offsetMs===null){openCalib(false);return}
+  PR.fs=INTRO*16+(PR.from-1)*16;PR.ts=INTRO*16+PR.to*16;PR.s0=Math.max(0,PR.fs-16);
+  sel={type:'builtin',practice:true,noRecord:true,back:()=>openPractice(),backLabel:'연습 설정'};start()};
+$('#prBack').onclick=()=>toMenu();
+$('#practiceBtn').onclick=()=>{if(!isUnlocked(mapIdx))return;openPractice()};
+
+/* ---------- tutorial ---------- */
+const TUT_TEXT=[[0,'노트가 아래 선에 닿는 순간 {0} 누르세요'],[4,'이번엔 오른쪽! {1} 누르세요'],[8,'두 레인이 번갈아 나와요. 리듬을 타 보세요'],
+  [12,'긴 막대는 홀드 노트예요. 누른 채로 끝까지 버티다가 떼세요'],[16,'잘했어요! 이제 진짜 맵에 도전해 보세요']];
+function tutLevel(){
+  const notes=[];
+  for(let b=1;b<4;b++)for(let q=0;q<4;q++)notes.push([b*16+q*4,0]);
+  for(let b=5;b<8;b++)for(let q=0;q<4;q++)notes.push([b*16+q*4,1]);
+  for(let b=8;b<12;b++)for(let q=0;q<4;q++)notes.push([b*16+q*4,(q+b)%2]);
+  notes.push([12*16,0,8],[12*16+12,1],[13*16,1,8],[13*16+12,0],[14*16,0,12],[15*16,1,8]);
+  return {id:NIL_ID,title:'튜토리얼',author:'code-beat',lanes:2,bpm:92,bars:17,music:{key:60,scale:'major',lead:'triangle',drive:0,prog:[[0,'M'],[7,'M'],[9,'m'],[5,'M']]},notes};
+}
+function startTutorial(){
+  if(offsetMs===null){openCalib(false);return}
+  sel={type:'community',level:tutLevel(),test:true,tutorial:true,noRecord:true,counted:true,back:()=>toMenu(),backLabel:'메뉴로'};start();
+}
+function drawTutorial(now){
+  if(!notes.length)return;const bar=Math.floor((tSt(now-T0)-INTRO*16)/16);if(bar<-1)return;
+  let msg='';for(const [b,t] of TUT_TEXT)if(bar>=b)msg=t;if(!msg)msg=TUT_TEXT[0][1];
+  const ks=getKeys(2),name=i=>isTouch?(i?'오른쪽 칸을':'왼쪽 칸을'):keyNameLong(ks[i])+' 키를';
+  msg=msg.replace('{0}',name(0)).replace('{1}',name(1));
+  g.save();g.font='600 15px '+F.body;g.textAlign='center';g.textBaseline='middle';
+  const maxW=Math.min(W-24,Math.max(fw,300))-28,lines=[];let cur='';
+  for(const wd of msg.split(' ')){const t=cur?cur+' '+wd:wd;if(g.measureText(t).width>maxW&&cur){lines.push(cur);cur=wd}else cur=t}if(cur)lines.push(cur);
+  const w=Math.max(...lines.map(l=>g.measureText(l).width))+28,h=lines.length*22+18,x=fx+fw/2,y=H*.3;
+  g.globalAlpha=.9;g.fillStyle=COL.bg;rr(x-w/2,y-h/2,w,h,10);g.fill();g.globalAlpha=1;g.strokeStyle=COL.lc[0];g.lineWidth=1.5;g.stroke();
+  g.fillStyle=COL.ink;lines.forEach((l,i)=>g.fillText(l,x,y-(lines.length-1)*11+i*22));g.restore();
+}
+$('#tutGo').onclick=startTutorial;$('#tutAgain').onclick=startTutorial;
+$('#tutNo').onclick=()=>{LS.set('cb-tut-done',1);$('#tutBan').hidden=true};
+
+/* ---------- menu extras ---------- */
+function renderMenuExtra(){
+  if(!MODS)return;
+  const box=$('#mods');if(box){box.textContent='';
+    for(const k in MOD_INFO){const b=el('button','chip',MOD_INFO[k].n);b.dataset.mod=k;b.setAttribute('aria-pressed',!!MODS[k]);
+      b.title=MOD_INFO[k].d+(MOD_INFO[k].m!==1?` · 점수 ×${MOD_INFO[k].m}`:' · 점수 그대로');
+      if(MOD_INFO[k].m!==1)b.appendChild(el('small',null,'×'+MOD_INFO[k].m));box.appendChild(b)}}
+  const t=$('#tutBan');if(t)t.hidden=!!LS.get('cb-tut-done',0)||Object.keys(best).length>0;
+  const ds=$('#dailySub');if(ds){const b=best['d:'+kstDay()];ds.textContent=b?`· 오늘 ${fmt(b)}`:'· 새 맵이 매일 바뀌어요'}
+  const pb=$('#practiceBtn');if(pb)pb.disabled=!isUnlocked(mapIdx);
+}
+$('#mods').onclick=e=>{const b=e.target.closest('[data-mod]');if(!b)return;MODS[b.dataset.mod]=!MODS[b.dataset.mod];LS.set('cb-mods',MODS);renderMenu()};
+
+/* ---------- editor: difficulty estimate ---------- */
+let estTable=null;
+function chartMetric(steps,stepTime,lanes){
+  if(steps.length<2)return 0;
+  const ts=steps.map(s=>stepTime(s[0])).sort((a,b)=>a-b),dur=Math.max(4,ts[ts.length-1]-ts[0]);
+  let w=0,j=0;for(let i=0;i<ts.length;i++){while(ts[i]-ts[j]>4)j++;w=Math.max(w,i-j+1)}
+  const holds=steps.filter(s=>s[2]).length,avg=(ts.length+holds*.6)/dur,peak=w/4;
+  return (avg*.6+peak*.4)*(lanes===1?.75:lanes===2?.88:lanes===4?1:1.12);
+}
+function estimateLevel(notesArr,bpm,lanes,tempo){
+  if(!estTable){estTable=[];let mx=0;
+    for(const m of MAPS){const ch=buildChart(m,buildSong(m),'normal'),sd=60/m.bpm/4;const v=chartMetric(ch.map(n=>[n.step,n.lane,n.len]),s=>s*sd,m.lanes);mx=Math.max(mx,v);estTable.push(mx)}}
+  if(!notesArr.length)return 0;
+  const m={bpm,tempo};setTempoLocal(m);const x=chartMetric(notesArr,s=>localStT(s),lanes);
+  let lv=1;for(let i=0;i<estTable.length;i++){if(estTable[i]<=x)lv=i+1}return lv;
+}
+let LT=null;
+function setTempoLocal(m){const sd0=60/m.bpm/4;LT=[{s:0,t:0,sd:sd0}];if(Array.isArray(m.tempo))for(const [st,b] of m.tempo.slice().sort((a,c)=>a[0]-c[0])){const L=LT[LT.length-1],sd=60/b/4;if(st<=L.s){L.sd=sd;continue}LT.push({s:st,t:L.t+(st-L.s)*L.sd,sd})}}
+function localStT(s){let i=LT.length-1;while(i>0&&LT[i].s>s)i--;const q=LT[i];return q.t+(s-q.s)*q.sd}
+let edEst='';
+function edEstimate(){
+  if(!ed||!ed.notes.size){edEst='';return}
+  const lv=estimateLevel(edNotesArr(),ed.bpm,ed.lanes,ed.music.tempo);
+  edEst=lv?` · 예상 Lv${lv} ${TIERS[Math.min(TIERS.length-1,Math.floor((lv-1)/20))]}`:'';
+}
+
+/* ---------- editor: redo, range copy/paste, tempo changes ---------- */
+let edRedo=[],edClip=null;
+const edSnap=()=>({notes:[...ed.notes],holds:[...ed.holds],lanes:ed.lanes,bars:ed.bars});
+function edRestore(u){ed.notes=new Set(u.notes);ed.holds=new Map(u.holds||[]);edHoldStart=null;ed.lanes=u.lanes;ed.bars=u.bars;edFill();edChanged()}
+function edRedoDo(){const u=edRedo.pop();if(!u){edToast('다시 할 작업이 없어요');return}edUndo.push(edSnap());edRestore(u)}
+function edRange(){const a=Math.max(1,Math.min(ed.bars,+$('#eRgFrom').value|0)),b=Math.max(a,Math.min(ed.bars,+$('#eRgTo').value|0));$('#eRgFrom').value=a;$('#eRgTo').value=b;return[(a-1)*16,b*16]}
+function edInRange(k,a,b){const st=Math.floor(k/8);return st>=a&&st<b}
+$('#eRgCopy').onclick=()=>{const [a,b]=edRange();const out=[];for(const k of ed.notes)if(edInRange(k,a,b))out.push([Math.floor(k/8)-a,k%8,ed.holds.get(k)||0]);
+  edClip={len:b-a,lanes:ed.lanes,notes:out};edToast(`노트 ${out.length}개를 복사했어요 · ${$('#eRgFrom').value}~${$('#eRgTo').value}마디`)};
+$('#eRgCut').onclick=()=>{$('#eRgCopy').onclick();const [a,b]=edRange();pushUndo();for(const k of [...ed.notes])if(edInRange(k,a,b)){ed.notes.delete(k);ed.holds.delete(k)}edChanged();edToast('잘라냈어요 · 붙여넣기 가능')};
+$('#eRgDel').onclick=()=>{const [a,b]=edRange();pushUndo();let n=0;for(const k of [...ed.notes])if(edInRange(k,a,b)){ed.notes.delete(k);ed.holds.delete(k);n++}edChanged();edToast(`노트 ${n}개를 지웠어요 · 되돌리기 가능`)};
+$('#eRgFlip').onclick=()=>{const [a,b]=edRange();pushUndo();const nn=new Set(),nh=new Map();
+  for(const k of ed.notes){const st=Math.floor(k/8),l=k%8,kk=edInRange(k,a,b)?st*8+(ed.lanes-1-l):k;nn.add(kk);if(ed.holds.has(k))nh.set(kk,ed.holds.get(k))}
+  ed.notes=nn;ed.holds=nh;edChanged();edToast('좌우로 뒤집었어요')};
+$('#eRgPaste').onclick=()=>{if(!edClip){edToast('먼저 구간을 복사하세요');return}
+  const at=(Math.max(1,Math.min(ed.bars,+$('#eRgAt').value|0))-1)*16;pushUndo();let n=0;
+  for(const [rs,l0,len] of edClip.notes){const st=at+rs,l=edClip.lanes===ed.lanes?l0:Math.min(ed.lanes-1,Math.floor(l0*ed.lanes/edClip.lanes));
+    if(st>=ed.bars*16)continue;const k=st*8+l;ed.notes.add(k);if(len>=2&&st+len<=ed.bars*16)ed.holds.set(k,len);else ed.holds.delete(k);n++}
+  edChanged();edToast(`${$('#eRgAt').value}마디에 노트 ${n}개를 붙여 넣었어요`)};
+function renderTempo(){
+  const list=$('#eTempoList');list.textContent='';const tp=(ed.music.tempo||[]).slice().sort((a,b)=>a[0]-b[0]);
+  if(!tp.length)list.appendChild(el('p','hint','템포 변화가 없어요. 곡 전체가 위의 BPM으로 연주돼요.'));
+  for(const [st,b] of tp){const r=el('div','tprow');r.append(el('span',null,`${st/16+1}마디부터`),el('b',null,`BPM ${b}`));const x=el('button','small','빼기');x.dataset.st=st;r.appendChild(x);list.appendChild(r)}
+}
+$('#eTempoList').onclick=e=>{const b=e.target.closest('button[data-st]');if(!b)return;ed.music.tempo=(ed.music.tempo||[]).filter(x=>x[0]!==+b.dataset.st);if(!ed.music.tempo.length)delete ed.music.tempo;renderTempo();edPeaks();edChanged()};
+$('#eTempoAdd').onclick=()=>{const bar=Math.round(+$('#eTempoBar').value),bpm=Math.round(+$('#eTempoBpm').value);
+  if(!(bar>=2&&bar<=ed.bars)){edToast(`마디는 2~${ed.bars} 사이로 입력하세요`);return}if(!(bpm>=60&&bpm<=260)){edToast('BPM은 60~260 사이로 입력하세요');return}
+  const st=(bar-1)*16,tp=(ed.music.tempo||[]).filter(x=>x[0]!==st);tp.push([st,bpm]);tp.sort((a,b)=>a[0]-b[0]);
+  if(tp.length>64){edToast('템포 변화는 64개까지예요');return}ed.music.tempo=tp;renderTempo();edPeaks();edChanged();edToast(`${bar}마디부터 BPM ${bpm}`)};
+function edTempoAt(step){let b=ed.bpm;for(const [st,x] of (ed.music.tempo||[]).slice().sort((a,c)=>a[0]-c[0]))if(st<=step)b=x;return b}
+function edStepTime(s){setTempoLocal({bpm:ed.bpm,tempo:ed.music.tempo});return localStT(s)}
+
+/* ---------- startup ---------- */
+renderMenu();
+achCheckProgress();
+if(acct)setTimeout(onLogin,1500);
 
 renderMenu();
 (document.fonts?document.fonts.ready:Promise.resolve()).finally(()=>requestAnimationFrame(loop));

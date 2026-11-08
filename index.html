@@ -590,6 +590,15 @@ function buildChart(s,lead,diff){
     const lane=d%n;notes.push({step:i,lane});
     if(n>=2&&(final&&diff!=='easy'||diff==='hard'&&(st===0||(n>=5&&st===8)||(s.chords&&st%4===0))||diff==='normal'&&s.chords&&st===0))notes.push({step:i,lane:(lane+Math.floor(n/2))%n});
   }
+  // hold notes from Lv3: a note with room after it in its lane becomes a hold
+  if(s.level>=3){
+    const r=rng(s.seed*31+diff.length*7),last=(BARS-1)*16,byLane={};
+    notes.forEach(x=>(byLane[x.lane]||(byLane[x.lane]=[])).push(x));
+    const p=(.12+Math.min(.22,(s.level-3)*.01))*(diff==='easy'?.6:1);
+    for(const l of Object.keys(byLane)){const arr=byLane[l].sort((a,b)=>a.step-b.step);
+      for(let i=0;i<arr.length;i++){const x=arr[i],gap=(arr[i+1]?arr[i+1].step:last)-x.step;
+        if(gap>=6&&r()<p){let len=Math.min(gap-2,diff==='easy'?8:16);len=diff==='easy'?Math.max(4,len-len%4):Math.max(4,len-len%2);x.len=len;i++}}}
+  }
   return notes;
 }
 
@@ -717,6 +726,7 @@ let mapIdx=Math.min(LS.get('bam-bakja-map',0),MAPS.length-1),diffIdx=LS.get('bam
 /* ---------- game state ---------- */
 let sel={type:'builtin'};
 let state='menu',map,lead,notes=[],laneNotes,ptr,T0=0,stepDur,beatDur,totalSteps,nextStep,timer,endTime,firstNoteT;
+let JC=1,activeHold=[];
 let stats,combo,maxCombo,shownScore=0,lastJ=null,bursts=[],runMult=1;
 let hp=100,heat=0,lastTick=0,death=null;
 const HP={miss:-16,good:-3,great:.5,perfect:1},HEAT={tap:18,decay:30,warn:55};
@@ -757,18 +767,19 @@ async function start(){
   if(sel.type==='community'&&!sel.test&&!sel.counted){sel.counted=true;API.call('bb_count_play',{p_id:sel.level.id}).catch(()=>{})}
   T0=ctx.currentTime+.5;
   if(abuf&&map.audio){const src=ctx.createBufferSource();src.buffer=abuf;src.connect(bus);const ss=T0+INTRO*16*stepDur-map.audio.offset/1000,nw=ctx.currentTime+.03;if(ss>=nw)src.start(ss);else src.start(nw,nw-ss)}
-  notes=buildChart(map,lead,DIFFS[diffIdx].id).map(n=>({...n,t:T0+n.step*stepDur,done:false}));
+  notes=buildChart(map,lead,DIFFS[diffIdx].id).map(n=>({...n,t:T0+n.step*stepDur,tEnd:n.len?T0+(n.step+n.len)*stepDur:0,done:false}));
   laneNotes=Array.from({length:map.lanes},()=>[]);notes.forEach(n=>laneNotes[n.lane].push(n));
   ptr=new Array(map.lanes).fill(0);pressed=new Array(map.lanes).fill(0);
   firstNoteT=notes[0].t;endTime=T0+totalSteps*stepDur+.6;
   runMult=(map.community?commMult(map):mapMult(map)*DIFFS[diffIdx].mult)*speedMult(speed);
+  JC=notes.length+notes.filter(n=>n.len).length;activeHold=new Array(map.lanes).fill(null);
   stats={perfect:0,great:0,good:0,miss:0,acc:0};hp=100;heat=0;lastTick=performance.now();death=null;combo=0;maxCombo=0;shownScore=0;lastJ=null;bursts=[];
   nextStep=0;timer=setInterval(scheduler,25);scheduler();
   state='play';show(null);$('#pauseBtn').hidden=false;resize();
   if(sel.multi)mpStartLive();
 }
 function stopRun(){clearInterval(timer);timer=null;stopBus()}
-const score=()=>Math.round(stats.acc/notes.length*1e6*runMult);
+const score=()=>Math.round(stats.acc/JC*1e6*runMult);
 function judge(n,d){
   n.done=true;const a=d===null?9:Math.abs(d);
   const k=a<=WIN.p?'perfect':a<=WIN.gr?'great':a<=WIN.go?'good':'miss';
@@ -776,7 +787,14 @@ function judge(n,d){
   if(k==='miss')combo=0;else{combo++;maxCombo=Math.max(maxCombo,combo);bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2){spawnSparks(n.lane,k);if(combo%50===0)flash={t:performance.now()}}}
   lastJ={k,early:d!==null&&d<0,t:performance.now()};
   hp=Math.max(0,Math.min(100,hp+HP[k]));
+  if(n.len&&!n.tail){if(k==='miss'){n.tail=true;tailJudge(n,'miss',true)}else{n.holding=true;activeHold[n.lane]=n}}
   if(hp<=0)die('hp');
+}
+function tailJudge(n,k,noHp){
+  stats[k]++;stats.acc+=W8[k];
+  if(k==='miss'){combo=0;lastJ={k:'miss',early:false,t:performance.now(),hold:true}}
+  else{combo++;maxCombo=Math.max(maxCombo,combo);bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2)spawnSparks(n.lane,k);lastJ={k,early:false,t:performance.now(),hold:true}}
+  if(!noHp){hp=Math.max(0,Math.min(100,hp+HP[k]));if(hp<=0)die('hp')}
 }
 function press(l){
   if(state==='calib'){calibTap();return}
@@ -788,7 +806,12 @@ function press(l){
   if(hit){judge(bn,t-bn.t)}
   else if(t>=firstNoteT-WIN.go){heat+=HEAT.tap;if(heat>=100){heat=100;die('overload')}}
 }
-function release(l){if(l>=0&&l<pressed.length)pressed[l]=0}
+function release(l){
+  if(l<0||l>=pressed.length)return;pressed[l]=0;
+  const h=activeHold[l];if(!h||state!=='play')return;
+  activeHold[l]=null;h.holding=false;h.tail=true;
+  if(playNow()<h.tEnd-.12){h.broken=true;tailJudge(h,'miss')}else tailJudge(h,'perfect');
+}
 function update(){
   if(state==='calib'){calibFrame();return}
   if(state==='dying'){if(performance.now()-death.t>1100)finish(death.reason);return}
@@ -798,6 +821,7 @@ function update(){
   for(let l=0;l<map.lanes;l++){const arr=laneNotes[l];
     while(ptr[l]<arr.length&&arr[ptr[l]].done)ptr[l]++;
     for(let i=ptr[l];i<arr.length;i++){const n=arr[i];if(n.t>t)break;if(!n.done&&t-n.t>WIN.go)judge(n,null)}
+    const h=activeHold[l];if(h&&state==='play'&&t>=h.tEnd){activeHold[l]=null;h.holding=false;h.tail=true;tailJudge(h,'perfect')}
   }
   if(state==='play'&&ctx.currentTime>endTime)finish();
 }
@@ -813,7 +837,7 @@ const fmt=n=>Math.round(n).toLocaleString('ko-KR');
 function multText(m,di,sp){return `<span>맵 ×${mapMult(m).toFixed(1)}</span><span>난이도 ×${DIFFS[di].mult.toFixed(1)}</span><span>속도 ×${speedMult(sp).toFixed(2)}</span><span>합계 <b>×${(mapMult(m)*DIFFS[di].mult*speedMult(sp)).toFixed(2)}</b></span>`}
 function finish(fail){
   stopRun();state='result';$('#pauseBtn').hidden=true;
-  const sc=score(),acc=stats.acc/notes.length*100,key=map.community?map.id:map.id+'-'+DIFFS[diffIdx].id,test=!!sel.test;
+  const sc=score(),acc=stats.acc/JC*100,key=map.community?map.id:map.id+'-'+DIFFS[diffIdx].id,test=!!sel.test;
   const before=map.community?0:unlockedCount();
   const isNew=!fail&&!test&&sc>(best[key]||0);if(isNew){best[key]=sc;LS.set('bam-bakja-best-v2',best)}
   const opened=!map.community&&unlockedCount()>before&&MAPS[map.level]?MAPS[map.level]:null;
@@ -826,7 +850,7 @@ function finish(fail){
   $('#rSong').textContent=map.community?`${test?'테스트 · ':'커뮤니티 · '}${map.name} · ${map.lanes}레인`:`Lv.${map.level} ${map.name} · ${map.lanes}레인 · ${DIFFS[diffIdx].name}`;
   $('#backBtn').textContent=sel.multi?'방으로':test?'에디터로':map.community?'레벨 목록':'맵 선택';$('#quitBtn').textContent=$('#backBtn').textContent;
   $('#rScore').textContent=fmt(sc);$('#rNew').hidden=!isNew;
-  $('#rAcc').textContent=acc.toFixed(2)+'%';$('#rCombo').textContent=maxCombo+' / '+notes.length;
+  $('#rAcc').textContent=acc.toFixed(2)+'%';$('#rCombo').textContent=maxCombo+' / '+JC;
   $('#rP').textContent=stats.perfect;$('#rG').textContent=stats.great;$('#rO').textContent=stats.good;$('#rM').textContent=stats.miss;
   $('#rMult').innerHTML=map.community?`<span>레벨 밀도 ×${commMult(map).toFixed(2)}</span><span>속도 ×${speedMult(speed).toFixed(2)}</span><span>합계 <b>×${runMult.toFixed(2)}</b></span>`:multText(map,diffIdx,speed);
   if(test)$('#rFailNote').hidden=true;
@@ -916,7 +940,7 @@ function renderMenu(){
   $('#diffs').innerHTML=DIFFS.map((d,i)=>`<button role="radio" id="diff-${d.id}" aria-checked="${i===diffIdx}" data-i="${i}">${d.name}</button>`).join('');
   const m=MAPS[mapIdx];
   $('#multLine').innerHTML=multText(m,diffIdx,speed);
-  $('#keyHint').innerHTML=`PC ${getKeys(m.lanes).map(k=>`<kbd>${keyNameLong(k)}</kbd>`).join(' ')} · 모바일은 레인을 터치<br>미스가 쌓여 체력이 0이 되거나, 노트 없이 마구 누르면 과부하로 실패해요`;
+  $('#keyHint').innerHTML=`PC ${getKeys(m.lanes).map(k=>`<kbd>${keyNameLong(k)}</kbd>`).join(' ')} · 모바일은 레인을 터치<br>미스가 쌓여 체력이 0이 되거나, 노트 없이 마구 누르면 과부하로 실패해요${m.level>=3?'<br>긴 막대는 홀드 노트예요. 끝까지 누르고 있다가 떼세요':''}`;
   $('#offsetOut').textContent=offsetMs===null?'측정 전':(offsetMs>0?'+':'')+offsetMs+'ms';
   $('#calibBtn').textContent=offsetMs===null?'박자 측정':'다시 측정';
   $('#speed').value=speed;$('#speedOut').textContent=(+speed).toFixed(1);
@@ -1022,8 +1046,14 @@ function draw(){
   if(playing){
     const nh=Math.max(14,Math.min(20,laneW*.18));
     for(const n of notes){
-      if(n.done)continue;const y=hitY-(n.t-now)*pps;if(y<-nh)break;if(y>H+nh)continue;
+      if(n.done&&!n.holding)continue;const y=n.holding?hitY:hitY-(n.t-now)*pps;if(y<-nh)break;
       const x=fx+n.lane*laneW+inset,w=laneW-inset*2,c=laneColor(n.lane,lanes);
+      if(n.len){const yT=hitY-(n.tEnd-now)*pps,top=Math.max(-12,yT),bh=Math.min(y,H+12)-top;
+        if(bh>0){g.fillStyle=c;g.globalAlpha=n.holding?.75:.42;rr(x+w*.18,top,w*.64,bh,6);g.fill();
+          g.globalAlpha=n.holding?1:.8;rr(x+w*.08,yT-6,w*.84,12,6);g.fill();
+          if(n.holding&&QS().fx){g.globalAlpha=.18+.12*Math.sin(pn/70);g.fillRect(fx+n.lane*laneW,hitY-H*.22,laneW,H*.22)}
+          g.globalAlpha=1}}
+      if(y>H+nh)continue;
       g.fillStyle=c;if(QS().fx){g.globalAlpha=.25;rr(x-3,y-nh/2-3,w+6,nh+6,8);g.fill()}
       if(QS().fx>2){const tl=Math.min(90,pps*.12),tg=g.createLinearGradient(0,y-nh/2-tl,0,y-nh/2);tg.addColorStop(0,'transparent');tg.addColorStop(1,c);g.globalAlpha=.35;g.fillStyle=tg;g.fillRect(x+w*.15,y-nh/2-tl,w*.7,tl);g.fillStyle=c}
       g.globalAlpha=1;if(QS().fx>2){g.shadowColor=c;g.shadowBlur=22}rr(x,y-nh/2,w,nh,6);g.fill();g.shadowBlur=0;

@@ -231,7 +231,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="ctl"><label for="hsVol">히트사운드 <output id="hsOut">60%</output></label>
         <input type="range" id="hsVol" min="0" max="100" step="10" value="60"></div>
       <div class="ctl"><span class="lab">그래픽 품질</span>
-        <div class="seg" id="qSeg" role="radiogroup" aria-label="그래픽 품질"><button role="radio" data-q="high">높음</button><button role="radio" data-q="mid">보통</button><button role="radio" data-q="low">낮음</button></div>
+        <div class="seg4" id="qSeg" role="radiogroup" aria-label="그래픽 품질"><button role="radio" data-q="ultra">매우 높음</button><button role="radio" data-q="high">높음</button><button role="radio" data-q="mid">보통</button><button role="radio" data-q="low">낮음</button></div>
         <p class="hint" style="text-align:left;margin:0" id="qHint"></p></div>
       <div class="row">
         <div class="ctl"><div class="lab">입력 보정 <span class="val" id="offsetOut">측정 전</span></div><button class="small" id="calibBtn">박자 측정</button></div>
@@ -656,8 +656,30 @@ let speed=LS.get('bam-bakja-speed',2);
 let hsVol=LS.get('bam-bakja-hitvol',60);
 let musVol=LS.get('cb-musvol',80);
 let quality=LS.get('cb-quality','high');
-const QUAL={high:{dpr:2,fx:2,n:'높음',h:'선명한 화면과 모든 효과. 최신 기기에 맞아요.'},mid:{dpr:1.5,fx:1,n:'보통',h:'해상도를 조금 낮추고 큰 번쩍임 효과를 뺐어요.'},low:{dpr:1,fx:0,n:'낮음',h:'효과를 거의 빼서 오래된 폰에서도 부드럽게 돌아가요.'}};
+const QUAL={ultra:{dpr:3,fx:3,n:'매우 높음',h:'최고 해상도에 불꽃 파티클, 노트 발광, 판정선 빛, 배경 조명, 콤보 연출까지. 성능 좋은 PC·최신 폰용이에요.'},high:{dpr:2,fx:2,n:'높음',h:'선명한 화면과 모든 효과. 최신 기기에 맞아요.'},mid:{dpr:1.5,fx:1,n:'보통',h:'해상도를 조금 낮추고 큰 번쩍임 효과를 뺐어요.'},low:{dpr:1,fx:0,n:'낮음',h:'효과를 거의 빼서 오래된 폰에서도 부드럽게 돌아가요.'}};
 const QS=()=>QUAL[quality]||QUAL.high;
+let sparks=[],flash=null;
+function spawnSparks(lane,k){
+  const n=k==='perfect'?16:k==='great'?10:6,cx=fx+lane*laneW+laneW/2,c=laneColor(lane,lanes);
+  for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*Math.PI*1.1,v=180+Math.random()*(k==='perfect'?420:260);
+    sparks.push({x:cx+(Math.random()-.5)*laneW*.5,y:hitY,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.35+Math.random()*.35,age:0,c,s:1.5+Math.random()*2.5})}
+  if(sparks.length>400)sparks.splice(0,sparks.length-400);
+}
+let lastSparkT=0;
+function drawSparks(pn){
+  const dt=Math.min(.05,(pn-(lastSparkT||pn))/1000);lastSparkT=pn;
+  g.save();g.globalCompositeOperation='lighter';
+  sparks=sparks.filter(p=>(p.age+=dt)<p.life);
+  for(const p of sparks){p.vy+=900*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const f=1-p.age/p.life;g.globalAlpha=f;g.fillStyle=p.c;g.fillRect(p.x-p.s/2,p.y-p.s/2,p.s,p.s*2.2)}
+  if(flash&&pn-flash.t<700){const p=(pn-flash.t)/700;g.globalAlpha=(1-p)*.5;g.strokeStyle=COL.lc[0];g.lineWidth=6*(1-p)+1;
+    g.beginPath();g.ellipse(fx+fw/2,H*.45,fw*.2+p*fw*.6,40+p*H*.25,0,0,Math.PI*2);g.stroke()}
+  g.restore();g.globalAlpha=1;
+}
+function drawAmbient(pulse){
+  const gr=g.createRadialGradient(fx+fw/2,H,0,fx+fw/2,H,Math.max(fw,H*.8));
+  gr.addColorStop(0,COL.lc[2]);gr.addColorStop(1,'transparent');
+  g.globalAlpha=.1+pulse*.12;g.fillStyle=gr;g.fillRect(0,0,W,H);g.globalAlpha=1;
+}
 let mapIdx=Math.min(LS.get('bam-bakja-map',0),MAPS.length-1),diffIdx=LS.get('bam-bakja-diff',1);
 
 /* ---------- game state ---------- */
@@ -719,7 +741,7 @@ function judge(n,d){
   n.done=true;const a=d===null?9:Math.abs(d);
   const k=a<=WIN.p?'perfect':a<=WIN.gr?'great':a<=WIN.go?'good':'miss';
   stats[k]++;stats.acc+=W8[k];
-  if(k==='miss')combo=0;else{combo++;maxCombo=Math.max(maxCombo,combo);bursts.push({lane:n.lane,t:performance.now(),k})}
+  if(k==='miss')combo=0;else{combo++;maxCombo=Math.max(maxCombo,combo);bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2){spawnSparks(n.lane,k);if(combo%50===0)flash={t:performance.now()}}}
   lastJ={k,early:d!==null&&d<0,t:performance.now()};
   hp=Math.max(0,Math.min(100,hp+HP[k]));
   if(hp<=0)die('hp');
@@ -949,7 +971,7 @@ function draw(){
   g.fillStyle=COL.bg;g.fillRect(0,0,W,H);
   const now=!playing?pn/1000:death?death.now:playNow();
   const pps=H*.35*speed,bd=playing?beatDur:.6,base=playing?T0:0;
-  const phase=(((now-base)/bd)%1+1)%1,pulse=QS().fx?Math.pow(1-phase,3):0;
+  const phase=(((now-base)/bd)%1+1)%1,pulse=QS().fx?Math.pow(1-phase,3):0;if(QS().fx>2)drawAmbient(pulse);
   for(let l=0;l<lanes;l++){
     const x=fx+l*laneW,c=laneColor(l,lanes);
     g.globalAlpha=.05+pulse*.03;g.fillStyle=c;g.fillRect(x,0,laneW,H);
@@ -960,6 +982,7 @@ function draw(){
   for(let l=0;l<=lanes;l++){const x=Math.round(fx+l*laneW)+.5;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke()}
   const k0=Math.floor((now-base)/bd)-1,k1=k0+Math.ceil((hitY/pps)/bd)+3;
   for(let k=k0;k<=k1;k++){const y=hitY-(base+k*bd-now)*pps;if(y<0||y>H)continue;g.globalAlpha=k%4===0?.35:.12;g.fillStyle=COL.ink;g.fillRect(fx,Math.round(y),fw,1)}
+  if(QS().fx>2){const hg=g.createLinearGradient(0,hitY-26,0,hitY+26);hg.addColorStop(0,'transparent');hg.addColorStop(.5,COL.lc[0]);hg.addColorStop(1,'transparent');g.globalAlpha=.22+pulse*.25;g.fillStyle=hg;g.fillRect(fx,hitY-26,fw,52)}
   g.globalAlpha=.75;g.fillStyle=COL.ink;g.fillRect(fx,hitY-1,fw,2);
   const inset=Math.min(6,laneW*.08);
   for(let l=0;l<lanes;l++){g.strokeStyle=laneColor(l,lanes);g.globalAlpha=playing&&pressed[l]?.95:.35;g.lineWidth=2;rr(fx+l*laneW+inset,hitY-9,laneW-inset*2,18,6);g.stroke()}
@@ -970,7 +993,7 @@ function draw(){
       if(n.done)continue;const y=hitY-(n.t-now)*pps;if(y<-nh)break;if(y>H+nh)continue;
       const x=fx+n.lane*laneW+inset,w=laneW-inset*2,c=laneColor(n.lane,lanes);
       g.fillStyle=c;if(QS().fx){g.globalAlpha=.25;rr(x-3,y-nh/2-3,w+6,nh+6,8);g.fill()}
-      g.globalAlpha=1;rr(x,y-nh/2,w,nh,6);g.fill();
+      g.globalAlpha=1;if(QS().fx>2){g.shadowColor=c;g.shadowBlur=16}rr(x,y-nh/2,w,nh,6);g.fill();g.shadowBlur=0;
       g.fillStyle=COL.ink;g.globalAlpha=.55;g.fillRect(x+6,y-nh/2+3,Math.max(0,w-12),2);g.globalAlpha=1;
     }
     bursts=bursts.filter(b=>pn-b.t<360);
@@ -980,6 +1003,7 @@ function draw(){
       if(b.k==='perfect'&&QS().fx>1){g.fillStyle=c;g.globalAlpha=(1-p)*.35;g.fillRect(fx+b.lane*laneW,hitY-H*.25*(1-p),laneW,H*.25*(1-p))}
     }
     g.globalAlpha=1;
+    if(QS().fx>2)drawSparks(pn);
     if(!isTouch){g.font='600 13px '+F.num;g.textAlign='center';g.textBaseline='middle';
       getKeys(lanes).forEach((k,l)=>{g.fillStyle=pressed[l]?COL.ink:COL.muted;g.fillText(keyName(k),fx+l*laneW+laneW/2,hitY+30)})}
     const cx=fx+fw/2,left=firstNoteT-now;

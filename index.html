@@ -239,6 +239,7 @@ a.go.off{opacity:.45;pointer-events:none}
         <div class="ctl"><div class="lab">키 배치</div><button class="small" id="keysBtn">키 설정</button></div>
       </div>
       <div class="ctl"><div class="lab">계정 <span class="val" id="setAcctName"></span></div><button class="small" id="setAcctBtn">로그인 · 계정</button></div>
+      <button class="small" id="adminBtn" hidden>관리자 도구</button>
       <button class="go" id="setBack">돌아가기</button>
     </div>
   </section>
@@ -263,6 +264,21 @@ a.go.off{opacity:.45;pointer-events:none}
       </div>
       <p class="keymsg" id="dlMsg"></p>
       <button class="ghost" id="dlBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="admin" hidden>
+    <div class="panel">
+      <h2>관리자 도구</h2>
+      <p class="label" style="margin:0">테스트 도구 · 이 기기에서만, 관리자 계정일 때만 적용</p>
+      <label class="check"><input type="checkbox" id="adInv"> 무적 · 체력과 과부하로 실패하지 않아요. 이 판은 기록·랭킹·잠금 해제에 안 들어가요.</label>
+      <label class="check"><input type="checkbox" id="adUnlock"> 모든 레벨 잠금 해제</label>
+      <p class="label" style="margin:0">플레이어</p>
+      <div class="rpick"><input class="text" id="adSearch" maxlength="12" placeholder="닉네임 검색" autocomplete="off"><button class="small" id="adSearchBtn">검색</button></div>
+      <div class="clist" id="adPlayers"></div>
+      <p class="keymsg" id="adMsg"></p>
+      <p class="hint" style="text-align:left;margin:0">커뮤니티 레벨은 레벨 목록의 '강제 삭제'로, 랭킹 기록은 랭킹 화면의 '지우기'로 지울 수 있어요. 관리자 지정은 데이터베이스에서만 바꿀 수 있어요.</p>
+      <button class="go" id="adBack">돌아가기</button>
     </div>
   </section>
 
@@ -437,6 +453,7 @@ a.go.off{opacity:.45;pointer-events:none}
           <span class="newbest" id="rNew" hidden>최고 기록 갱신</span>
           <span class="newbest" id="rFail" hidden style="background:var(--miss)"></span>
           <span class="newbest" id="rUnlock" hidden style="background:var(--great)"></span>
+          <span class="newbest" id="rInv" hidden style="background:var(--good)">무적 모드 · 기록 안 남음</span>
         </div>
       </div>
       <div class="stats">
@@ -550,7 +567,7 @@ const MAPS=(()=>{
 })();
 const TIERS=['입문','초급','중급','상급','고급','숙련','전문','달인','극한','전설'];
 const clearedMap=i=>best[MAPS[i].id+'-normal']>0||best[MAPS[i].id+'-hard']>0;
-const isUnlocked=i=>i===0||clearedMap(i)||clearedMap(i-1);
+const isUnlocked=i=>i===0||adminOn('unlock')||clearedMap(i)||clearedMap(i-1);
 const unlockedCount=()=>MAPS.reduce((a,_,i)=>a+(isUnlocked(i)?1:0),0);
 const DIFFS=[{id:'easy',name:'쉬움',mult:1},{id:'normal',name:'보통',mult:1.3},{id:'hard',name:'어려움',mult:1.7}];
 const DEFAULT_KEYS={1:['Space'],2:['KeyF','KeyJ'],4:['KeyD','KeyF','KeyJ','KeyK'],6:['KeyS','KeyD','KeyF','KeyJ','KeyK','KeyL']};
@@ -772,7 +789,7 @@ let mapIdx=Math.min(LS.get('bam-bakja-map',0),MAPS.length-1),diffIdx=LS.get('bam
 /* ---------- game state ---------- */
 let sel={type:'builtin'};
 let state='menu',map,lead,notes=[],laneNotes,ptr,T0=0,stepDur,beatDur,totalSteps,nextStep,timer,endTime,firstNoteT;
-let JC=1,activeHold=[],holdSteps={};
+let JC=1,activeHold=[],holdSteps={},runInv=false;
 let stats,combo,maxCombo,shownScore=0,lastJ=null,bursts=[],runMult=1;
 let hp=100,heat=0,lastTick=0,death=null;
 const HP={miss:-16,good:-3,great:.5,perfect:1},HEAT={tap:18,decay:30,warn:55};
@@ -818,7 +835,7 @@ async function start(){
   ptr=new Array(map.lanes).fill(0);pressed=new Array(map.lanes).fill(0);
   firstNoteT=notes[0].t;endTime=T0+totalSteps*stepDur+.6;
   runMult=(map.community?commMult(map):mapMult(map)*DIFFS[diffIdx].mult)*speedMult(speed);
-  JC=notes.length+notes.filter(n=>n.len).length;holdSteps={};notes.forEach(n=>{if(n.len)holdSteps[n.step]=Math.max(holdSteps[n.step]||0,n.len)});activeHold=new Array(map.lanes).fill(null);
+  runInv=adminOn('inv');JC=notes.length+notes.filter(n=>n.len).length;holdSteps={};notes.forEach(n=>{if(n.len)holdSteps[n.step]=Math.max(holdSteps[n.step]||0,n.len)});activeHold=new Array(map.lanes).fill(null);
   stats={perfect:0,great:0,good:0,miss:0,acc:0};hp=100;heat=0;lastTick=performance.now();death=null;combo=0;maxCombo=0;shownScore=0;lastJ=null;bursts=[];
   nextStep=0;timer=setInterval(scheduler,25);scheduler();
   state='play';show(null);$('#pauseBtn').hidden=false;resize();
@@ -832,7 +849,7 @@ function judge(n,d){
   stats[k]++;stats.acc+=W8[k];
   if(k==='miss')combo=0;else{combo++;maxCombo=Math.max(maxCombo,combo);bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2){spawnSparks(n.lane,k);if(combo%50===0)flash={t:performance.now()}}}
   lastJ={k,early:d!==null&&d<0,t:performance.now()};
-  hp=Math.max(0,Math.min(100,hp+HP[k]));
+  hp=Math.max(runInv?1:0,Math.min(100,hp+HP[k]));
   if(n.len&&!n.tail){if(k==='miss'){n.tail=true;tailJudge(n,'miss',true)}else{n.holding=true;activeHold[n.lane]=n}}
   if(hp<=0)die('hp');
 }
@@ -840,7 +857,7 @@ function tailJudge(n,k,noHp){
   stats[k]++;stats.acc+=W8[k];
   if(k==='miss'){combo=0;lastJ={k:'miss',early:false,t:performance.now(),hold:true}}
   else{combo++;maxCombo=Math.max(maxCombo,combo);bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2)spawnSparks(n.lane,k);lastJ={k,early:false,t:performance.now(),hold:true}}
-  if(!noHp){hp=Math.max(0,Math.min(100,hp+HP[k]));if(hp<=0)die('hp')}
+  if(!noHp){hp=Math.max(runInv?1:0,Math.min(100,hp+HP[k]));if(hp<=0)die('hp')}
 }
 function press(l){
   if(state==='calib'){calibTap();return}
@@ -850,7 +867,7 @@ function press(l){
   for(let i=ptr[l];i<arr.length;i++){const n=arr[i];if(n.done)continue;const d=t-n.t;if(d<-WIN.go-.05)break;if(Math.abs(d)<bd){bd=Math.abs(d);bn=n}}
   const hit=bn&&bd<=WIN.go;hitSound(l,map.lanes,hit);
   if(hit){judge(bn,t-bn.t)}
-  else if(t>=firstNoteT-WIN.go){heat+=HEAT.tap;if(heat>=100){heat=100;die('overload')}}
+  else if(t>=firstNoteT-WIN.go){heat+=HEAT.tap;if(heat>=100){heat=100;if(!runInv)die('overload')}}
 }
 function release(l){
   if(l<0||l>=pressed.length)return;pressed[l]=0;
@@ -883,7 +900,7 @@ const fmt=n=>Math.round(n).toLocaleString('ko-KR');
 function multText(m,di,sp){return `<span>맵 ×${mapMult(m).toFixed(2)}</span><span>난이도 ×${DIFFS[di].mult.toFixed(1)}</span><span>속도 ×${speedMult(sp).toFixed(2)}</span><span>합계 <b>×${(mapMult(m)*DIFFS[di].mult*speedMult(sp)).toFixed(2)}</b></span>`}
 function finish(fail){
   stopRun();state='result';$('#pauseBtn').hidden=true;
-  const sc=score(),acc=stats.acc/JC*100,key=map.community?map.id:map.id+'-'+DIFFS[diffIdx].id,test=!!sel.test;
+  const sc=score(),acc=stats.acc/JC*100,key=map.community?map.id:map.id+'-'+DIFFS[diffIdx].id,test=!!sel.test||runInv;
   const before=map.community?0:unlockedCount();
   const isNew=!fail&&!test&&sc>(best[key]||0);if(isNew){best[key]=sc;LS.set('bam-bakja-best-v2',best)}
   const opened=!map.community&&unlockedCount()>before&&MAPS[map.level]?MAPS[map.level]:null;
@@ -894,18 +911,19 @@ function finish(fail){
   $('#rRank').textContent=r;$('#rRank').style.color=fail?COL.miss:r==='S'?COL.perfect:r==='A'?COL.great:r==='B'?COL.good:COL.muted;
   $('#rFail').hidden=!fail;$('#rFail').textContent=fail==='overload'?'과부하로 실패':'체력 소진으로 실패';$('#rFailNote').hidden=!fail;
   $('#rSong').textContent=map.community?`${test?'테스트 · ':'커뮤니티 · '}${map.name} · ${map.lanes}레인`:`Lv.${map.level} ${map.name} · ${map.lanes}레인 · ${DIFFS[diffIdx].name}`;
-  $('#backBtn').textContent=sel.multi?'방으로':test?'에디터로':map.community?'레벨 목록':'맵 선택';$('#quitBtn').textContent=$('#backBtn').textContent;
+  $('#backBtn').textContent=sel.multi?'방으로':sel.test?'에디터로':map.community?'레벨 목록':'맵 선택';$('#quitBtn').textContent=$('#backBtn').textContent;
   $('#rScore').textContent=fmt(sc);$('#rNew').hidden=!isNew;
   $('#rAcc').textContent=acc.toFixed(2)+'%';$('#rCombo').textContent=maxCombo+' / '+JC;
   $('#rP').textContent=stats.perfect;$('#rG').textContent=stats.great;$('#rO').textContent=stats.good;$('#rM').textContent=stats.miss;
   $('#rMult').innerHTML=map.community?`<span>레벨 밀도 ×${commMult(map).toFixed(2)}</span><span>속도 ×${speedMult(speed).toFixed(2)}</span><span>합계 <b>×${runMult.toFixed(2)}</b></span>`:multText(map,diffIdx,speed);
   if(test)$('#rFailNote').hidden=true;
+  $('#rInv').hidden=!runInv;
   renderMenu();show('result');
 }
 function pause(){if(state!=='play')return;state='pause';ctx.suspend();$('#pauseBtn').hidden=true;show('pause')}
 function resume(){state='play';ctx.resume();$('#pauseBtn').hidden=false;show(null)}
 function toMenu(){stopRun();state='menu';$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();renderMenu();show('menu');resize()}
-function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps'].forEach(s=>$('#'+s).hidden=s!==id)}
+function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin'].forEach(s=>$('#'+s).hidden=s!==id)}
 function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
 
 /* ---------- calibration (tap along to a metronome) ---------- */
@@ -1000,7 +1018,7 @@ $('#hsVol').addEventListener('input',e=>{hsVol=+e.target.value;LS.set('bam-bakja
 $('#hsVol').addEventListener('change',()=>{ensureAudio();if(ctx.state!=='running')ctx.resume();const n=MAPS[mapIdx].lanes;for(let i=0;i<n;i++)setTimeout(()=>hitSound(i,n,true),i*160)});
 $('#speed').addEventListener('input',e=>{speed=+e.target.value;LS.set('bam-bakja-speed',speed);$('#speedOut').textContent=speed.toFixed(1);$('#multLine').innerHTML=multText(MAPS[mapIdx],diffIdx,speed)});
 $('#calibBtn').onclick=()=>openCalib(false);
-function openSettings(){state='settings';renderMenu();$('#setAcctName').textContent=typeof acct!=='undefined'&&acct?acct.nick:'로그인 안 함';show('settings')}
+function openSettings(){state='settings';renderMenu();$('#adminBtn').hidden=!(typeof acct!=='undefined'&&acct&&acct.admin);$('#setAcctName').textContent=typeof acct!=='undefined'&&acct?acct.nick:'로그인 안 함';show('settings')}
 $('#setBtn').onclick=openSettings;
 function renderQuality(){$('#qSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',b.dataset.q===quality));$('#qHint').textContent=QS().h}
 $('#qSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;quality=b.dataset.q;LS.set('cb-quality',quality);renderQuality();resize()});
@@ -1138,6 +1156,7 @@ function draw(){
       g.fillStyle=COL.line;rr(lx+42,y,bw,6,3);g.fill();if(v>0){g.fillStyle=c;rr(lx+42,y,bw*v/100,6,3);g.fill()}};
     bar(66,'체력',hp,hp>50?COL.great:hp>25?COL.perfect:COL.miss);
     bar(80,'과부하',heat,heat>=HEAT.warn?COL.miss:COL.muted);
+    if(runInv){g.font='600 11px '+F.body;g.fillStyle=COL.good;g.textBaseline='middle';g.fillText('무적',lx+42+bw+8,73)}
     if(sel.multi)drawMulti(pn);
     if(heat>=HEAT.warn&&state==='play'){const a=(heat-HEAT.warn)/(100-HEAT.warn);g.strokeStyle=COL.miss;g.globalAlpha=.3+.5*a*(.6+.4*Math.sin(pn/60));g.lineWidth=4;g.strokeRect(fx+2,2,fw-4,H-4);
       g.globalAlpha=1;g.font='15px '+F.display;g.textAlign='center';g.fillStyle=COL.miss;g.fillText('과부하 주의',fx+fw/2,H*.62)}
@@ -1159,7 +1178,8 @@ const ERR={bad_nick:'닉네임은 한글·영문·숫자와 _ . - 로 2~12자여
   network:'서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.',missing_fn:'이 기능은 아직 서버 준비가 끝나지 않았어요.',too_many_levels:'레벨은 한 사람당 50개까지 올릴 수 있어요.',
   bad_notes:'노트 배치가 올바르지 않아요.',bad_title:'제목을 1~30자로 입력하세요.',bad_shape:'레인 수, BPM, 길이 중 범위를 벗어난 값이 있어요.',bad_music:'음악 설정이 올바르지 않아요.',
   not_yours:'내가 만든 레벨만 바꿀 수 있어요.',no_level:'레벨을 찾을 수 없어요. 삭제됐을 수 있어요.',bad_key:'기록을 저장할 수 없는 맵이에요.',bad_score:'점수가 올바르지 않아요.',
-  bad_audio:'음악 정보가 올바르지 않아요. 음악을 다시 골라 주세요.',bad_size:'10MB 이하 mp3만 올릴 수 있어요.',not_mp3:'mp3 파일만 올릴 수 있어요.',too_many_files:'음악은 한 사람당 30개까지 올릴 수 있어요.',upload_failed:'음악을 올리지 못했어요. 잠시 뒤 다시 시도해 주세요.'};
+  bad_audio:'음악 정보가 올바르지 않아요. 음악을 다시 골라 주세요.',bad_size:'10MB 이하 mp3만 올릴 수 있어요.',not_mp3:'mp3 파일만 올릴 수 있어요.',too_many_files:'음악은 한 사람당 30개까지 올릴 수 있어요.',upload_failed:'음악을 올리지 못했어요. 잠시 뒤 다시 시도해 주세요.',
+  banned:'이용이 제한된 계정이에요.',not_admin:'관리자만 할 수 있어요.',no_player:'그런 닉네임이 없어요.',is_admin:'관리자는 차단할 수 없어요.'};
 const errText=e=>ERR[e&&e.code]||'문제가 생겼어요. 잠시 뒤 다시 시도해 주세요.';
 const API={async call(fn,args){
   let r;
@@ -1193,7 +1213,7 @@ const NICK_RE=/^[0-9A-Za-z가-힣_.-]{2,12}$/;
 let acct=LS.get('cb-acct',null);
 if(!acct||typeof acct.token!=='string'||!/^[0-9a-f]{64}$/.test(acct.token)||typeof acct.nick!=='string')acct=null;
 function setAcct(a){acct=a;LS.set('cb-acct',a);renderAcct()}
-function authFail(e){if(e&&e.code==='bad_session')setAcct(null)}
+function authFail(e){if(e&&(e.code==='bad_session'||e.code==='banned'))setAcct(null)}
 function renderAcct(){
   const n=$('#acctName');n.textContent='';
   if(acct){n.append('로그인: ');const b=document.createElement('b');b.textContent=acct.nick;n.append(b);$('#acctBtn').textContent='계정'}
@@ -1240,7 +1260,7 @@ async function doLogin(){
         m.textContent='이미 있는 닉네임이에요. 비밀번호가 맞지 않아요.';return;
       }
     }
-    setAcct({token:r.token,nick:r.nick});signupPending=null;$('#aPw').value='';$('#aGo').textContent='로그인 · 동기화';
+    setAcct({token:r.token,nick:r.nick,admin:!!r.admin});signupPending=null;$('#aPw').value='';$('#aGo').textContent='로그인 · 동기화';
     m.textContent='기록을 동기화하는 중…';
     const got=await syncScores();
     m.textContent=`'${r.nick}'(으)로 로그인했어요.`+(got.down||got.up?` 기록 ${got.down}개를 받아오고 ${got.up}개를 올렸어요.`:' 기록이 이미 맞춰져 있어요.');
@@ -1302,12 +1322,18 @@ async function loadRank(){
       const w=document.createElement('span');w.className='who';w.textContent=r.nick;
       if(r.sub||li.className){const sm=document.createElement('small');sm.textContent=(li.className?'나 · ':'')+r.sub;w.appendChild(sm)}
       const s=document.createElement('span');s.className='pts';s.textContent=fmt(r.pts);
-      li.append(p,w,s);board.appendChild(li);
+      li.append(p,w,s);
+      if(acct&&acct.admin){const b=document.createElement('button');b.className='small';b.textContent='지우기';b.style.marginLeft='6px';b.dataset.nick=r.nick;b.dataset.key=RK.tab==='total'?'':(RK.tab==='level'?'c:'+RK.level.id:MAPS[RK.mapIdx].id+'-'+DIFFS[RK.diffIdx].id);li.style.gridTemplateColumns='2.6em 1fr auto auto';li.appendChild(b)}
+      board.appendChild(li);
     }
     msg.textContent=rows.length?(acct?'게임을 마치면 최고 기록이 자동으로 올라가요.':'로그인하면 내 기록도 랭킹에 올라가요.'):'아직 기록이 없어요. 첫 기록의 주인공이 되어 보세요.';
   }catch(e){if(id===rankReq)msg.textContent=errText(e)}
 }
 $('#rankBtn').onclick=()=>openRank();
+$('#board').addEventListener('click',async e=>{const b=e.target.closest('button[data-nick]');if(!b||!acct||!acct.admin)return;
+  if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말?';b.classList.add('liked');return}
+  try{const n=await API.call('bb_admin_delete_score',{p_token:acct.token,p_nick:b.dataset.nick,p_key:b.dataset.key});$('#rankMsg').textContent=`${b.dataset.nick}의 기록 ${n}개를 지웠어요.`;loadRank()}
+  catch(err){$('#rankMsg').textContent=errText(err);authFail(err)}});
 $('#rankBack').onclick=()=>RK.from==='comm'?openComm(true):toMenu();
 $('#rtTotal').onclick=()=>{RK.tab='total';loadRank()};
 $('#rtMap').onclick=()=>{RK.tab='map';loadRank()};
@@ -1355,6 +1381,7 @@ function renderComm(note){
     mk('like',`♥ ${L.likes}`,CM.liked.has(L.id)?'liked':'').setAttribute('aria-pressed',CM.liked.has(L.id));
     mk('rank','랭킹');
     if(me&&L.author.toLowerCase()===me){mk('edit','수정');mk('del',CM.del===L.id?'정말 삭제':'삭제',CM.del===L.id?'liked':'')}
+    else if(acct&&acct.admin)mk('adel',CM.del===L.id?'정말 강제 삭제':'강제 삭제',CM.del===L.id?'liked':'');
     c.appendChild(acts);list.appendChild(c);
   }
   $('#cMore').hidden=!CM.more;
@@ -1365,7 +1392,7 @@ $('#cList').addEventListener('click',async e=>{
   const b=e.target.closest('button[data-act]');if(!b||CM.busy)return;
   const id=b.closest('.lv-card').dataset.id,L=CM.items.find(x=>x.id===id);if(!L)return;
   const act=b.dataset.act,msg=$('#cMsg');
-  if(act!=='del')CM.del=null;
+  if(act!=='del'&&act!=='adel')CM.del=null;
   try{
     if(act==='play'){CM.busy=true;msg.textContent='레벨을 불러오는 중…';const full=await fetchLevel(id);msg.textContent='';sel={type:'community',level:full};start()}
     else if(act==='rank')openRank(L);
@@ -1374,6 +1401,11 @@ $('#cList').addEventListener('click',async e=>{
       if(!acct){openAcct(()=>openComm(true));$('#aMsg').textContent='좋아요를 누르려면 먼저 로그인하세요.';return}
       CM.busy=true;const r=await API.call('bb_toggle_like',{p_token:acct.token,p_id:id});
       L.likes=r.likes;r.liked?CM.liked.add(id):CM.liked.delete(id);renderComm();
+    }
+    else if(act==='adel'){
+      if(CM.del!==id){CM.del=id;renderComm();return}
+      CM.busy=true;await API.call('bb_admin_delete_level',{p_token:acct.token,p_id:id});
+      CM.items=CM.items.filter(x=>x.id!==id);CM.del=null;renderComm(`'${L.title}' 레벨을 강제 삭제했어요.`);
     }
     else if(act==='del'){
       if(CM.del!==id){CM.del=id;renderComm();return}
@@ -1887,8 +1919,51 @@ $('#installBtn').onclick=doInstall;$('#dlInstall').onclick=doInstall;
 $('#iosClose').onclick=()=>{$('#iosGuide').hidden=true};
 updateInstall();
 
+/* ---------- admin ---------- */
+const ADM=Object.assign({inv:false,unlock:false},LS.get('cb-admin-tools',{}));
+function adminOn(k){return !!(acct&&acct.admin&&ADM[k])}
+function openAdmin(){
+  if(!acct||!acct.admin){openSettings();return}
+  state='admin';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();
+}
+let adArm=null;
+async function loadAdminPlayers(){
+  const list=$('#adPlayers'),msg=$('#adMsg');msg.textContent='불러오는 중…';
+  try{
+    const rows=await API.call('bb_admin_players',{p_token:acct.token,p_search:$('#adSearch').value.trim(),p_limit:100})||[];
+    list.textContent='';
+    for(const r of rows){
+      const c=document.createElement('article');c.className='lv-card';
+      const h=document.createElement('h3');const t=document.createElement('span');t.textContent=r.nick+(r.is_admin?' · 관리자':'')+(r.banned?' · 차단됨':'');h.appendChild(t);
+      const m=document.createElement('div');m.className='meta';m.textContent=`가입 ${String(r.created_at).slice(0,10)} · 기록 ${r.scores} · 레벨 ${r.levels}`;
+      const a=document.createElement('div');a.className='acts';
+      const mk=(act,label)=>{const b=document.createElement('button');b.className='small'+(adArm===act+r.nick?' liked':'');b.dataset.act=act;b.dataset.nick=r.nick;b.textContent=adArm===act+r.nick?'정말 '+label:label;a.appendChild(b)};
+      if(!r.is_admin)mk(r.banned?'unban':'ban',r.banned?'차단 해제':'차단');
+      if(+r.scores>0)mk('wipe','기록 모두 지우기');
+      c.append(h,m,a);list.appendChild(c);
+    }
+    msg.textContent=rows.length?`${rows.length}명`:'찾는 플레이어가 없어요.';
+  }catch(e){msg.textContent=errText(e);authFail(e)}
+}
+$('#adPlayers').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-act]');if(!b)return;const act=b.dataset.act,nick=b.dataset.nick;
+  if(act!=='unban'&&adArm!==act+nick){adArm=act+nick;loadAdminPlayers();return}
+  adArm=null;
+  try{
+    if(act==='ban'||act==='unban')await API.call('bb_admin_set_ban',{p_token:acct.token,p_nick:nick,p_banned:act==='ban'});
+    else if(act==='wipe')await API.call('bb_admin_delete_score',{p_token:acct.token,p_nick:nick,p_key:''});
+    await loadAdminPlayers();$('#adMsg').textContent=act==='ban'?`${nick}을(를) 차단했어요.`:act==='unban'?`${nick}의 차단을 풀었어요.`:`${nick}의 기록을 모두 지웠어요.`;
+  }catch(err){$('#adMsg').textContent=errText(err);authFail(err)}
+});
+$('#adInv').onchange=e=>{ADM.inv=e.target.checked;LS.set('cb-admin-tools',ADM)};
+$('#adUnlock').onchange=e=>{ADM.unlock=e.target.checked;LS.set('cb-admin-tools',ADM);renderMenu()};
+$('#adSearchBtn').onclick=loadAdminPlayers;
+$('#adSearch').addEventListener('keydown',e=>{if(e.key==='Enter')loadAdminPlayers()});
+$('#adBack').onclick=()=>openSettings();
+$('#adminBtn').onclick=openAdmin;
+
 /* ---------- startup: refresh the saved login ---------- */
-if(acct)API.call('bb_me',{p_token:acct.token}).then(r=>{if(r&&r.nick&&r.nick!==acct.nick)setAcct({...acct,nick:r.nick});return syncScores()}).catch(authFail);
+if(acct)API.call('bb_me',{p_token:acct.token}).then(r=>{if(r&&r.nick&&(r.nick!==acct.nick||!!r.admin!==!!acct.admin))setAcct({...acct,nick:r.nick,admin:!!r.admin});return syncScores()}).catch(authFail);
 
 renderMenu();
 (document.fonts?document.fonts.ready:Promise.resolve()).finally(()=>requestAnimationFrame(loop));

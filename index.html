@@ -592,14 +592,25 @@ function buildChart(s,lead,diff){
     const lane=d%n;notes.push({step:i,lane});
     if(n>=2&&(final&&diff!=='easy'||diff==='hard'&&(st===0||(n>=5&&st===8)||(s.chords&&st%4===0))||diff==='normal'&&s.chords&&st===0))notes.push({step:i,lane:(lane+Math.floor(n/2))%n});
   }
-  // hold notes from Lv3: a note with room after it in its lane becomes a hold
+  // hold notes from Lv3, placed where the melody rests: on a beat, followed by a long gap.
+  // Lv3-9: solo holds only (nothing else to hit while holding). Lv10+: other lanes keep going.
   if(s.level>=3){
-    const r=rng(s.seed*31+diff.length*7),last=(BARS-1)*16,byLane={};
-    notes.forEach(x=>(byLane[x.lane]||(byLane[x.lane]=[])).push(x));
-    const p=(.12+Math.min(.22,(s.level-3)*.01))*(diff==='easy'?.6:1);
-    for(const l of Object.keys(byLane)){const arr=byLane[l].sort((a,b)=>a.step-b.step);
-      for(let i=0;i<arr.length;i++){const x=arr[i],gap=(arr[i+1]?arr[i+1].step:last)-x.step;
-        if(gap>=6&&r()<p){let len=Math.min(gap-2,diff==='easy'?8:16);len=diff==='easy'?Math.max(4,len-len%4):Math.max(4,len-len%2);x.len=len;i++}}}
+    const r=rng(s.seed*31+diff.length*7),last=(BARS-1)*16,solo=s.level<10;
+    const maxH=s.level<6?4:s.level<10?8:diff==='easy'?10:999;
+    const p=(s.level<6?.35:s.level<10?.32:Math.min(.42,.22+(s.level-10)*.01))*(diff==='easy'?.5:1);
+    const sorted=notes.slice().sort((a,b)=>a.step-b.step||a.lane-b.lane);let count=0;
+    for(let i=0;i<sorted.length&&count<maxH;i++){
+      const x=sorted[i];if(x.step%4||x.step>=last)continue;
+      const chord=sorted.some(y=>y!==x&&y.step===x.step);if(solo&&chord)continue;
+      let nextSame=last,nextAny=last;
+      for(let j=i+1;j<sorted.length;j++){const y=sorted[j];if(y.step===x.step)continue;if(nextAny===last)nextAny=y.step;if(y.lane===x.lane){nextSame=y.step;break}}
+      const gap=(solo?Math.min(nextSame,nextAny):nextSame)-x.step;
+      if(gap<8||r()>p)continue;
+      let len=Math.floor(Math.min(gap-2,16)/4)*4;if(diff==='easy')len=Math.min(len,8);if(len<4)continue;
+      x.len=len;count++;
+    }
+    // the last note of the song rings out as a short hold
+    sorted.filter(x=>x.step===last).forEach(x=>{x.len=8});
   }
   return notes;
 }
@@ -728,7 +739,7 @@ let mapIdx=Math.min(LS.get('bam-bakja-map',0),MAPS.length-1),diffIdx=LS.get('bam
 /* ---------- game state ---------- */
 let sel={type:'builtin'};
 let state='menu',map,lead,notes=[],laneNotes,ptr,T0=0,stepDur,beatDur,totalSteps,nextStep,timer,endTime,firstNoteT;
-let JC=1,activeHold=[];
+let JC=1,activeHold=[],holdSteps={};
 let stats,combo,maxCombo,shownScore=0,lastJ=null,bursts=[],runMult=1;
 let hp=100,heat=0,lastTick=0,death=null;
 const HP={miss:-16,good:-3,great:.5,perfect:1},HEAT={tap:18,decay:30,warn:55};
@@ -754,7 +765,7 @@ function playStep(i,t){
     if(st===0)pad(t,s,bar,beatDur*4);
     if(st%2===0){const r=s.key-24+s.prog[bar%4][0];tone(t,st%4===2?r+12:r,stepDur*1.7,'sawtooth',.26,520+s.drive*180)}
   }
-  if(lead[i]>=0)tone(t,degPitch(s,lead[i]),stepDur*1.6,s.lead,lv,lc);
+  if(lead[i]>=0)tone(t,degPitch(s,lead[i]),holdSteps[i]?holdSteps[i]*stepDur:stepDur*1.6,s.lead,lv,lc);
 }
 function scheduler(){const ahead=ctx.currentTime+.15;while(nextStep<totalSteps&&T0+nextStep*stepDur<ahead){playStep(nextStep,T0+nextStep*stepDur);nextStep++}}
 
@@ -774,7 +785,7 @@ async function start(){
   ptr=new Array(map.lanes).fill(0);pressed=new Array(map.lanes).fill(0);
   firstNoteT=notes[0].t;endTime=T0+totalSteps*stepDur+.6;
   runMult=(map.community?commMult(map):mapMult(map)*DIFFS[diffIdx].mult)*speedMult(speed);
-  JC=notes.length+notes.filter(n=>n.len).length;activeHold=new Array(map.lanes).fill(null);
+  JC=notes.length+notes.filter(n=>n.len).length;holdSteps={};notes.forEach(n=>{if(n.len)holdSteps[n.step]=Math.max(holdSteps[n.step]||0,n.len)});activeHold=new Array(map.lanes).fill(null);
   stats={perfect:0,great:0,good:0,miss:0,acc:0};hp=100;heat=0;lastTick=performance.now();death=null;combo=0;maxCombo=0;shownScore=0;lastJ=null;bursts=[];
   nextStep=0;timer=setInterval(scheduler,25);scheduler();
   state='play';show(null);$('#pauseBtn').hidden=false;resize();

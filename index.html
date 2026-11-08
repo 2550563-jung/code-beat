@@ -155,6 +155,8 @@ a.go.off{opacity:.45;pointer-events:none}
 .sheet.top .sheet-arrow{transform:rotate(180deg);align-self:flex-end;margin:0 18px 4px 0;animation:none}
 @keyframes bob{50%{transform:translateY(6px)}}
 @media (prefers-reduced-motion: reduce){.sheet-arrow{animation:none}}
+.song.locked{opacity:.5;cursor:not-allowed}
+.song.locked .nm{color:var(--muted)}
 .liked{color:var(--miss)!important;border-color:var(--miss)!important}
 .small:disabled,.go:disabled,.ghost:disabled{opacity:.45;cursor:default}
 /* editor */
@@ -202,7 +204,8 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="setBtn">설정</button></div>
       <div class="total"><span>누적 점수 · 맵·난이도별 최고 기록 합계</span><b id="totalScore">0</b></div>
       <div>
-        <p class="label">맵 · 쉬운 순서 · 31단계</p>
+        <p class="label">맵 · 쉬운 순서 · <span id="unlockCount"></span></p>
+        <p class="hint" id="unlockHint" style="text-align:left;margin:0 0 8px">레벨을 깨면 다음 레벨이 열려요.</p>
         <div class="songs" id="songs" role="radiogroup" aria-label="맵"></div>
       </div>
       <div>
@@ -428,6 +431,7 @@ a.go.off{opacity:.45;pointer-events:none}
           <div class="rscore" id="rScore">0</div>
           <span class="newbest" id="rNew" hidden>최고 기록 갱신</span>
           <span class="newbest" id="rFail" hidden style="background:var(--miss)"></span>
+          <span class="newbest" id="rUnlock" hidden style="background:var(--great)"></span>
         </div>
       </div>
       <div class="stats">
@@ -507,6 +511,9 @@ const MAPS=[
   {id:'lightspeed',name:'광속 기관차',lanes:4,bpm:222,key:50,sc:'minor', prog:[[0,'m'],[0,'m'],[-2,'M'],[-4,'M']],seed:127,lead:'sawtooth',drive:2,busy:2.3,stream:true,chords:true},
 ].map((m,i)=>({...m,level:i+1,tier:Math.min(5,Math.floor(i/5)),busy:m.busy??Math.min(1.35,.25+i*.05),scale:SC[m.sc]}));
 const TIERS=['입문','초급','중급','상급','고급','극한'];
+const clearedMap=i=>DIFFS.some(d=>best[MAPS[i].id+'-'+d.id]>0);
+const isUnlocked=i=>i===0||clearedMap(i)||clearedMap(i-1);
+const unlockedCount=()=>MAPS.reduce((a,_,i)=>a+(isUnlocked(i)?1:0),0);
 const DIFFS=[{id:'easy',name:'쉬움',mult:1},{id:'normal',name:'보통',mult:1.3},{id:'hard',name:'어려움',mult:1.7}];
 const DEFAULT_KEYS={1:['Space'],2:['KeyF','KeyJ'],4:['KeyD','KeyF','KeyJ','KeyK'],6:['KeyS','KeyD','KeyF','KeyJ','KeyK','KeyL']};
 const KEYSYM={Space:'Space',Semicolon:';',Quote:"'",Comma:',',Period:'.',Slash:'/',Backslash:'\\',BracketLeft:'[',BracketRight:']',Minus:'-',Equal:'=',Backquote:'`',
@@ -747,7 +754,10 @@ function multText(m,di,sp){return `<span>맵 ×${mapMult(m).toFixed(1)}</span><s
 function finish(fail){
   stopRun();state='result';$('#pauseBtn').hidden=true;
   const sc=score(),acc=stats.acc/notes.length*100,key=map.community?map.id:map.id+'-'+DIFFS[diffIdx].id,test=!!sel.test;
+  const before=map.community?0:unlockedCount();
   const isNew=!fail&&!test&&sc>(best[key]||0);if(isNew){best[key]=sc;LS.set('bam-bakja-best-v2',best)}
+  const opened=!map.community&&unlockedCount()>before&&MAPS[map.level]?MAPS[map.level]:null;
+  $('#rUnlock').hidden=!opened;if(opened)$('#rUnlock').textContent=`Lv${opened.level} ${opened.name} 열림!`;
   if(!fail&&!test)submitResult(key,sc,acc,maxCombo);
   $('#rMultiBox').hidden=!sel.multi;if(sel.multi)mpFinal(sc,acc,maxCombo,fail);else{$('#rRankLine').hidden=true;$('#rLoginHint').hidden=true}
   const r=fail?'F':rankOf(acc);
@@ -832,14 +842,17 @@ $('#cPad').addEventListener('pointerdown',e=>{e.preventDefault();calibTap()});
 /* ---------- menu ---------- */
 const fmtLen=s=>{const sec=Math.round(barsOf(s)*4*60/s.bpm);return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')};
 function renderMenu(){
+  if(!sel.multi&&!isUnlocked(mapIdx)){mapIdx=0;for(let i=MAPS.length-1;i>=0;i--)if(isUnlocked(i)){mapIdx=i;break}}
+  $('#unlockCount').textContent=`${unlockedCount()}/${MAPS.length} 열림`;
   const dk=DIFFS[diffIdx].id;
   $('#songs').innerHTML=MAPS.map((s,i)=>{const b=best[s.id+'-'+dk];
     const head=i===0||MAPS[i-1].tier!==s.tier?(()=>{const ls=MAPS.filter(x=>x.tier===s.tier);return `<div class="tier"><b>${TIERS[s.tier]}</b><span>Lv${ls[0].level}–${ls[ls.length-1].level}</span></div>`})():'';
     const dots=Array.from({length:s.lanes},(_,j)=>`<i style="background:${laneColor(j,s.lanes)}"></i>`).join('');
-    return head+`<button class="song" role="radio" id="map-${s.id}" aria-checked="${i===mapIdx}" data-i="${i}">
+    const lk=!isUnlocked(i);
+    return head+`<button class="song${lk?' locked':''}" role="radio" id="map-${s.id}" aria-checked="${i===mapIdx}" data-i="${i}"${lk?' aria-disabled="true"':''}>
       <span class="lv">Lv${s.level}</span><span class="nm">${s.name}<span class="dots" aria-hidden="true">${dots}</span></span>
       <span class="meta">${s.lanes}레인 · ${s.bpm} BPM · ${fmtLen(s)}</span>
-      <span class="best">최고<b>${b?fmt(b):'—'}</b></span></button>`}).join('');
+      <span class="best">${lk?'잠김<b>🔒</b>':`최고<b>${b?fmt(b):'—'}</b>`}</span></button>`}).join('');
   $('#diffs').innerHTML=DIFFS.map((d,i)=>`<button role="radio" id="diff-${d.id}" aria-checked="${i===diffIdx}" data-i="${i}">${d.name}</button>`).join('');
   const m=MAPS[mapIdx];
   $('#multLine').innerHTML=multText(m,diffIdx,speed);
@@ -850,7 +863,7 @@ function renderMenu(){
   $('#totalScore').textContent=fmt(Object.keys(best).filter(k=>!k.startsWith('c:')).reduce((a,k)=>a+best[k],0));
   renderAcct();
 }
-$('#songs').addEventListener('click',e=>{const b=e.target.closest('.song');if(!b)return;mapIdx=+b.dataset.i;LS.set('bam-bakja-map',mapIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
+$('#songs').addEventListener('click',e=>{const b=e.target.closest('.song');if(!b)return;if(!isUnlocked(+b.dataset.i)){$('#unlockHint').textContent=`Lv${+b.dataset.i} ${MAPS[+b.dataset.i-1].name}을(를) 깨면 열려요. 어떤 난이도든 실패 없이 끝까지 하면 돼요.`;return}mapIdx=+b.dataset.i;LS.set('bam-bakja-map',mapIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
 $('#diffs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;diffIdx=+b.dataset.i;LS.set('bam-bakja-diff',diffIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
 $('#hsVol').value=hsVol;$('#hsOut').textContent=hsVol?hsVol+'%':'끔';
 $('#hsVol').addEventListener('input',e=>{hsVol=+e.target.value;LS.set('bam-bakja-hitvol',hsVol);$('#hsOut').textContent=hsVol?hsVol+'%':'끔'});
@@ -1630,7 +1643,7 @@ function renderMulti(){
   boardRows($('#mpPlayers'),MP.players.map((p,i)=>({nick:p.nick,me:p.nick===MP.me,score:null,host:i===0})),r=>[r.host?'방장':'',r.me?'나':''].filter(Boolean).join(' · '));
   $('#mpHostBox').hidden=!MP.host;
   if(MP.host&&!$('#mpMap').options.length){
-    $('#mpMap').innerHTML=MAPS.map((m,i)=>`<option value="${i}">Lv${m.level} ${m.name} · ${m.lanes}키</option>`).join('');
+    $('#mpMap').innerHTML=MAPS.map((m,i)=>`<option value="${i}"${isUnlocked(i)?'':' disabled'}>Lv${m.level} ${m.name} · ${m.lanes}키${isUnlocked(i)?'':' (잠김)'}</option>`).join('');
     $('#mpDiff').innerHTML=DIFFS.map((d,i)=>`<option value="${i}">${d.name}</option>`).join('');
   }
   if(MP.host){$('#mpMap').value=MP.map;$('#mpDiff').value=MP.diff}

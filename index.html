@@ -205,7 +205,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="total"><span>누적 점수 · 맵·난이도별 최고 기록 합계</span><b id="totalScore">0</b></div>
       <div>
         <p class="label">맵 · 쉬운 순서 · <span id="unlockCount"></span></p>
-        <p class="hint" id="unlockHint" style="text-align:left;margin:0 0 8px">레벨을 깨면 다음 레벨이 열려요.</p>
+        <p class="hint" id="unlockHint" style="text-align:left;margin:0 0 8px">보통 이상 난이도로 깨면 다음 레벨이 열려요.</p>
         <div class="songs" id="songs" role="radiogroup" aria-label="맵"></div>
       </div>
       <div>
@@ -511,7 +511,7 @@ const MAPS=[
   {id:'lightspeed',name:'광속 기관차',lanes:4,bpm:222,key:50,sc:'minor', prog:[[0,'m'],[0,'m'],[-2,'M'],[-4,'M']],seed:127,lead:'sawtooth',drive:2,busy:2.3,stream:true,chords:true},
 ].map((m,i)=>({...m,level:i+1,tier:Math.min(5,Math.floor(i/5)),busy:m.busy??Math.min(1.35,.25+i*.05),scale:SC[m.sc]}));
 const TIERS=['입문','초급','중급','상급','고급','극한'];
-const clearedMap=i=>DIFFS.some(d=>best[MAPS[i].id+'-'+d.id]>0);
+const clearedMap=i=>best[MAPS[i].id+'-normal']>0||best[MAPS[i].id+'-hard']>0;
 const isUnlocked=i=>i===0||clearedMap(i)||clearedMap(i-1);
 const unlockedCount=()=>MAPS.reduce((a,_,i)=>a+(isUnlocked(i)?1:0),0);
 const DIFFS=[{id:'easy',name:'쉬움',mult:1},{id:'normal',name:'보통',mult:1.3},{id:'hard',name:'어려움',mult:1.7}];
@@ -863,7 +863,7 @@ function renderMenu(){
   $('#totalScore').textContent=fmt(Object.keys(best).filter(k=>!k.startsWith('c:')).reduce((a,k)=>a+best[k],0));
   renderAcct();
 }
-$('#songs').addEventListener('click',e=>{const b=e.target.closest('.song');if(!b)return;if(!isUnlocked(+b.dataset.i)){$('#unlockHint').textContent=`Lv${+b.dataset.i} ${MAPS[+b.dataset.i-1].name}을(를) 깨면 열려요. 어떤 난이도든 실패 없이 끝까지 하면 돼요.`;return}mapIdx=+b.dataset.i;LS.set('bam-bakja-map',mapIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
+$('#songs').addEventListener('click',e=>{const b=e.target.closest('.song');if(!b)return;if(!isUnlocked(+b.dataset.i)){$('#unlockHint').textContent=`Lv${+b.dataset.i} ${MAPS[+b.dataset.i-1].name}을(를) 보통 이상 난이도로 깨면 열려요.`;return}mapIdx=+b.dataset.i;LS.set('bam-bakja-map',mapIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
 $('#diffs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;diffIdx=+b.dataset.i;LS.set('bam-bakja-diff',diffIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
 $('#hsVol').value=hsVol;$('#hsOut').textContent=hsVol?hsVol+'%':'끔';
 $('#hsVol').addEventListener('input',e=>{hsVol=+e.target.value;LS.set('bam-bakja-hitvol',hsVol);$('#hsOut').textContent=hsVol?hsVol+'%':'끔'});

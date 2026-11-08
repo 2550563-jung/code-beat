@@ -142,7 +142,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .lv-card .acts button{flex:0 0 auto}
 .lv-card .acts .play{background:var(--accent);color:#1b1407;border-color:var(--accent)}
 .filebtn{display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer}
-.check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
+.check{display:flex;align-items:center;justify-content:flex-start!important;gap:8px;font-size:13px;color:var(--ink)}
 .check input{width:18px;height:18px;accent-color:var(--accent)}
 a.go{display:block;text-align:center;text-decoration:none}
 a.go.off{opacity:.45;pointer-events:none}
@@ -278,15 +278,15 @@ a.go.off{opacity:.45;pointer-events:none}
 
   <section class="screen" id="admin" hidden>
     <div class="panel">
-      <h2>관리자 도구</h2>
-      <p class="label" style="margin:0">테스트 도구 · 이 기기에서만, 관리자 계정일 때만 적용</p>
+      <h2 id="adTitle">관리자 도구</h2>
+      <div class="ctl" id="adTools"><p class="label" style="margin:0">테스트 도구 · 이 기기에서만, 관리자 계정일 때만 적용</p>
       <label class="check"><input type="checkbox" id="adInv"> 무적 · 체력과 과부하로 실패하지 않아요. 이 판은 기록·랭킹·잠금 해제에 안 들어가요.</label>
-      <label class="check"><input type="checkbox" id="adUnlock"> 모든 레벨 잠금 해제</label>
+      <label class="check"><input type="checkbox" id="adUnlock"> 모든 레벨 잠금 해제</label></div>
       <p class="label" style="margin:0">플레이어</p>
       <div class="rpick"><input class="text" id="adSearch" maxlength="12" placeholder="닉네임 검색" autocomplete="off"><button class="small" id="adSearchBtn">검색</button></div>
       <div class="clist" id="adPlayers"></div>
       <p class="keymsg" id="adMsg"></p>
-      <p class="hint" style="text-align:left;margin:0">커뮤니티 레벨은 레벨 목록의 '강제 삭제'로, 랭킹 기록은 랭킹 화면의 '지우기'로 지울 수 있어요. 관리자 지정은 데이터베이스에서만 바꿀 수 있어요.</p>
+      <p class="hint" style="text-align:left;margin:0">커뮤니티 레벨은 레벨 목록의 '강제 삭제'로, 랭킹 기록은 랭킹 화면의 '지우기'로 지울 수 있어요. 관리자 지정은 데이터베이스에서만 바꿀 수 있고, 부관리자는 관리자가 여기서 지정해요.</p>
       <button class="go" id="adBack">돌아가기</button>
     </div>
   </section>
@@ -1043,7 +1043,7 @@ $('#hsVol').addEventListener('input',e=>{hsVol=+e.target.value;LS.set('bam-bakja
 $('#hsVol').addEventListener('change',()=>{ensureAudio();if(ctx.state!=='running')ctx.resume();const n=MAPS[mapIdx].lanes;for(let i=0;i<n;i++)setTimeout(()=>hitSound(i,n,true),i*160)});
 $('#speed').addEventListener('input',e=>{speed=+e.target.value;LS.set('bam-bakja-speed',speed);$('#speedOut').textContent=speed.toFixed(1);$('#multLine').innerHTML=multText(MAPS[mapIdx],diffIdx,speed)});
 $('#calibBtn').onclick=()=>openCalib(false);
-function openSettings(){state='settings';renderMenu();$('#adminBtn').hidden=!(typeof acct!=='undefined'&&acct&&acct.admin);$('#setAcctName').textContent=typeof acct!=='undefined'&&acct?acct.nick:'로그인 안 함';show('settings')}
+function openSettings(){state='settings';renderMenu();$('#adminBtn').hidden=!(typeof acct!=='undefined'&&acct&&(acct.admin||acct.mod));$('#adminBtn').textContent=typeof acct!=='undefined'&&acct&&acct.admin?'관리자 도구':'부관리자 도구';$('#setAcctName').textContent=typeof acct!=='undefined'&&acct?acct.nick:'로그인 안 함';show('settings')}
 $('#setBtn').onclick=openSettings;
 function renderQuality(){$('#qSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',b.dataset.q===quality));$('#qHint').textContent=QS().h}
 $('#qSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;quality=b.dataset.q;LS.set('cb-quality',quality);renderQuality();resize()});
@@ -1187,7 +1187,7 @@ function draw(){
       g.globalAlpha=1;g.font='15px '+F.display;g.textAlign='center';g.fillStyle=COL.miss;g.fillText('과부하 주의',fx+fw/2,H*.62)}
     if(hp<=25&&state==='play'){g.fillStyle=COL.miss;g.globalAlpha=.08+.06*Math.sin(pn/120);g.fillRect(0,0,W,H);g.globalAlpha=1}
     const prog=Math.max(0,Math.min(1,(now-T0)/(endTime-T0)));
-    g.fillStyle=COL.line;g.fillRect(0,0,W,3);g.fillStyle=COL.lc[0];g.fillRect(0,0,W*prog,3);
+    bar(94,'진행',prog*100,COL.lc[0]);g.font='600 11px '+F.num;g.fillStyle=COL.muted;g.textAlign='left';g.textBaseline='middle';g.fillText(Math.floor(prog*100)+'%',lx+42+bw+8,97);
     if(death){const p=Math.min(1,(pn-death.t)/700);g.fillStyle=COL.bg;g.globalAlpha=.75*p;g.fillRect(0,0,W,H);g.globalAlpha=1;
       g.save();g.translate(fx+fw/2+(reduce?0:(1-p)*Math.sin(pn/25)*10),H*.45);g.textAlign='center';g.textBaseline='middle';
       g.font=Math.round(56+(reduce?0:(1-p)*20))+'px '+F.display;g.fillStyle=COL.miss;g.fillText(death.reason==='overload'?'과부하':'실패',0,0);
@@ -1204,7 +1204,8 @@ const ERR={bad_nick:'닉네임은 한글·영문·숫자와 _ . - 로 2~12자여
   bad_notes:'노트 배치가 올바르지 않아요.',bad_title:'제목을 1~30자로 입력하세요.',bad_shape:'레인 수, BPM, 길이 중 범위를 벗어난 값이 있어요.',bad_music:'음악 설정이 올바르지 않아요.',
   not_yours:'내가 만든 레벨만 바꿀 수 있어요.',no_level:'레벨을 찾을 수 없어요. 삭제됐을 수 있어요.',bad_key:'기록을 저장할 수 없는 맵이에요.',bad_score:'점수가 올바르지 않아요.',
   bad_audio:'음악 정보가 올바르지 않아요. 음악을 다시 골라 주세요.',bad_size:'10MB 이하 mp3만 올릴 수 있어요.',not_mp3:'mp3 파일만 올릴 수 있어요.',too_many_files:'음악은 한 사람당 30개까지 올릴 수 있어요.',upload_failed:'음악을 올리지 못했어요. 잠시 뒤 다시 시도해 주세요.',
-  banned:'이용이 제한된 계정이에요.',not_admin:'관리자만 할 수 있어요.',no_player:'그런 닉네임이 없어요.',is_admin:'관리자는 차단할 수 없어요.'};
+  banned:'이용이 제한된 계정이에요.',not_admin:'관리자만 할 수 있어요.',no_player:'그런 닉네임이 없어요.',is_admin:'관리자는 차단하거나 바꿀 수 없어요.',is_mod:'부관리자는 관리자만 차단할 수 있어요.',banned_target:'차단된 계정은 부관리자가 될 수 없어요.'};
+const isStaff=()=>!!(acct&&(acct.admin||acct.mod));
 const errText=e=>ERR[e&&e.code]||'문제가 생겼어요. 잠시 뒤 다시 시도해 주세요.';
 const API={async call(fn,args){
   let r;
@@ -1285,7 +1286,7 @@ async function doLogin(){
         m.textContent='이미 있는 닉네임이에요. 비밀번호가 맞지 않아요.';return;
       }
     }
-    setAcct({token:r.token,nick:r.nick,admin:!!r.admin});signupPending=null;$('#aPw').value='';$('#aGo').textContent='로그인 · 동기화';
+    setAcct({token:r.token,nick:r.nick,admin:!!r.admin,mod:!!r.mod});signupPending=null;$('#aPw').value='';$('#aGo').textContent='로그인 · 동기화';
     m.textContent='기록을 동기화하는 중…';
     const got=await syncScores();
     m.textContent=`'${r.nick}'(으)로 로그인했어요.`+(got.down||got.up?` 기록 ${got.down}개를 받아오고 ${got.up}개를 올렸어요.`:' 기록이 이미 맞춰져 있어요.');
@@ -1350,14 +1351,14 @@ async function loadRank(){
       if(r.sub||li.className){const sm=document.createElement('small');sm.textContent=(li.className?'나 · ':'')+r.sub;w.appendChild(sm)}
       const s=document.createElement('span');s.className='pts';s.textContent=fmt(r.pts);
       li.append(p,w,s);
-      if(acct&&acct.admin){const b=document.createElement('button');b.className='small';b.textContent='지우기';b.style.marginLeft='6px';b.dataset.nick=r.nick;b.dataset.key=RK.tab==='total'?'':(RK.tab==='level'?'c:'+RK.level.id:MAPS[RK.mapIdx].id+'-'+DIFFS[RK.diffIdx].id);li.style.gridTemplateColumns='2.6em 1fr auto auto';li.appendChild(b)}
+      if(isStaff()){const b=document.createElement('button');b.className='small';b.textContent='지우기';b.style.marginLeft='6px';b.dataset.nick=r.nick;b.dataset.key=RK.tab==='total'?'':(RK.tab==='level'?'c:'+RK.level.id:MAPS[RK.mapIdx].id+'-'+DIFFS[RK.diffIdx].id);li.style.gridTemplateColumns='2.6em 1fr auto auto';li.appendChild(b)}
       board.appendChild(li);
     }
     msg.textContent=rows.length?(acct?'게임을 마치면 최고 기록이 자동으로 올라가요.':'로그인하면 내 기록도 랭킹에 올라가요.'):'아직 기록이 없어요. 첫 기록의 주인공이 되어 보세요.';
   }catch(e){if(id===rankReq)msg.textContent=errText(e)}
 }
 $('#rankBtn').onclick=()=>openRank();
-$('#board').addEventListener('click',async e=>{const b=e.target.closest('button[data-nick]');if(!b||!acct||!acct.admin)return;
+$('#board').addEventListener('click',async e=>{const b=e.target.closest('button[data-nick]');if(!b||!isStaff())return;
   if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말?';b.classList.add('liked');return}
   try{const n=await API.call('bb_admin_delete_score',{p_token:acct.token,p_nick:b.dataset.nick,p_key:b.dataset.key});$('#rankMsg').textContent=`${b.dataset.nick}의 기록 ${n}개를 지웠어요.`;loadRank()}
   catch(err){$('#rankMsg').textContent=errText(err);authFail(err)}});
@@ -1408,7 +1409,7 @@ function renderComm(note){
     mk('like',`♥ ${L.likes}`,CM.liked.has(L.id)?'liked':'').setAttribute('aria-pressed',CM.liked.has(L.id));
     mk('rank','랭킹');
     if(me&&L.author.toLowerCase()===me){mk('edit','수정');mk('del',CM.del===L.id?'정말 삭제':'삭제',CM.del===L.id?'liked':'')}
-    else if(acct&&acct.admin)mk('adel',CM.del===L.id?'정말 강제 삭제':'강제 삭제',CM.del===L.id?'liked':'');
+    else if(isStaff())mk('adel',CM.del===L.id?'정말 강제 삭제':'강제 삭제',CM.del===L.id?'liked':'');
     c.appendChild(acts);list.appendChild(c);
   }
   $('#cMore').hidden=!CM.more;
@@ -1950,36 +1951,50 @@ updateInstall();
 const ADM=Object.assign({inv:false,unlock:false},LS.get('cb-admin-tools',{}));
 function adminOn(k){return !!(acct&&acct.admin&&ADM[k])}
 function openAdmin(){
-  if(!acct||!acct.admin){openSettings();return}
-  state='admin';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();
+  if(!isStaff()){openSettings();return}
+  state='admin';$('#adTools').hidden=!acct.admin;$('#adTitle').textContent=acct.admin?'관리자 도구':'부관리자 도구';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();
 }
 let adArm=null;
 async function loadAdminPlayers(){
   const list=$('#adPlayers'),msg=$('#adMsg');msg.textContent='불러오는 중…';
   try{
-    const rows=await API.call('bb_admin_players',{p_token:acct.token,p_search:$('#adSearch').value.trim(),p_limit:100})||[];
+    const rows=await API.call('bb_admin_players_v3',{p_token:acct.token,p_search:$('#adSearch').value.trim(),p_limit:100})||[];
     list.textContent='';
     for(const r of rows){
       const c=document.createElement('article');c.className='lv-card';
-      const h=document.createElement('h3');const t=document.createElement('span');t.textContent=r.nick+(r.is_admin?' · 관리자':'')+(r.banned?' · 차단됨':'');h.appendChild(t);
-      const m=document.createElement('div');m.className='meta';m.textContent=`가입 ${String(r.created_at).slice(0,10)} · 기록 ${r.scores} · 레벨 ${r.levels}`;
+      const h=document.createElement('h3');const t=document.createElement('span');t.textContent=r.nick+(r.is_admin?' · 관리자':r.is_mod?' · 부관리자':'')+(r.banned?' · 차단됨':'');h.appendChild(t);
+      const m=document.createElement('div');m.className='meta';m.textContent=`가입 ${String(r.created_at).slice(0,10)} · 기록 ${r.scores} · 레벨 ${r.levels} · 코인 ${fmt(r.coins||0)}`;
       const a=document.createElement('div');a.className='acts';
       const mk=(act,label)=>{const b=document.createElement('button');b.className='small'+(adArm===act+r.nick?' liked':'');b.dataset.act=act;b.dataset.nick=r.nick;b.textContent=adArm===act+r.nick?'정말 '+label:label;a.appendChild(b)};
-      if(!r.is_admin)mk(r.banned?'unban':'ban',r.banned?'차단 해제':'차단');
+      if(!r.is_admin&&(acct.admin||!r.is_mod))mk(r.banned?'unban':'ban',r.banned?'차단 해제':'차단');
+      if(acct.admin&&!r.is_admin&&!r.banned)mk(r.is_mod?'unmod':'mod',r.is_mod?'부관리자 해제':'부관리자 지정');
       if(+r.scores>0)mk('wipe','기록 모두 지우기');
-      c.append(h,m,a);list.appendChild(c);
+      const cr=document.createElement('div');cr.className='rpick';
+      const inp=document.createElement('input');inp.className='text';inp.type='number';inp.step='100';inp.value='1000';inp.setAttribute('aria-label',r.nick+' 코인 지급량');inp.dataset.coinFor=r.nick;
+      const cb=document.createElement('button');cb.className='small';cb.dataset.act='coins';cb.dataset.nick=r.nick;cb.textContent='코인 지급';
+      cr.append(inp,cb);
+      c.append(h,m,a);if(acct.admin)c.appendChild(cr);list.appendChild(c);
     }
     msg.textContent=rows.length?`${rows.length}명`:'찾는 플레이어가 없어요.';
   }catch(e){msg.textContent=errText(e);authFail(e)}
 }
 $('#adPlayers').addEventListener('click',async e=>{
   const b=e.target.closest('button[data-act]');if(!b)return;const act=b.dataset.act,nick=b.dataset.nick;
-  if(act!=='unban'&&adArm!==act+nick){adArm=act+nick;loadAdminPlayers();return}
+  if(act==='coins'){
+    const inp=[...$('#adPlayers').querySelectorAll('input[data-coin-for]')].find(i=>i.dataset.coinFor===nick);const amt=Math.round(+(inp&&inp.value)||0);
+    if(!amt){$('#adMsg').textContent='지급할 코인 수를 입력하세요. 빼려면 음수로 쓰세요.';return}
+    try{const total=await API.call('bb_admin_add_coins',{p_token:acct.token,p_nick:nick,p_amount:amt});
+      if(nick.toLowerCase()===acct.nick.toLowerCase())loadWallet();await loadAdminPlayers();$('#adMsg').textContent=`${nick}에게 ${amt>0?'+':''}${fmt(amt)} 코인 · 지금 ${fmt(total)} 코인`}
+    catch(err){$('#adMsg').textContent=err.code==='bad_amount'?'한 번에 100만 코인까지 지급할 수 있어요.':errText(err);authFail(err)}
+    return;
+  }
+  if(act!=='unban'&&act!=='unmod'&&adArm!==act+nick){adArm=act+nick;loadAdminPlayers();return}
   adArm=null;
   try{
     if(act==='ban'||act==='unban')await API.call('bb_admin_set_ban',{p_token:acct.token,p_nick:nick,p_banned:act==='ban'});
     else if(act==='wipe')await API.call('bb_admin_delete_score',{p_token:acct.token,p_nick:nick,p_key:''});
-    await loadAdminPlayers();$('#adMsg').textContent=act==='ban'?`${nick}을(를) 차단했어요.`:act==='unban'?`${nick}의 차단을 풀었어요.`:`${nick}의 기록을 모두 지웠어요.`;
+    else if(act==='mod'||act==='unmod')await API.call('bb_admin_set_mod',{p_token:acct.token,p_nick:nick,p_mod:act==='mod'});
+    await loadAdminPlayers();$('#adMsg').textContent=act==='ban'?`${nick}을(를) 차단했어요.`:act==='unban'?`${nick}의 차단을 풀었어요.`:act==='mod'?`${nick}을(를) 부관리자로 지정했어요.`:act==='unmod'?`${nick}의 부관리자를 해제했어요.`:`${nick}의 기록을 모두 지웠어요.`;
   }catch(err){$('#adMsg').textContent=errText(err);authFail(err)}
 });
 $('#adInv').onchange=e=>{ADM.inv=e.target.checked;LS.set('cb-admin-tools',ADM)};
@@ -2100,7 +2115,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261108081724';
+const BUILD_ID='20261108082350';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2130,7 +2145,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdat
 setInterval(()=>{if(updInfo&&$('#updBar').hidden&&!BUSY_STATES.includes(state))$('#updBar').hidden=false;if(BUSY_STATES.includes(state))$('#updBar').hidden=true},1000);
 
 /* ---------- startup: refresh the saved login ---------- */
-if(acct)API.call('bb_me',{p_token:acct.token}).then(r=>{if(r&&r.nick&&(r.nick!==acct.nick||!!r.admin!==!!acct.admin))setAcct({...acct,nick:r.nick,admin:!!r.admin});loadWallet();return syncScores()}).catch(authFail);
+if(acct)API.call('bb_me',{p_token:acct.token}).then(r=>{if(r&&r.nick&&(r.nick!==acct.nick||!!r.admin!==!!acct.admin||!!r.mod!==!!acct.mod))setAcct({...acct,nick:r.nick,admin:!!r.admin,mod:!!r.mod});loadWallet();return syncScores()}).catch(authFail);
 
 renderMenu();
 (document.fonts?document.fonts.ready:Promise.resolve()).finally(()=>requestAnimationFrame(loop));

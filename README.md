@@ -4,7 +4,7 @@
 
 **플레이:** https://2550563-jung.github.io/code-beat/
 
-**PC · 안드로이드 앱:** [Releases](https://github.com/2550563-jung/code-beat/releases/latest)에서 `code-beat-setup-*.exe`(Windows) 또는 `code-beat-*.apk`(안드로이드)를 받으세요. 앱은 게임을 웹에서 불러오기 때문에 게임 업데이트가 바로 반영되고, PC 앱은 앱 자체도 자동으로 업데이트돼요.
+**PC · 안드로이드 앱:** [Releases](https://github.com/2550563-jung/code-beat/releases/latest)에서 `code-beat-setup.exe`(Windows) 또는 `code-beat.apk`(안드로이드)를 받으세요. 게임 메뉴의 "PC · 안드로이드 앱 받기"에서도 받을 수 있어요. 앱은 게임을 웹에서 불러오기 때문에 게임 업데이트가 바로 반영되고, PC 앱은 앱 자체도 자동으로 업데이트돼요.
 
 ## 기능
 
@@ -34,7 +34,7 @@
 
 랭킹 · 계정 · 커뮤니티 레벨은 Supabase에 저장돼요. 브라우저는 공개(publishable) 키로 `bb_` 함수만 호출하고, 테이블에는 직접 접근할 수 없어요. 비밀번호는 bcrypt 해시로만 저장돼요.
 
-`supabase/pending.sql`은 아직 적용되지 않은 함수(로그아웃, 레벨 삭제, 좋아요 취소)예요. Supabase SQL Editor에서 한 번 실행하면 돼요.
+음악 파일(mp3)은 Supabase Storage `cb-audio` 버킷에 저장되고, 업로드는 로그인 세션을 확인하는 엣지 함수 `cb-upload-audio`를 거쳐요.
 
 ## 앱 빌드
 

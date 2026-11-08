@@ -139,6 +139,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .filebtn{display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer}
 .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
 .check input{width:18px;height:18px;accent-color:var(--accent)}
+a.go{display:block;text-align:center;text-decoration:none}
+a.go.off{opacity:.45;pointer-events:none}
+.dlbox{padding:12px;border-radius:12px;border:1px solid var(--line)}
 .liked{color:var(--miss)!important;border-color:var(--miss)!important}
 .small:disabled,.go:disabled,.ghost:disabled{opacity:.45;cursor:default}
 /* editor */
@@ -196,6 +199,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <div class="mult" id="multLine"></div>
       <button class="go" id="startBtn">시작</button>
       <p class="hint" id="keyHint"></p>
+      <button class="ghost" id="appsBtn">PC · 안드로이드 앱 받기</button>
     </div>
   </section>
 
@@ -215,6 +219,23 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       </div>
       <div class="ctl"><div class="lab">계정 <span class="val" id="setAcctName"></span></div><button class="small" id="setAcctBtn">로그인 · 계정</button></div>
       <button class="go" id="setBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="apps" hidden>
+    <div class="panel">
+      <h2>앱 받기</h2>
+      <p class="sub">앱은 게임을 웹에서 불러와서, 게임이 바뀌면 늘 최신 버전으로 열려요. 로그인과 기록은 웹과 그대로 이어져요.</p>
+      <div class="ctl dlbox" id="dlWinBox">
+        <a class="go dl" id="dlWin" href="https://github.com/2550563-jung/code-beat/releases/latest/download/code-beat-setup.exe" rel="noopener">Windows 설치 파일 받기</a>
+        <p class="hint" style="text-align:left;margin:0" id="dlWinInfo">Windows 10 이상 · 받은 파일을 실행하면 바로 설치되고, 앱이 스스로 업데이트돼요.</p>
+      </div>
+      <div class="ctl dlbox" id="dlApkBox">
+        <a class="go dl" id="dlApk" href="https://github.com/2550563-jung/code-beat/releases/latest/download/code-beat.apk" rel="noopener">안드로이드 APK 받기</a>
+        <p class="hint" style="text-align:left;margin:0" id="dlApkInfo">Android 7 이상 · 설치할 때 '출처를 알 수 없는 앱' 허용이 필요할 수 있어요. 새 버전이 나오면 앱이 알려 줘요.</p>
+      </div>
+      <p class="keymsg" id="dlMsg"></p>
+      <button class="ghost" id="dlBack">돌아가기</button>
     </div>
   </section>
 
@@ -711,7 +732,7 @@ function finish(fail){
 function pause(){if(state!=='play')return;state='pause';ctx.suspend();$('#pauseBtn').hidden=true;show('pause')}
 function resume(){state='play';ctx.resume();$('#pauseBtn').hidden=false;show(null)}
 function toMenu(){stopRun();state='menu';$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();renderMenu();show('menu');resize()}
-function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi'].forEach(s=>$('#'+s).hidden=s!==id)}
+function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps'].forEach(s=>$('#'+s).hidden=s!==id)}
 function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
 
 /* ---------- calibration (tap along to a metronome) ---------- */
@@ -1604,6 +1625,29 @@ $('#mpMap').onchange=$('#mpDiff').onchange=()=>{if(!MP.host)return;MP.map=+$('#m
 $('#mpStart').onclick=()=>{if(!MP.host)return;if(offsetMs===null){mpMsg('먼저 설정에서 박자 측정을 해 주세요.');return}
   mpSend({t:'start',nick:MP.me,round:Date.now(),map:MP.map,diff:MP.diff})};
 addEventListener('pagehide',()=>{if(MP.ch)mpLeave(true)});
+
+/* ---------- app downloads (GitHub Releases) ---------- */
+const IN_APP=!!window.codeBeatDesktop||/CodeBeatAndroid/.test(navigator.userAgent);
+if(IN_APP)$('#appsBtn').hidden=true;
+const fmtMB=b=>(b/1048576).toFixed(1)+'MB';
+async function openApps(){
+  state='apps';show('apps');
+  const isAndroid=/Android/i.test(navigator.userAgent);
+  $('#dlApkBox').style.order=isAndroid?-1:0;$('#dlApkBox').parentElement.style.display='flex';
+  const msg=$('#dlMsg');msg.textContent='최신 버전을 확인하는 중…';
+  try{
+    const r=await fetch('https://api.github.com/repos/2550563-jung/code-beat/releases/latest',{headers:{Accept:'application/vnd.github+json'}});
+    if(r.status===404){msg.textContent='아직 앱 파일이 올라오지 않았어요. 곧 준비돼요.';$('#dlWin').classList.add('off');$('#dlApk').classList.add('off');return}
+    if(!r.ok)throw 0;
+    const j=await r.json(),as=Array.isArray(j.assets)?j.assets:[];
+    const exe=as.find(a=>a.name==='code-beat-setup.exe'),apk=as.find(a=>a.name==='code-beat.apk');
+    $('#dlWin').classList.toggle('off',!exe);$('#dlApk').classList.toggle('off',!apk);
+    $('#dlWin').textContent=exe?`Windows 설치 파일 받기 · ${fmtMB(exe.size)}`:'Windows 설치 파일 준비 중';
+    $('#dlApk').textContent=apk?`안드로이드 APK 받기 · ${fmtMB(apk.size)}`:'안드로이드 APK 준비 중';
+    msg.textContent=`최신 버전 ${String(j.tag_name||'').slice(0,20)}`+(exe&&apk?'':' · 일부 파일은 아직 만드는 중이에요');
+  }catch(e){msg.textContent='버전 정보를 불러오지 못했어요. 버튼을 눌러 바로 받을 수 있어요.';$('#dlWin').classList.remove('off');$('#dlApk').classList.remove('off')}
+}
+$('#appsBtn').onclick=openApps;$('#dlBack').onclick=()=>toMenu();
 
 /* ---------- startup: refresh the saved login ---------- */
 if(acct)API.call('bb_me',{p_token:acct.token}).then(r=>{if(r&&r.nick&&r.nick!==acct.nick)setAcct({...acct,nick:r.nick});return syncScores()}).catch(authFail);

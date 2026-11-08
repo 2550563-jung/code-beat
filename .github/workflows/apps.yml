@@ -92,14 +92,14 @@ jobs:
           CB_KEY_ALIAS: codebeat
         run: |
           gradle -p android assembleRelease --no-daemon
-          cp android/app/build/outputs/apk/release/app-release.apk "code-beat-${{ steps.ver.outputs.name }}.apk"
+          cp android/app/build/outputs/apk/release/app-release.apk code-beat.apk
       - uses: actions/upload-artifact@v4
         with:
           name: code-beat-android
-          path: code-beat-*.apk
+          path: code-beat.apk
       - name: Attach APK to the release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: code-beat-*.apk
+          files: code-beat.apk

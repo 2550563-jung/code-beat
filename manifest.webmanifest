@@ -1,0 +1,16 @@
+{
+  "name": "code-beat",
+  "short_name": "code-beat",
+  "description": "브라우저에서 바로 연주되는 리듬게임",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#130f1d",
+  "theme_color": "#130f1d",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,105 @@
+name: Build PC and Android apps
+
+# Push a tag like v1.0.1 to build both apps and attach them to a GitHub Release.
+# The PC app updates itself from Releases; the Android app offers the new APK on launch.
+# The game itself is loaded from GitHub Pages, so game changes need no new release.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Bundle the offline copy of the game
+        shell: bash
+        run: |
+          mkdir -p desktop/offline/icons
+          cp index.html icon.svg manifest.webmanifest desktop/offline/
+          cp icons/*.png desktop/offline/icons/
+      - name: Set version from tag
+        shell: bash
+        working-directory: desktop
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          if [[ ! "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then V="1.0.${GITHUB_RUN_NUMBER}"; fi
+          npm version "$V" --no-git-tag-version --allow-same-version
+      - name: Install
+        working-directory: desktop
+        run: npm install
+      - name: Build installer
+        working-directory: desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish ${{ startsWith(github.ref, 'refs/tags/') && 'always' || 'never' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: code-beat-windows
+          path: desktop/dist/*.exe
+
+  android:
+    runs-on: ubuntu-latest
+    needs: windows
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Bundle the offline copy of the game
+        run: |
+          mkdir -p android/app/src/main/assets/offline/icons
+          cp index.html icon.svg manifest.webmanifest android/app/src/main/assets/offline/
+          cp icons/*.png android/app/src/main/assets/offline/icons/
+      - name: Version
+        id: ver
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          if [[ ! "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then V="1.0.${GITHUB_RUN_NUMBER}"; fi
+          echo "name=$V" >> "$GITHUB_OUTPUT"
+      - name: Signing key
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ] && [ -n "$KS_PASS" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "CB_KEYSTORE_PASSWORD=$KS_PASS" >> "$GITHUB_ENV"
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 secret is not set. Using a one-time key; installed apps must be removed before installing this APK."
+            P=$(openssl rand -hex 16)
+            keytool -genkeypair -keystore "$RUNNER_TEMP/release.keystore" -storepass "$P" -keypass "$P" \
+              -alias codebeat -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=code-beat"
+            echo "CB_KEYSTORE_PASSWORD=$P" >> "$GITHUB_ENV"
+          fi
+          echo "CB_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+      - name: Build APK
+        env:
+          CB_VERSION_NAME: ${{ steps.ver.outputs.name }}
+          CB_VERSION_CODE: ${{ github.run_number }}
+          CB_KEY_ALIAS: codebeat
+        run: |
+          gradle -p android assembleRelease --no-daemon
+          cp android/app/build/outputs/apk/release/app-release.apk "code-beat-${{ steps.ver.outputs.name }}.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: code-beat-android
+          path: code-beat-*.apk
+      - name: Attach APK to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: code-beat-*.apk

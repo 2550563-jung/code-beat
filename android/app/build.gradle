@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.application'
+}
+
+def env = System.getenv()
+
+android {
+    namespace 'io.github.jung2550563.codebeat'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'io.github.jung2550563.codebeat'
+        minSdk 24
+        targetSdk 34
+        versionCode((env['CB_VERSION_CODE'] ?: '1') as int)
+        versionName(env['CB_VERSION_NAME'] ?: '1.0.0')
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(env['CB_KEYSTORE'] ?: 'release.keystore')
+            storePassword env['CB_KEYSTORE_PASSWORD'] ?: ''
+            keyAlias env['CB_KEY_ALIAS'] ?: 'codebeat'
+            keyPassword env['CB_KEY_PASSWORD'] ?: env['CB_KEYSTORE_PASSWORD'] ?: ''
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

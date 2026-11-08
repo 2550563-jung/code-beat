@@ -1,0 +1,10 @@
+node_modules/
+desktop/dist/
+desktop/offline/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/offline/
+android/local.properties
+*.keystore
+*.jks

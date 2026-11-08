@@ -4,9 +4,12 @@
 
 **플레이:** https://2550563-jung.github.io/code-beat/
 
+**PC · 안드로이드 앱:** [Releases](https://github.com/2550563-jung/code-beat/releases/latest)에서 `code-beat-setup-*.exe`(Windows) 또는 `code-beat-*.apk`(안드로이드)를 받으세요. 앱은 게임을 웹에서 불러오기 때문에 게임 업데이트가 바로 반영되고, PC 앱은 앱 자체도 자동으로 업데이트돼요.
+
 ## 기능
 
 - 31단계 맵 (1·2·4키, 극한 단계는 6키), 난이도 3단계
+- 멀티플레이: 방 코드로 최대 8명이 같은 맵을 동시에, 실시간 점수
 - 맵 레벨 · 난이도 · 노트 속도에 따라 점수 배율이 붙는 통합 점수
 - 체력과 과부하(빈 입력 연타) 실패 규칙
 - 메트로놈을 따라 누르는 자동 입력 보정
@@ -14,7 +17,7 @@
 - 닉네임 + 비밀번호 로그인으로 기기 간 기록 동기화 (닉네임은 중복 불가)
 - 온라인 랭킹: 누적 점수, 맵·난이도별, 커뮤니티 레벨별
 - 커뮤니티 레벨: 최신 · 인기 · 많이 한 순, 검색, 좋아요
-- 레벨 에디터: 그리드에 노트 배치, 코드 진행 · 조 · 음색 선택, 미리듣기, 테스트 플레이, 업로드
+- 레벨 에디터: 그리드에 노트 배치, mp3 음악(파형 표시·탭 BPM), 코드 진행 · 조 · 음색 선택, 미리듣기, 테스트 플레이, 업로드, .cbeat 파일 저장·불러오기
 
 ## 조작
 
@@ -32,3 +35,14 @@
 랭킹 · 계정 · 커뮤니티 레벨은 Supabase에 저장돼요. 브라우저는 공개(publishable) 키로 `bb_` 함수만 호출하고, 테이블에는 직접 접근할 수 없어요. 비밀번호는 bcrypt 해시로만 저장돼요.
 
 `supabase/pending.sql`은 아직 적용되지 않은 함수(로그아웃, 레벨 삭제, 좋아요 취소)예요. Supabase SQL Editor에서 한 번 실행하면 돼요.
+
+## 앱 빌드
+
+`v1.0.1` 같은 태그를 푸시하면 GitHub Actions가 Windows 설치 파일과 APK를 만들어 Release에 올려요.
+
+안드로이드 앱 업데이트를 덮어쓰기로 설치하려면 서명 키가 항상 같아야 해요. 저장소 Settings → Secrets and variables → Actions에 다음 두 값을 넣어 주세요. 없으면 빌드마다 새 키로 서명돼서, 업데이트할 때 기존 앱을 지우고 설치해야 해요.
+
+- `ANDROID_KEYSTORE_BASE64`: 키스토어 파일을 base64로 바꾼 값
+- `ANDROID_KEYSTORE_PASSWORD`: 키스토어 비밀번호 (별칭은 `codebeat`)
+
+키스토어 만들기: `keytool -genkeypair -keystore release.keystore -alias codebeat -keyalg RSA -keysize 2048 -validity 10000`

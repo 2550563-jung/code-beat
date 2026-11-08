@@ -1,0 +1,43 @@
+{
+  "name": "code-beat",
+  "productName": "code-beat",
+  "version": "1.0.0",
+  "description": "code-beat 리듬게임 PC 버전",
+  "author": "2550563-jung",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "io.github.jung2550563.codebeat",
+    "productName": "code-beat",
+    "copyright": "code-beat",
+    "directories": { "output": "dist" },
+    "files": ["main.js", "preload.js", "offline/**/*", "package.json"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico",
+      "artifactName": "code-beat-setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "code-beat",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "runAfterFinish": true
+    },
+    "publish": [{ "provider": "github", "owner": "2550563-jung", "repo": "code-beat", "releaseType": "release" }]
+  }
+}

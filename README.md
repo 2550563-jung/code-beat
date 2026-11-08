@@ -4,7 +4,9 @@
 
 **플레이:** https://2550563-jung.github.io/code-beat/
 
-**PC · 안드로이드 앱:** [Releases](https://github.com/2550563-jung/code-beat/releases/latest)에서 `code-beat-setup.exe`(Windows) 또는 `code-beat.apk`(안드로이드)를 받으세요. 게임 메뉴의 "PC · 안드로이드 앱 받기"에서도 받을 수 있어요. 앱은 게임을 웹에서 불러오기 때문에 게임 업데이트가 바로 반영되고, PC 앱은 앱 자체도 자동으로 업데이트돼요.
+**PC · 안드로이드 앱:** [Releases](https://github.com/2550563-jung/code-beat/releases/latest)에서 `code-beat-setup.exe`(Windows) 또는 `code-beat.apk`(안드로이드)를 받으세요. 게임 메뉴의 "앱 받기"에서도 받을 수 있어요.
+
+**아이폰 · 아이패드:** Safari로 사이트를 열고 공유 → 홈 화면에 추가를 누르면 앱처럼 전체 화면으로 실행돼요. 앱은 게임을 웹에서 불러오기 때문에 게임 업데이트가 바로 반영되고, PC 앱은 앱 자체도 자동으로 업데이트돼요.
 
 ## 기능
 

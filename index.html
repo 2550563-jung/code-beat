@@ -143,6 +143,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .startrow{display:grid;grid-template-columns:1fr auto;gap:8px}
 .startrow .ghost{padding-inline:22px}
+.startrow.three{grid-template-columns:1fr auto auto}
+.startrow.three .ghost{padding-inline:16px}
+.grid3b{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ana{width:100%;height:90px;display:block}
+.hchart{width:100%;height:200px;display:block}
+.recbadge{position:fixed;right:14px;top:14px;z-index:61;padding:6px 12px;border-radius:999px;background:#e5484d;color:#fff;font-size:13px;font-weight:700;animation:recb 1s steps(2) infinite}
+@keyframes recb{50%{opacity:.55}}
+.errrow{padding:8px 10px;border-radius:8px;background:var(--panel);font-size:13px}
+.errrow summary{cursor:pointer}.errrow summary span{color:var(--muted)}
+.errrow pre{white-space:pre-wrap;word-break:break-all;font-size:11px;color:var(--muted);margin:8px 0 0}
 .startrow .ghost:disabled{opacity:.4;cursor:default}
 .navrow .daily{background:transparent;border-color:var(--accent);color:var(--accent)}
 .navrow .bday{background:linear-gradient(90deg,#ff6fb5,#ffd166,#5ee6c4);color:#1a0f24;border:0}
@@ -275,7 +285,7 @@ a.go.off{opacity:.45;pointer-events:none}
         <div class="mods" id="mods"></div>
       </div>
       <div class="mult" id="multLine"></div>
-      <div class="startrow"><button class="go" id="startBtn">시작</button><button class="ghost" id="practiceBtn">연습</button></div>
+      <div class="startrow three"><button class="go" id="startBtn">시작</button><button class="ghost" id="practiceBtn">연습</button><button class="ghost" id="histBtn" title="이 맵 기록 그래프">기록</button></div>
       <p class="hint" id="keyHint"></p>
       <button class="go" id="installBtn" hidden>홈 화면에 추가</button>
       <button class="ghost" id="appsBtn">앱 받기 · PC · 안드로이드 · 아이폰</button>
@@ -301,6 +311,8 @@ a.go.off{opacity:.45;pointer-events:none}
       </div>
       <div class="ctl"><label class="check"><input type="checkbox" id="cvdMode"> 색약 모드 · 레인과 판정 색을 구분하기 쉬운 색으로 바꿔요</label></div>
       <button class="small" id="tutAgain">튜토리얼 다시 하기</button>
+      <div class="ctl"><label for="restSel">휴식 알림 · 오래 하면 쉬라고 알려 줘요</label><select class="text" id="restSel"><option value="0">끄기</option><option value="20">20분마다</option><option value="40">40분마다</option><option value="60">60분마다</option></select></div>
+      <p class="hint" style="text-align:left;margin:0">게임패드를 연결하면 바로 쓸 수 있어요. 십자키·LB·LT는 왼쪽 레인, A·B·RB·RT는 오른쪽 레인, START는 일시정지예요.</p>
       <div class="ctl"><div class="lab">계정 <span class="val" id="setAcctName"></span></div><button class="small" id="setAcctBtn">로그인 · 계정</button></div>
       <button class="small" id="adminBtn" hidden>관리자 도구</button>
       <button class="go" id="setBack">돌아가기</button>
@@ -336,6 +348,8 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="ctl" id="adTools"><p class="label" style="margin:0">테스트 도구 · 이 기기에서만, 관리자 계정일 때만 적용</p>
       <label class="check"><input type="checkbox" id="adInv"> 무적 · 체력과 과부하로 실패하지 않아요. 이 판은 기록·랭킹·잠금 해제에 안 들어가요.</label>
       <label class="check"><input type="checkbox" id="adUnlock"> 모든 레벨 잠금 해제</label></div>
+      <p class="label" style="margin:0">오류 보고 · 최근 2주</p>
+      <div class="clist" id="adErrors"></div><button class="small" id="adErrClear">오류 기록 모두 지우기</button>
       <p class="label" style="margin:0">신고된 레벨</p>
       <div class="clist" id="adReports"></div>
       <p class="label" style="margin:0">플레이어</p>
@@ -355,6 +369,17 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="shgrid" id="shGrid"></div>
       <p class="keymsg" id="shMsg"></p>
       <button class="go" id="shBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="hist" hidden>
+    <div class="panel">
+      <h2>기록 그래프</h2>
+      <p class="rline" id="hTitle"></p>
+      <canvas id="hChart" class="hchart"></canvas>
+      <p class="hint" id="hStats" style="text-align:left;margin:0"></p>
+      <p class="hint" style="text-align:left;margin:0">이 기기에서 한 판들이에요. 최근 60판까지 보여요.</p>
+      <button class="ghost" id="hBack">돌아가기</button>
     </div>
   </section>
 
@@ -602,6 +627,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <h2>일시정지</h2>
       <button class="go" id="resumeBtn">계속하기</button>
       <div class="btns"><button class="ghost" id="retryBtn2">처음부터</button><button class="ghost" id="quitBtn">맵 선택</button></div>
+      <button class="small" id="pCard">이 장면 사진 카드로 저장</button>
     </div>
   </section>
 
@@ -631,6 +657,12 @@ a.go.off{opacity:.45;pointer-events:none}
       <p class="rline" id="rLoginHint" hidden>로그인하면 이 기록이 랭킹에 올라가요. <button class="small" id="rLoginBtn">로그인</button></p>
       <div class="mult" id="rMult"></div>
       <p class="failnote" id="rFailNote" hidden>실패한 판의 점수는 기록에 남지 않아요.</p>
+      <div class="ctl" id="rAnaBox" hidden><p class="label" style="margin:0">판정 분석</p><canvas id="rAna" class="ana"></canvas><p class="rline" id="rAnaTxt" style="margin:0"></p></div>
+      <div class="grid3b"><button class="small" id="rHist">기록 그래프</button><button class="small" id="rVideo">영상 저장</button><button class="small" id="rCardBtn">사진 카드</button></div>
+      <div class="ctl" id="rVideoBox" hidden><span class="lab">방금 판을 다시 재생하면서 녹화해요. 끝나면 파일로 저장돼요.</span>
+        <div class="grid2"><button class="small" id="rVidBig">고화질</button><button class="small" id="rVidSmall">문자용 작은 용량</button></div></div>
+      <div class="ctl" id="rCardBox" hidden><span class="lab">가장 신났던 장면에 점수를 얹은 사진이에요</span>
+        <input class="text" id="cardText" maxlength="30" placeholder="한마디 (선택) · 예: 드디어 깼다!" autocomplete="off"><button class="small" id="rCardSave">사진 저장</button></div>
       <button class="ghost" id="rReplay" hidden>방금 판 리플레이 보기</button>
       <div class="btns"><button class="go" id="retryBtn">다시 하기</button><button class="ghost" id="backBtn">맵 선택</button></div>
     </div>
@@ -649,12 +681,21 @@ a.go.off{opacity:.45;pointer-events:none}
     <div class="sheet-arrow" id="iosArrow" aria-hidden="true">▼</div>
   </div>
   <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="recbadge" id="recBadge" hidden>● 녹화 중</div>
   <div class="updbar" id="updBar" hidden role="status"><span>새 업데이트가 있어요</span><button class="small" id="updNotes">내용</button><button class="small" id="updNow">지금 적용</button></div>
   <div class="sheet" id="updSheet" hidden role="dialog" aria-label="업데이트 내용">
     <div class="sheet-in"><b id="updTitle">업데이트 내용</b><ol id="updList"></ol><button class="go" id="updClose">확인</button></div>
   </div>
 </div>
 
+<script>
+(function(){var sent={},n=0;function rep(msg,src,stack){try{msg=String(msg||'');if(!msg||sent[msg]||n>=8)return;sent[msg]=1;n++;var tok=null;try{tok=(JSON.parse(localStorage.getItem('cb-acct')||'null')||{}).token||null}catch(e){}
+fetch('https://nkeeayhodmauifevmaga.supabase.co/rest/v1/rpc/bb_report_error',{method:'POST',headers:{apikey:'sb_publishable_u7M3MApb_n-h-5gAUe4rTg_fN2kj4yW','Content-Type':'application/json'},
+body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261109085631',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
+window.addEventListener('error',function(e){if(!e.message)return;rep(e.message,(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno,e.error&&e.error.stack)});
+window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r&&r.code)return;rep('promise: '+(r&&r.message||r),'',r&&r.stack)});
+window.cbReport=rep;})();
+</script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s);
@@ -1034,7 +1075,7 @@ async function start(){
   T0=ctx.currentTime+.5;if(sel.practice)practiceT0();
   if(abuf&&map.audio){const src=ctx.createBufferSource();src.buffer=abuf;src.connect(bus);const rt=sel.practice?PR.rate:1;src.playbackRate.value=rt;const ss=T0+stT(INTRO*16)-map.audio.offset/1000/rt,nw=ctx.currentTime+.03;if(ss>=nw)src.start(ss);else src.start(nw,(nw-ss)*rt)}
   notes=buildChart(map,lead,DIFFS[diffIdx].id).map(n=>({...n,t:T0+stT(n.step),tEnd:n.len?T0+stT(n.step+n.len):0,done:false}));
-  applyMods();laneNotes=Array.from({length:map.lanes},()=>[]);notes.forEach(n=>laneNotes[n.lane].push(n));
+  applyMods();jaReset();laneNotes=Array.from({length:map.lanes},()=>[]);notes.forEach(n=>laneNotes[n.lane].push(n));
   ptr=new Array(map.lanes).fill(0);pressed=new Array(map.lanes).fill(0);
   firstNoteT=notes[0].t;endTime=sel.practice?practiceEnd():T0+stT(totalSteps)+.6;
   runMult=(map.community?commMult(map):mapMult(map)*DIFFS[diffIdx].mult)*speedMult(speed);
@@ -1049,7 +1090,7 @@ const score=()=>Math.round(stats.acc/JC*1e6*runMult);
 function judge(n,d){
   n.done=true;const a=d===null?9:Math.abs(d);
   const k=a<=WIN.p?'perfect':a<=WIN.gr?'great':a<=WIN.go?'good':'miss';
-  stats[k]++;stats.acc+=W8[k];
+  stats[k]++;stats.acc+=W8[k];jaRec(n.lane,d,k);
   if(k==='miss')combo=0;else{if(k==='perfect'){combo++;maxCombo=Math.max(maxCombo,combo)}bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2||SKIN.hit==='spark'){spawnSparks(n.lane,k);if(k==='perfect'&&combo%50===0)flash={t:performance.now()}}}
   lastJ={k,early:d!==null&&d<0,t:performance.now()};
   hp=Math.max(runInv?1:0,Math.min(100,hp+HP[k]));
@@ -1057,7 +1098,7 @@ function judge(n,d){
   if(hp<=0)die('hp');
 }
 function tailJudge(n,k,noHp){
-  stats[k]++;stats.acc+=W8[k];
+  stats[k]++;stats.acc+=W8[k];jaRec(n.lane,null,k);
   if(k==='miss'){combo=0;lastJ={k:'miss',early:false,t:performance.now(),hold:true}}
   else{if(k==='perfect'){combo++;maxCombo=Math.max(maxCombo,combo)}bursts.push({lane:n.lane,t:performance.now(),k});if(QS().fx>2||SKIN.hit==='spark')spawnSparks(n.lane,k);lastJ={k,early:false,t:performance.now(),hold:true}}
   if(!noHp){hp=Math.max(runInv?1:0,Math.min(100,hp+HP[k]));if(hp<=0)die('hp')}
@@ -1128,7 +1169,7 @@ function finish(fail){
 function pause(){if(state!=='play')return;state='pause';ctx.suspend();$('#pauseBtn').hidden=true;show('pause')}
 function resume(){state='play';ctx.resume();$('#pauseBtn').hidden=false;show(null)}
 function toMenu(){stopRun();state='menu';$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();renderMenu();show('menu');resize()}
-function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends','bday'].forEach(s=>$('#'+s).hidden=s!==id)}
+function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends','bday','hist'].forEach(s=>$('#'+s).hidden=s!==id)}
 function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.back){const f=sel.back;sel={type:'builtin'};f();return}if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
 
 /* ---------- calibration (tap along to a metronome) ---------- */
@@ -1498,7 +1539,8 @@ async function submitResult(key,sc,acc,combo){
     if(r&&!key.includes(':')&&r.total)parts.push(`누적 랭킹 <b>${r.total}위</b> / ${r.total_count}명`);
     if(got)parts.unshift(`<b>+${got} 코인</b>`+(sub.daily_bonus?' (오늘의 도전 보너스 포함)':''));
     rl.innerHTML=parts.join(' · ')||'랭킹에 올렸어요.';
-  }catch(e){rl.textContent='랭킹에 올리지 못했어요. '+errText(e);authFail(e);if(!acct)hint.hidden=false}
+  }catch(e){if(e.code==='network'){queueScore(key,sc,Math.round(acc*100)/100,combo);rl.textContent='인터넷이 연결되지 않았어요. 연결되면 기록을 자동으로 올릴게요.';return}
+    rl.textContent='랭킹에 올리지 못했어요. '+errText(e);authFail(e);if(!acct)hint.hidden=false}
 }
 $('#rLoginBtn').onclick=()=>openAcct(()=>goBack());
 
@@ -2149,7 +2191,7 @@ const ADM=Object.assign({inv:false,unlock:false},LS.get('cb-admin-tools',{}));
 function adminOn(k){return !!(acct&&acct.admin&&ADM[k])}
 function openAdmin(){
   if(!isStaff()){openSettings();return}
-  state='admin';$('#adTools').hidden=!acct.admin;$('#adTitle').textContent=acct.admin?'관리자 도구':'부관리자 도구';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();loadReports();
+  state='admin';$('#adTools').hidden=!acct.admin;$('#adTitle').textContent=acct.admin?'관리자 도구':'부관리자 도구';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();loadReports();loadErrors();
 }
 let adArm=null;
 async function loadAdminPlayers(){
@@ -2424,7 +2466,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261109060144';
+const BUILD_ID='20261109085631';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2579,6 +2621,7 @@ function afterFinish(fail,sc,acc,key,test){
   if(canReplay){const back=sel.back||(sel.type==='community'?(sel.test?()=>openEditor(null,true):()=>openComm(true)):()=>toMenu());
     LAST_RUN={key,sel:{...sel},back,rp:makeReplay(key)}}
   $('#rReplay').hidden=!canReplay;
+  if(typeof afterFinishB1==='function')afterFinishB1(fail,sc,acc,key,test,canReplay);
   if(sel.tutorial&&!fail){LS.set('cb-tut-done',1);achGrant('tutorial')}
   if(sel.practice&&!fail)achGrant('practice');
   if(!fail&&!test)achCheckRun({sc,acc,key,fail});
@@ -2695,6 +2738,7 @@ let seasonChecked=false;
 async function onLogin(){
   if(!acct)return;
   if(typeof specialRefresh==='function')specialRefresh();
+  if(typeof flushPending==='function')setTimeout(flushPending,2000);
   achSync();
   if(LS.get('cb-checkin','')!==kstDay()+acct.nick){
     try{const r=await API.call('bb_checkin',{p_token:acct.token});LS.set('cb-checkin',kstDay()+acct.nick);
@@ -3217,6 +3261,188 @@ $('#bdStart').onclick=()=>{if(offsetMs===null){openCalib(false);return}
 $('#bdBack').onclick=()=>toMenu();
 $('#bdayBtn').onclick=openBday;
 specialRefresh();
+
+/* ====================================================================
+   batch 1: judgement analysis, score history, video export, photo cards,
+   rest reminders, gamepads, offline score queue, error reports (admin view)
+   ==================================================================== */
+
+/* ---------- judgement analysis ---------- */
+var JA={d:[],miss:[],lanes:0};
+function jaReset(){JA={d:[],miss:new Array(map.lanes).fill(0),lanes:map.lanes}}
+function jaRec(lane,d,k){if(!JA.miss)return;if(d!==null&&k!=='miss')JA.d.push(d*1000);if(k==='miss'&&lane<JA.miss.length)JA.miss[lane]++;
+  if(k==='perfect'&&combo===maxCombo&&combo>=10)shotMaybe()}
+function renderAnalysis(){
+  const box=$('#rAnaBox');if(!JA.d.length&&!JA.miss.some(x=>x)){box.hidden=true;return}box.hidden=false;
+  const c=$('#rAna'),w=c.clientWidth||300,h=90,dpr=Math.min(2,window.devicePixelRatio||1);c.width=w*dpr;c.height=h*dpr;const x=c.getContext('2d');x.scale(dpr,dpr);
+  const lim=WIN.go*1000,bins=new Array(31).fill(0);for(const v of JA.d){const b=Math.max(0,Math.min(30,Math.round((v+lim)/(2*lim)*30)));bins[b]++}
+  const mx=Math.max(1,...bins),bw=w/31,pw=WIN.p*1000/(2*lim)*w;
+  x.fillStyle=COL.perfect;x.globalAlpha=.12;x.fillRect(w/2-pw,0,pw*2,h-14);x.globalAlpha=1;
+  bins.forEach((n,i)=>{const bh=(h-18)*n/mx,ms=(i/30)*2*lim-lim,a=Math.abs(ms);x.fillStyle=a<=WIN.p*1000?COL.perfect:a<=WIN.gr*1000?COL.great:COL.good;x.fillRect(i*bw+1,h-14-bh,bw-2,bh)});
+  x.fillStyle=COL.ink;x.globalAlpha=.6;x.fillRect(w/2-.5,0,1,h-14);x.font='11px '+F.body;x.textAlign='left';x.fillText('빠름',2,h-2);x.textAlign='right';x.fillText('늦음',w-2,h-2);x.textAlign='center';x.fillText('0',w/2,h-2);
+  const avg=JA.d.length?JA.d.reduce((a,b)=>a+b,0)/JA.d.length:0,sd=JA.d.length?Math.sqrt(JA.d.reduce((a,b)=>a+(b-avg)**2,0)/JA.d.length):0;
+  const parts=[`평균 ${avg>=0?'+':''}${avg.toFixed(0)}ms`+(Math.abs(avg)<8?' · 타이밍이 정확해요':avg<0?' · 조금 빨리 누르는 편이에요':' · 조금 늦게 누르는 편이에요'),`흔들림 ±${sd.toFixed(0)}ms`];
+  const ks=getKeys(JA.lanes),worst=JA.miss.reduce((b,n,i)=>n>JA.miss[b]?i:b,0);
+  if(JA.miss[worst]>0)parts.push(`가장 많이 놓친 레인: ${isTouch?(worst+1)+'번째':keyNameLong(ks[worst])} (${JA.miss[worst]}번)`);
+  if(Math.abs(avg)>=20&&JA.d.length>=20)parts.push('계속 이렇다면 설정에서 입력 보정을 다시 해 보세요');
+  $('#rAnaTxt').textContent=parts.join(' · ');
+}
+
+/* ---------- score history (per map, on this device) ---------- */
+function histAdd(key,sc,acc,fail){
+  const H0=LS.get('cb-hist',{})||{};const a=H0[key]||[];a.push([Date.now(),sc,Math.round(acc*10)/10,fail?1:0]);while(a.length>60)a.shift();H0[key]=a;
+  const ks=Object.keys(H0);if(ks.length>300){ks.sort((p,q)=>H0[p][H0[p].length-1][0]-H0[q][H0[q].length-1][0]);delete H0[ks[0]]}
+  LS.set('cb-hist',H0);
+}
+let histBack=null;
+function openHist(key,back){
+  histBack=back||(()=>toMenu());state='hist';show('hist');
+  const a=((LS.get('cb-hist',{})||{})[key])||[];
+  $('#hTitle').textContent=keyTitle(key);
+  const ok=a.filter(r=>!r[3]),c=$('#hChart');
+  $('#hStats').textContent=a.length?`${a.length}판 · 성공 ${ok.length}판 · 최고 ${fmt(Math.max(0,...ok.map(r=>r[1])))} · 최근 평균 정확도 ${(ok.slice(-5).reduce((s,r)=>s+r[2],0)/Math.max(1,ok.slice(-5).length)).toFixed(1)}%`:'아직 이 기기에서 이 맵을 한 기록이 없어요.';
+  requestAnimationFrame(()=>{
+    const w=c.clientWidth||320,h=200,dpr=Math.min(2,window.devicePixelRatio||1);c.width=w*dpr;c.height=h*dpr;const x=c.getContext('2d');x.scale(dpr,dpr);x.clearRect(0,0,w,h);
+    if(a.length<1)return;
+    const pad=26,ms=Math.max(1,...a.map(r=>r[1])),n=a.length,X=i=>pad+(n===1?(w-pad*2)/2:i*(w-pad*2)/(n-1));
+    x.strokeStyle=COL.line;x.lineWidth=1;for(let k=0;k<=4;k++){const y=10+(h-40)*k/4;x.beginPath();x.moveTo(pad,y);x.lineTo(w-pad,y);x.stroke()}
+    const line=(f,col,lw)=>{x.strokeStyle=col;x.lineWidth=lw;x.beginPath();a.forEach((r,i)=>{const y=10+(h-40)*(1-f(r));i?x.lineTo(X(i),y):x.moveTo(X(i),y)});x.stroke();
+      a.forEach((r,i)=>{x.fillStyle=r[3]?COL.miss:col;x.beginPath();x.arc(X(i),10+(h-40)*(1-f(r)),r[3]?3:2.5,0,7);x.fill()})};
+    line(r=>r[2]/100,COL.great,1.5);line(r=>r[1]/ms,COL.perfect,2.5);
+    x.font='11px '+F.body;x.fillStyle=COL.perfect;x.textAlign='left';x.fillText('● 점수',pad,h-8);x.fillStyle=COL.great;x.fillText('● 정확도',pad+56,h-8);x.fillStyle=COL.miss;x.fillText('● 실패',pad+124,h-8);
+  });
+}
+$('#hBack').onclick=()=>{const f=histBack;histBack=null;(f||toMenu)()};
+$('#rHist').onclick=()=>{const k=$('#rHist').dataset.key;if(k)openHist(k,()=>{state='result';show('result')})};
+$('#histBtn').onclick=()=>openHist(MAPS[mapIdx].id+'-'+DIFFS[diffIdx].id);
+
+/* ---------- photo cards ---------- */
+let SHOT=null,shotT=0;
+function shotMaybe(){const now=performance.now();if(now-shotT<1200)return;shotT=now;try{const cv=$('#cv');if(!SHOT)SHOT=document.createElement('canvas');SHOT.width=cv.width;SHOT.height=cv.height;SHOT.getContext('2d').drawImage(cv,0,0)}catch(e){}}
+function cardImage(src,info){
+  const W2=1080,H2=1350,c=document.createElement('canvas');c.width=W2;c.height=H2;const x=c.getContext('2d');
+  const gr=x.createLinearGradient(0,0,0,H2);gr.addColorStop(0,COL.bg);gr.addColorStop(1,'#000');x.fillStyle=gr;x.fillRect(0,0,W2,H2);
+  if(src&&src.width){const ih=920,s=Math.max(W2/src.width,ih/src.height),sw=W2/s,sh=ih/s;x.drawImage(src,(src.width-sw)/2,(src.height-sh)/2,sw,sh,0,0,W2,ih);
+    const fade=x.createLinearGradient(0,ih-260,0,ih);fade.addColorStop(0,'rgba(0,0,0,0)');fade.addColorStop(1,COL.bg);x.fillStyle=fade;x.fillRect(0,ih-260,W2,260)}
+  x.textAlign='left';x.fillStyle=COL.lc[0];x.font='600 34px '+F.body;x.fillText(info.phrase||'code-beat',64,930);
+  x.fillStyle='#fff';x.font='700 64px '+F.display;x.fillText(info.title,64,1010,W2-128);
+  x.font='700 92px '+F.num;x.fillStyle=COL.perfect;x.fillText(info.score,64,1120);
+  x.font='500 34px '+F.body;x.fillStyle='rgba(255,255,255,.8)';x.fillText(info.sub,64,1180,W2-128);
+  x.font='600 30px '+F.body;x.fillStyle='rgba(255,255,255,.6)';x.fillText(info.who,64,1270);x.textAlign='right';x.fillText('code-beat · '+info.date,W2-64,1270);
+  return c;
+}
+async function saveBlob(blob,fname){
+  if(window.CodeBeatAndroid&&window.CodeBeatAndroid.saveFile){const b64=(await blobToDataURL(blob)).split(',')[1];return window.CodeBeatAndroid.saveFile(fname,b64)?'다운로드/code-beat 폴더에 저장했어요':'저장하지 못했어요'}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);return '저장했어요';
+}
+const safeName=s=>String(s).replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_').slice(0,40);
+async function saveCard(src,fromPause){
+  const info={title:map.label||(map.community?map.name:`Lv${map.level} ${map.name} · ${DIFFS[diffIdx].name}`),
+    score:fromPause?fmt(score()):$('#rScore').textContent,
+    sub:fromPause?`플레이 중 · 콤보 ${combo}`:`정확도 ${$('#rAcc').textContent} · 최대 퍼펙트 콤보 ${$('#rCombo').textContent}`,
+    who:acct?acct.nick:'',date:kstDay().replace(/-/g,'.'),phrase:($('#cardText').value||'').trim()};
+  const c=cardImage(src,info);c.toBlob(async b=>{const m=await saveBlob(b,`code-beat_${safeName(info.title)}.png`);toast('사진 카드 · '+m)},'image/png');
+}
+$('#rCardBtn').onclick=()=>{$('#rCardBox').hidden=!$('#rCardBox').hidden};
+$('#rCardSave').onclick=()=>saveCard(SHOT||$('#cv'),false);
+$('#pCard').onclick=()=>saveCard($('#cv'),true);
+
+/* ---------- video export: replays the last run while recording the screen and sound ---------- */
+let VREC=null;
+function recMime(){for(const m of ['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'])if(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))return m;return ''}
+function vrecStart(small){
+  const mime=recMime();if(!mime||!HTMLCanvasElement.prototype.captureStream){toast('이 기기에서는 영상 저장이 안 돼요','PC나 안드로이드의 크롬에서 해 주세요');return false}
+  ensureAudio();const cv=$('#cv');let vs,oc=null,raf=0;
+  if(small){const s=Math.min(1,640/Math.max(cv.width,cv.height));oc=document.createElement('canvas');oc.width=Math.round(cv.width*s/2)*2;oc.height=Math.round(cv.height*s/2)*2;const ox=oc.getContext('2d');
+    const loop=()=>{ox.drawImage(cv,0,0,oc.width,oc.height);raf=requestAnimationFrame(loop)};loop();vs=oc.captureStream(20)}
+  else vs=cv.captureStream(30);
+  const dest=ctx.createMediaStreamDestination();master.connect(dest);
+  const st=new MediaStream([...vs.getVideoTracks(),...dest.stream.getAudioTracks()]);
+  let mr;try{mr=new MediaRecorder(st,small?{mimeType:mime,videoBitsPerSecond:110000,audioBitsPerSecond:32000}:{mimeType:mime,videoBitsPerSecond:8000000,audioBitsPerSecond:160000})}catch(e){toast('영상 저장을 시작하지 못했어요');return false}
+  const chunks=[];mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};mr.start(1000);
+  VREC={mr,chunks,dest,raf,small,mime,title:map.label||map.name};$('#recBadge').hidden=false;return true;
+}
+function vrecStop(save){
+  const v=VREC;if(!v)return;VREC=null;$('#recBadge').hidden=true;cancelAnimationFrame(v.raf);
+  v.mr.onstop=async()=>{try{master.disconnect(v.dest)}catch(e){}if(!save)return;
+    const ext=v.mime.includes('mp4')?'mp4':'webm',blob=new Blob(v.chunks,{type:v.mime.split(';')[0]});
+    const m=await saveBlob(blob,`code-beat_${safeName(v.title)}${v.small?'_small':''}.${ext}`);
+    const mb=(blob.size/1048576).toFixed(1);toast(`영상 · ${m}`,`${mb}MB${ext==='webm'?' · webm 형식이에요. 카톡·유튜브에 바로 올릴 수 있어요':''}${v.small&&blob.size>1048576?' · 문자 한도(1MB)보다 조금 커요':''}`,6000)};
+  try{v.mr.stop()}catch(e){}
+}
+function exportVideo(small){
+  if(!LAST_RUN)return;const L=LAST_RUN;const base={...L.sel};delete base.back;delete base.backLabel;delete base.replay;
+  const sp=speed;speed=L.rp.speed||speed;
+  if(!vrecStart(small)){speed=sp;return}
+  sel={...base,replay:{...L.rp,ev:decodeEv(L.rp.ev),i:0},who:acct?acct.nick:'',noRecord:true,recording:true,
+    back:()=>{vrecStop(false);speed=sp;L.back()},backLabel:'돌아가기'};
+  start();
+}
+$('#rVideo').onclick=()=>{$('#rVideoBox').hidden=!$('#rVideoBox').hidden};
+$('#rVidBig').onclick=()=>exportVideo(false);
+$('#rVidSmall').onclick=()=>exportVideo(true);
+
+/* ---------- rest reminder ---------- */
+let playSec=0,restNext=0,restDue=false;
+setInterval(()=>{if(state==='play'){playSec+=10;const m=+LS.get('cb-rest',40);if(m>0){if(!restNext)restNext=m*60;if(playSec>=restNext){restDue=true;restNext+=Math.max(20,m/2)*60}}}
+  if(restDue&&state!=='play'&&state!=='pause'){restDue=false;toast(`${Math.round(playSec/60)}분째 플레이 중이에요`,'손목과 눈을 잠깐 쉬어 주세요. 스트레칭 한 번 어때요?',7000)}},10000);
+$('#restSel').value=String(LS.get('cb-rest',40));
+$('#restSel').onchange=e=>{LS.set('cb-rest',+e.target.value);restNext=0};
+
+/* ---------- gamepads ---------- */
+const GP_MAP={1:[[0,1,2,3,4,5,6,7,12,13,14,15]],2:[[14,13,4,6,2],[15,12,5,7,0,1,3]],4:[[14,4],[13,6,2],[0,7,3],[1,5,15]],6:[[14],[13],[4,6],[5,7],[0,2],[1,3]]};
+let gpPrev=[],gpSeen=false,gpBtnPrev={};
+function gpPoll(){
+  const pads=navigator.getGamepads?[...navigator.getGamepads()].filter(Boolean):[];
+  if(pads.length){if(!gpSeen){gpSeen=true;toast('게임패드를 연결했어요','십자키·LB·LT는 왼쪽, A·B·RB·RT는 오른쪽 레인이에요')}
+    const p=pads[0],btn=i=>!!(p.buttons[i]&&p.buttons[i].pressed);
+    if((state==='play')&&map){const groups=GP_MAP[map.lanes]||GP_MAP[4];
+      groups.forEach((g2,l)=>{const on=g2.some(btn);if(on&&!gpPrev[l])press(l);else if(!on&&gpPrev[l])release(l);gpPrev[l]=on})}
+    else gpPrev=[];
+    const edge=i=>{const on=btn(i),was=gpBtnPrev[i];gpBtnPrev[i]=on;return on&&!was};
+    if(edge(9)){if(state==='play'||state==='pause')window.dispatchEvent(new KeyboardEvent('keydown',{code:'Escape',key:'Escape'}));else if(state==='menu')$('#startBtn').click();else if(state==='result')$('#retryBtn').click()}
+    if(edge(8)&&(state==='result'||state==='pause'))$(state==='result'?'#backBtn':'#quitBtn').click();
+  }
+  requestAnimationFrame(gpPoll);
+}
+window.addEventListener('gamepadconnected',()=>{});requestAnimationFrame(gpPoll);
+
+/* ---------- offline: keep scores and send them when the internet is back ---------- */
+function queueScore(key,sc,acc,combo){const q=LS.get('cb-pending',[])||[];q.push({key,sc,acc,combo,t:Date.now(),nick:acct?acct.nick:''});while(q.length>100)q.shift();LS.set('cb-pending',q)}
+let flushing=false;
+async function flushPending(){
+  if(flushing||!acct)return;const q=(LS.get('cb-pending',[])||[]).filter(x=>x.nick===acct.nick);if(!q.length)return;flushing=true;let sent=0;
+  const rest=(LS.get('cb-pending',[])||[]).filter(x=>x.nick!==acct.nick);
+  for(let i=0;i<q.length;i++){const x=q[i];
+    try{await API.call('bb_submit_score',{p_token:acct.token,p_key:x.key,p_score:x.sc,p_acc:x.acc,p_combo:x.combo});sent++}
+    catch(e){if(e.code==='network'){rest.push(...q.slice(i));break}}}
+  LS.set('cb-pending',rest);flushing=false;
+  if(sent){toast(`인터넷이 없을 때 한 기록 ${sent}개를 올렸어요`);loadWallet()}
+}
+window.addEventListener('online',()=>setTimeout(flushPending,1500));
+setTimeout(flushPending,4000);
+
+/* ---------- error reports (admin view) ---------- */
+async function loadErrors(){
+  const list=$('#adErrors');if(!list)return;list.textContent='';
+  try{const rows=await API.call('bb_admin_errors',{p_token:acct.token})||[];
+    for(const r of rows){const d=el('details','errrow');const s=el('summary');s.append(el('b',null,r.msg),el('span',null,` · ${r.n}번 · ${r.users}명 · 마지막 ${String(r.last_at).slice(5,16).replace('T',' ')}`));d.appendChild(s);
+      d.appendChild(el('pre',null,[r.src&&('위치: '+r.src),'빌드: '+(r.builds||[]).join(', '),r.ua&&('기기: '+r.ua),r.stack].filter(Boolean).join('\n')));list.appendChild(d)}
+    if(!rows.length)list.appendChild(el('p','hint','최근 2주 동안 들어온 오류가 없어요.'));
+  }catch(e){list.appendChild(el('p','hint',errText(e)))}
+}
+$('#adErrClear').onclick=async()=>{try{await API.call('bb_admin_clear_errors',{p_token:acct.token});loadErrors()}catch(e){$('#adMsg').textContent=errText(e)}};
+
+/* ---------- result screen glue ---------- */
+function afterFinishB1(fail,sc,acc,key,test,canReplay){
+  $('#rCardBox').hidden=true;$('#rVideoBox').hidden=true;
+  if(sel.recording){vrecStop(true)}
+  const real=!sel.replay&&!sel.practice&&!sel.tutorial&&!test;
+  if(real)histAdd(key,sc,acc,fail);
+  $('#rHist').hidden=!real;$('#rHist').dataset.key=key;
+  $('#rVideo').hidden=!canReplay;
+  try{renderAnalysis()}catch(e){$('#rAnaBox').hidden=true}
+}
 
 renderMenu();
 (document.fonts?document.fonts.ready:Promise.resolve()).finally(()=>requestAnimationFrame(loop));

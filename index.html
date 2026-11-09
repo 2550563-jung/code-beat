@@ -365,7 +365,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <p class="sub" id="bdHello"></p>
       <p class="bdmsg" id="bdMsg" hidden></p>
       <p class="rline" id="bdWhen"></p>
-      <p class="hint" style="text-align:left;margin:0">인트로 · 1절 · 2절 · 조 바꿈 · 마지막 절 · 엔딩까지 약 1분. 이 곡에서만 나오는 노트, 배경, 효과, 히트사운드가 있어요.</p>
+      <p class="hint" style="text-align:left;margin:0">원곡 그대로, 한국어 가사를 노래하는 목소리와 함께 두 번 불러요. 인트로와 엔딩까지 약 50초. 이 곡에서만 나오는 노트, 배경, 효과, 히트사운드가 있어요.</p>
       <div class="seg" id="bdDiffs" role="radiogroup" aria-label="난이도"><button role="radio" data-i="0">쉬움</button><button role="radio" data-i="1">보통</button><button role="radio" data-i="2">어려움</button></div>
       <div class="total"><span>내 최고 기록</span><b id="bdBest">—</b></div>
       <button class="go" id="bdStart">시작</button>
@@ -2424,7 +2424,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261109055503';
+const BUILD_ID='20261109060144';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2983,33 +2983,40 @@ if(acct)setTimeout(onLogin,1500);
    Its notes, background, hit effects, hit sounds and texts exist only here.
    ==================================================================== */
 var SPECIAL=[];          // what this account may play today: [{map,from,to,message,admin}]
-const BD_TR=[0,0,2];     // verse 3 goes up a whole step
-const BD_PRE=48;                               // intro before the first verse (plus the 2-bar count-in)
-const BD_OFF=[BD_PRE,BD_PRE+96,BD_PRE+204];      // where each verse starts
-const BD_BRIDGE=BD_PRE+196,BD_END=BD_PRE+304,BD_OUT=48; // key-change bar, last melody note ends, outro length
-const BD_MEL=[[67,3],[67,1],[69,4],[67,4],[72,4],[71,8],[67,3],[67,1],[69,4],[67,4],[74,4],[72,8],
-  [67,3],[67,1],[79,4],[76,4],[72,4],[71,4],[69,4],[77,3],[77,1],[76,4],[72,4],[74,4],[72,12]];
+// The original song, sung with the Korean words, twice through (original key, 3/4 time).
+const BD_PRE=48;                                  // intro before the first verse (plus the 2-bar count-in)
+const BD_OFF=[BD_PRE,BD_PRE+96];                  // where each verse starts
+const BD_END=BD_PRE+196,BD_OUT=48;                // last sung note ends, outro length
+// [midi, steps, syllable] — "생일 축하합니다 / 생일 축하합니다 / 사랑하는 ○○의 / 생일 축하합니다"
+const BD_MEL=[[67,3,'생'],[67,1,'일'],[69,4,'축'],[67,4,'하'],[72,4,'합'],[71,4,'니'],[71,4,'다'],
+  [67,3,'생'],[67,1,'일'],[69,4,'축'],[67,4,'하'],[74,4,'합'],[72,4,'니'],[72,4,'다'],
+  [67,3,'사'],[67,1,'랑'],[79,4,'하'],[76,4,'는'],[72,4,'@1'],[71,4,'@2'],[69,4,'의'],
+  [77,3,'생'],[77,1,'일'],[76,4,'축'],[72,4,'하'],[74,4,'합'],[72,4,'니'],[72,8,'다']];
+const BD_LINES=[0,7,14,21];                       // first note of each lyric line
 const BD_CH=[[0,'M'],[7,'M'],[7,'M'],[0,'M'],[0,'M'],[5,'M'],[0,'M'],[0,'M']];
-const BD_LYR=['생일 축하합니다','생일 축하합니다','사랑하는 {name}의','생일 축하합니다'];
 const BD_PAL={bg:'#1a0f24',line:'#3d2550',lc:['#ffd166','#ff6fb5','#5ee6c4','#7cc8ff','#ffffff']};
 const BD_JTXT={perfect:'축하해!',great:'멋져요',good:'좋아요',miss:'앗!'};
-let bdEvents=null;
+let bdEvents=null,bdNameCache='';
 
-function bdMelody(){ // every melody note of the song: {s(local step), p(midi), d(steps), v(verse)}
-  if(bdEvents)return bdEvents;const out=[];
-  for(let v=0;v<3;v++){let s=BD_OFF[v];
-    BD_MEL.forEach(([p,d],i)=>{const last=i===BD_MEL.length-1;out.push({s,p:p+BD_TR[v],d:last&&v<2?8:d,v,i});s+=d})}
+function bdNameSyl(){ // the name sung on two notes: "정우" -> 정,우 ; "가" -> 가,아 ; longer names squeeze into the 2nd note
+  const n=[...bdName()];if(n.length===1)return[n[0],'~'];if(n.length===2)return n;return[n[0],n.slice(1).join('')];
+}
+function bdMelody(){ // every sung note: {s(local step), p(midi), d(steps), v(verse), i(index), syl}
+  if(bdEvents&&bdNameCache===bdName())return bdEvents;
+  bdNameCache=bdName();const nm=bdNameSyl(),out=[];
+  for(let v=0;v<2;v++){let s=BD_OFF[v];
+    BD_MEL.forEach(([p,d,syl],i)=>{const last=i===BD_MEL.length-1;const dd=last&&v===0?4:d;
+      out.push({s,p,d:dd,v,i,syl:syl==='@1'?nm[0]:syl==='@2'?nm[1]:syl});s+=dd})}
   return bdEvents=out;
 }
-const bdVerse=L=>L>=BD_OFF[2]?2:L>=BD_OFF[1]?1:0;
+const bdVerse=L=>L>=BD_OFF[1]?1:0;
 function bdChord(L){ // chord under local step L: [rootSemitone, quality] or null
   if(L<BD_PRE+4){const k=Math.floor((L+32)/12);return[[0,'M'],[0,'M'],[5,'M'],[0,'M'],[5,'M'],[7,'M'],[7,'M']][Math.max(0,Math.min(6,k))]}
-  if(L>=BD_END){const k=Math.floor((L-BD_END)/12);return[[7,'M'],[9,'M'],[2,'M'],[2,'M']][Math.min(3,k)]}
-  if(L>=BD_BRIDGE&&L<BD_BRIDGE+12)return[9,'M'];
+  if(L>=BD_END){const k=Math.floor((L-BD_END)/12);return[[5,'M'],[7,'M'],[0,'M'],[0,'M']][Math.min(3,k)]}
   const v=bdVerse(L),rel=L-BD_OFF[v]-4;if(rel<0)return BD_CH[7];
   const k=Math.min(7,Math.floor(rel/12)),pos=rel%12;
-  if(k===6&&pos>=8)return[7+BD_TR[v],'M'];
-  return[BD_CH[k][0]+BD_TR[v],BD_CH[k][1]];
+  if(k===6&&pos>=8)return[7,'M'];
+  return BD_CH[k];
 }
 function bdChart(diff){
   const ev=bdMelody(),notes=[],base=INTRO*16;let lane=1,prev=null;
@@ -3019,21 +3026,46 @@ function bdChart(diff){
     prev=e;
     if(easy&&e.d===1)continue;
     const n={step:base+e.s,lane};
-    const long=e.d>=8;if(long)n.len=easy?Math.min(6,e.d-2):e.d-2;
-    if(e.v===2&&e.i===BD_MEL.length-1)n.len=12;
+    if(e.d>=8)n.len=easy?6:e.d-2;
     notes.push(n);
     const down=(e.s-BD_OFF[e.v]-4)%12===0;
-    if(!easy&&e.v>=1&&(down||long)){notes.push({step:base+e.s,lane:lane>=2?lane-2:lane+2})}
-    if(hard&&e.v===2&&e.d===4&&!long){notes.push({step:base+e.s+2,lane:lane%2?lane-1:lane+1})}
+    if(!easy&&e.v===1&&down)notes.push({step:base+e.s,lane:lane>=2?lane-2:lane+2});
+    if(hard&&e.v===1&&e.d===4)notes.push({step:base+e.s+2,lane:lane%2?lane-1:lane+1});
   }
   // finale: blow out the candles together
   const fin=base+BD_END+36;(easy?[1,2]:[0,1,2,3]).forEach(l=>notes.push({step:fin,lane:l,len:easy?0:8}));
   notes.sort((a,b)=>a.step-b.step||a.lane-b.lane);
   const seen=new Set();return notes.filter(n=>{const k=n.step*8+n.lane;if(seen.has(k))return false;seen.add(k);return true});
 }
+
+/* ---------- a synthetic singing voice: vowel formants over a breathy saw, from the Hangul syllable ---------- */
+const BD_VOW={a:[800,1200,2800],e:[550,1900,2700],i:[320,2500,3200],o:[500,900,2600],u:[350,850,2500],eu:[380,1500,2600]};
+function bdVowel(syl){
+  const c=syl.charCodeAt(0)-0xAC00;if(c<0||c>11171)return{v:'a',on:0,coda:0};
+  const med=Math.floor(c/28)%21,cho=Math.floor(c/588),jong=c%28;
+  const v=[0,2,9].includes(med)?'a':[1,3,5,7,10,11,15].includes(med)?'e':[4,6,14].includes(med)?'o':[8,12].includes(med)?'o':[13,17].includes(med)?'u':med===18?'eu':'i';
+  return{v,on:[9,10,12,13,14,18].includes(cho)?1:[2,6,11].includes(cho)?2:0,coda:jong};
+}
+function bdSing(t,midi,dur,syl){
+  if(syl==='~'){syl='아'}
+  const {v,on,coda}=bdVowel(syl),f=BD_VOW[v],hz=midiHz(midi),end=t+Math.max(.12,dur);
+  const o1=ctx.createOscillator(),o2=ctx.createOscillator(),lfo=ctx.createOscillator(),lg=ctx.createGain(),src=ctx.createGain(),out=ctx.createGain();
+  o1.type='sawtooth';o2.type='sawtooth';o1.frequency.value=hz;o2.frequency.value=hz;o2.detune.value=9;
+  lfo.frequency.value=5.4;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(hz*.012,t+Math.min(.35,dur*.6));
+  lfo.connect(lg);lg.connect(o1.frequency);lg.connect(o2.frequency);
+  o1.connect(src);o2.connect(src);src.gain.value=.5;
+  const gains=[1,.55,.25];
+  f.forEach((fq,k)=>{const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=fq;bp.Q.value=k?9:6;const gg=ctx.createGain();gg.gain.value=gains[k];src.connect(bp).connect(gg).connect(out)});
+  const rel=coda===17||coda===1?.03:.09; // ㅂ/ㄱ endings stop short
+  out.gain.setValueAtTime(0.0001,t);out.gain.linearRampToValueAtTime(.55,t+.035);out.gain.setValueAtTime(.55,Math.max(t+.04,end-rel));out.gain.linearRampToValueAtTime(0.0001,end);
+  out.connect(bus);[o1,o2,lfo].forEach(o=>{o.start(t);o.stop(end+.05)});
+  if(on===1)noise(t,'highpass',4200,.16,.05);   // ㅅ ㅈ ㅊ ㅎ: a breathy start
+  if(on===2)tone(t,midi,.05,'sine',.12,600);       // ㄴ ㅁ ㄹ: a soft hum
+}
+
 function bdStep(i,t){
   const L=i-INTRO*16,key=48;
-  // intro: music box sparkles over a soft waltz, building up into verse 1
+  // intro: music box sparkles over a soft waltz, building up into the song
   if(L<BD_PRE){const ch=bdChord(L),rel=((L+32)%12+12)%12,m=Math.floor((L+32)/12);
     if(ch){const iv=chordIv(ch[1]);if(rel%4===0){const d=iv[(rel/4+m)%3];tone(t,key+24+ch[0]+d,stepDur*6,'sine',.2,5000);tone(t,key+36+ch[0]+d,stepDur*2,'sine',.05,8000)}
       if(rel===0&&m>=2)tone(t,key-12+ch[0],stepDur*10,'sine',.25,600);
@@ -3043,21 +3075,21 @@ function bdStep(i,t){
   // ending: candles, a last chord and party noise
   if(L>=BD_END){const rel=L-BD_END,ch=bdChord(L);
     if(rel<36&&rel%4===0){const iv=chordIv(ch[1]);iv.forEach((x,j)=>tone(t+j*.06,key+24+ch[0]+x,stepDur*4,'sine',.14,6000));if(rel%12===0){tone(t,key-12+ch[0],stepDur*10,'sawtooth',.2,500);kick(t)}}
-    if(rel===36){[0,4,7,12,16].forEach(x=>tone(t,key+14+x,3.2,'triangle',.12,2600));tone(t,key-10,3,'sawtooth',.3,500);kick(t);noise(t,'highpass',5000,.4,2);
-      for(let k=0;k<6;k++)tone(t+.12+k*.09,key+38+[0,4,7,12,7,4][k],.4,'sine',.07,9000)}
+    if(rel===36){[0,4,7,12,16].forEach(x=>tone(t,key+12+x,3.2,'triangle',.12,2600));tone(t,key-12,3,'sawtooth',.3,500);kick(t);noise(t,'highpass',5000,.4,2);
+      for(let k=0;k<6;k++)tone(t+.12+k*.09,key+36+[0,4,7,12,7,4][k],.4,'sine',.07,9000)}
     return}
   const v=bdVerse(L);
-  // melody: music box
-  for(const e of bdMelody())if(e.s===L){const dur=e.d*stepDur;tone(t,e.p,dur*1.1,'sine',.32,4000);tone(t,e.p+12,dur*.5,'triangle',.07,6000);if(v===2)tone(t,e.p+24,.25,'sine',.05,8000)}
+  // the sung melody, doubled softly by a music box
+  for(const e of bdMelody())if(e.s===L){const dur=e.d*stepDur;bdSing(t,e.p,dur*.96,e.syl);tone(t,e.p+12,dur*.5,'sine',.06,6000)}
   // waltz accompaniment
   const ch=bdChord(L);if(!ch)return;
   const rel=((L-BD_PRE-4)%12+12)%12;
-  if(rel===0){tone(t,key-12+ch[0],stepDur*7,'sawtooth',.22,420+v*120);if(v>=1)kick(t)}
-  if(rel===4||rel===8){chordIv(ch[1]).forEach(x=>tone(t,key+12+ch[0]+x,stepDur*2.2,'triangle',.06,1800));noise(t,'highpass',7000,v?.1:.05,.04);if(v===2)noise(t,'bandpass',1500,.18,.08)}
+  if(rel===0){tone(t,key-12+ch[0],stepDur*7,'sawtooth',.2,420+v*120);if(v>=1)kick(t)}
+  if(rel===4||rel===8){chordIv(ch[1]).forEach(x=>tone(t,key+12+ch[0]+x,stepDur*2.2,'triangle',.05,1800));noise(t,'highpass',7000,v?.1:.05,.04)}
 }
 function bdMap(diffId){
   return {id:'birthday',special:'birthday',name:'생일 축하곡',label:`생일 축하곡 · ${DIFFS.find(d=>d.id===diffId).name}`,fixedKey:'s:birthday-'+diffId,
-    lanes:4,bpm:112,key:60,sc:'major',scale:SC.major,prog:[[0,'M'],[7,'M'],[5,'M'],[0,'M']],lead:'sine',drive:1,
+    lanes:4,bpm:104,key:60,sc:'major',scale:SC.major,prog:[[0,'M'],[7,'M'],[5,'M'],[0,'M']],lead:'sine',drive:1,
     bars:Math.ceil((INTRO*16+BD_END+BD_OUT+28)/16),level:40,tier:2,busy:1,seed:1225,chartFn:bdChart,stepFn:bdStep};
 }
 
@@ -3108,12 +3140,20 @@ function drawBirthday(now){
     g.font='600 13px '+F.body;g.globalAlpha=.8*a;g.fillStyle='#ffd166';g.fillText('HAPPY BIRTHDAY',x,H*.24-30);
     glow('생일 축하곡',32,H*.24+4,'#fff',a);
     g.font='500 14px '+F.body;g.globalAlpha=.85*a;g.fillStyle='#fff';g.fillText(`${name}님을 위한 특별한 곡`,x,H*.24+38,fw-16);
-  } else if(L<BD_END){
-    const v=bdVerse(L);let txt,tag=['1절','2절','마지막'][v];
-    if(L>=BD_BRIDGE&&L<BD_OFF[2]){txt='한 번 더, 더 크게!';tag='조 바꿈'}
-    else{const line=Math.max(0,Math.min(3,Math.floor((L-BD_OFF[v])/24)));txt=BD_LYR[line].replace('{name}',name)}
-    g.font='600 12px '+F.body;g.globalAlpha=.75;g.fillStyle='#ffd166';g.fillText(tag,x,H*.2-26);
-    glow(txt,22,H*.2,'#fff',.95);
+  } else if(L<BD_END){ // karaoke: the line being sung, syllable by syllable
+    const v=bdVerse(L),ev=bdMelody().filter(e=>e.v===v),rel=L;
+    let cur=0;for(let k=0;k<ev.length;k++)if(ev[k].s<=rel)cur=k;
+    let line=0;for(let k=0;k<4;k++)if(cur>=BD_LINES[k])line=k;
+    const from=BD_LINES[line],to=line<3?BD_LINES[line+1]:ev.length,syls=ev.slice(from,to);
+    g.font='600 12px '+F.body;g.globalAlpha=.75;g.fillStyle='#ffd166';g.fillText(v?'다 같이 한 번 더!':'따라 불러요',x,H*.2-30);
+    g.font='700 24px '+F.display;const gap=4,ws=syls.map(e=>g.measureText(e.syl).width+([1,8,17,22].includes(e.i)?12:gap));
+    let total=ws.reduce((a,b)=>a+b,0),sc=Math.min(1,(fw-20)/total),px=x-total*sc/2;
+    g.save();g.translate(px,H*.2);g.scale(sc,sc);g.textAlign='left';
+    syls.forEach((e,k)=>{const sung=from+k<=cur&&rel>=e.s,now2=from+k===cur&&rel>=e.s;
+      g.globalAlpha=sung?1:.45;g.fillStyle=now2?'#ffd166':sung?'#ffffff':'#ffffff';g.shadowColor='#ff6fb5';g.shadowBlur=now2?18:sung?8:0;
+      g.fillText(e.syl,0,now2?-3:0);g.translate(ws[k],0)});
+    g.restore();
+    if(line<3){const nx=ev.slice(BD_LINES[line+1],line<2?BD_LINES[line+2]:ev.length).map(e=>e.syl+([1,8,17,22].includes(e.i)?' ':'')).join('');g.font='500 13px '+F.body;g.globalAlpha=.5;g.fillStyle='#fff';g.fillText(nx,x,H*.2+30,fw-16)}
   } else { // ending
     const rel=L-BD_END;
     if(rel<36)glow('다 같이 촛불을 끄세요!',22,H*.2,'#ffd166',.95);

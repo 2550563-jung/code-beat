@@ -148,6 +148,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .navrow .xmas{background:linear-gradient(90deg,#e63946,#2a9d8f);color:#fff;border:0}
 .navrow .ny{background:linear-gradient(90deg,#7209b7,#f72585,#ffd166);color:#fff;border:0}
 .navrow .xmas span,.navrow .ny span,.navrow .endless span{font-weight:500;font-size:12px;opacity:.8}
+.navrow .vs{border-color:var(--lc2);color:var(--lc2);background:transparent}
+.navrow .vs span{font-weight:500;font-size:12px;opacity:.8}
+.vswin{margin:0;font-size:28px;font-weight:800;text-align:center}
 .navrow .endless{border-color:#ff6b6b;color:#ff6b6b;background:transparent}
 .bosstag{margin:0;padding:8px 12px;border-radius:8px;border:1px solid #ff4d6d;color:#ff6b6b;font-size:13px;font-weight:600}
 .pfhead{display:flex;gap:14px;align-items:center;padding:16px;border-radius:12px;background:linear-gradient(120deg,#3a2c6b,#1d1533)}
@@ -304,7 +307,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <button class="infocard" id="luckyBtn"></button>
       <button class="infocard feat" id="featBtn" hidden></button>
       <div class="tutban" id="tutBan" hidden><span>처음이세요? 1분이면 끝나는 튜토리얼로 시작해 보세요.</span><div><button class="small" id="tutGo">튜토리얼</button><button class="small" id="tutNo">닫기</button></div></div>
-      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small wide bday" id="bdayBtn" hidden>생일 축하곡 <span>· 특별한 곡이 열려 있어요</span></button><button class="small wide xmas" id="xmasBtn" hidden>🎄 징글벨 <span>· 크리스마스 한정</span></button><button class="small wide ny" id="nyBtn" hidden>🎆 올드 랭 사인 <span>· 새해 한정</span></button><button class="small wide daily" id="dailyBtn">오늘의 도전 <span id="dailySub"></span></button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small" id="profBtn">프로필 · 업적</button><button class="small" id="friendBtn">친구</button><button class="small wide endless" id="endlessBtn">무한 모드 <span>· 끝없이 빨라지는 곡에서 버티기</span></button><button class="small" id="inboxBtn">알림함 <span class="nbadge" id="inboxN" hidden></span></button><button class="small" id="setBtn">설정</button></div>
+      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small wide bday" id="bdayBtn" hidden>생일 축하곡 <span>· 특별한 곡이 열려 있어요</span></button><button class="small wide xmas" id="xmasBtn" hidden>🎄 징글벨 <span>· 크리스마스 한정</span></button><button class="small wide ny" id="nyBtn" hidden>🎆 올드 랭 사인 <span>· 새해 한정</span></button><button class="small wide daily" id="dailyBtn">오늘의 도전 <span id="dailySub"></span></button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small" id="profBtn">프로필 · 업적</button><button class="small" id="friendBtn">친구</button><button class="small wide vs" id="vsBtn">2인 대결 <span>· 한 화면에서 둘이 겨루기</span></button><button class="small wide endless" id="endlessBtn">무한 모드 <span>· 끝없이 빨라지는 곡에서 버티기</span></button><button class="small" id="inboxBtn">알림함 <span class="nbadge" id="inboxN" hidden></span></button><button class="small" id="setBtn">설정</button></div>
       <div class="total"><span>누적 점수 · 맵·난이도별 최고 기록 합계</span><b id="totalScore">0</b></div>
       <div>
         <p class="label">맵 · 쉬운 순서 · <span id="unlockCount"></span></p>
@@ -349,6 +352,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="grid2"><button class="small" id="tutAgain">튜토리얼 다시 하기</button><button class="small" id="storyAgain">스토리 다시 보기</button></div>
       <div class="ctl"><label for="restSel">휴식 알림 · 오래 하면 쉬라고 알려 줘요</label><select class="text" id="restSel"><option value="0">끄기</option><option value="20">20분마다</option><option value="40">40분마다</option><option value="60">60분마다</option></select></div>
       <p class="hint" style="text-align:left;margin:0">게임패드를 연결하면 바로 쓸 수 있어요. 십자키·LB·LT는 왼쪽 레인, A·B·RB·RT는 오른쪽 레인, START는 일시정지예요.</p>
+      <div class="ctl"><label for="langSel">언어 · Language</label><select class="text" id="langSel"><option value="ko">한국어</option><option value="en">English</option></select></div>
       <div class="ctl"><div class="lab">계정 <span class="val" id="setAcctName"></span></div><button class="small" id="setAcctBtn">로그인 · 계정</button></div>
       <button class="small" id="adminBtn" hidden>관리자 도구</button>
       <button class="go" id="setBack">돌아가기</button>
@@ -455,6 +459,18 @@ a.go.off{opacity:.45;pointer-events:none}
       <h2 id="stTitle"></h2>
       <p class="sttext" id="stText"></p>
       <div class="btns"><button class="ghost" id="stPrev">이전</button><button class="go" id="stNext">다음</button></div>
+    </div>
+  </section>
+
+  <section class="screen" id="plist" hidden>
+    <div class="panel">
+      <h2>플레이리스트</h2>
+      <p class="sub">커뮤니티 레벨을 묶어서 차례로 플레이해요. 레벨 카드의 "담기"로 곡을 모은 뒤 여기서 이름을 붙여 저장하세요.</p>
+      <div class="ctl" id="plEdit" hidden><span class="lab">담은 곡</span><input class="text" id="plTitle" maxlength="30" placeholder="플레이리스트 이름" autocomplete="off">
+        <ol class="board" id="plItems"></ol><div class="grid2"><button class="go" id="plSave">저장</button><button class="ghost" id="plCancel">비우기</button></div></div>
+      <div class="clist" id="plList"></div>
+      <p class="keymsg" id="plMsg"></p>
+      <button class="ghost" id="plBack">돌아가기</button>
     </div>
   </section>
 
@@ -621,6 +637,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="clist" id="cList"></div>
       <p class="keymsg" id="cMsg"></p>
       <button class="ghost" id="cMore" hidden>더 보기</button>
+      <button class="small" id="plBtn">플레이리스트</button>
       <div class="btns"><button class="go" id="cNew">새 레벨 만들기</button><button class="ghost" id="cBack">돌아가기</button></div>
     </div>
   </section>
@@ -660,7 +677,8 @@ a.go.off{opacity:.45;pointer-events:none}
           <div class="ctl"><span class="lab">음악 파일 · mp3, 10MB까지</span>
             <div class="grid2"><label class="small filebtn" for="eAudio">mp3 고르기</label><button class="small" id="eAudioDel">음악 빼기</button></div>
             <input type="file" id="eAudio" accept="audio/mpeg,.mp3" hidden>
-            <p class="hint" id="eAudioInfo" style="text-align:left;margin:0">음악 파일이 없으면 코드 진행으로 자동 연주돼요.</p></div>
+            <p class="hint" id="eAudioInfo" style="text-align:left;margin:0">음악 파일이 없으면 코드 진행으로 자동 연주돼요.</p>
+            <div class="grid3"><button class="small" id="eBpmFind">BPM 자동 찾기</button><select class="text" id="eAutoLv" aria-label="자동 만들기 난이도"><option value="easy">쉬움</option><option value="normal" selected>보통</option><option value="hard">어려움</option></select><button class="small" id="eAutoMusic">음악으로 자동 만들기</button></div></div>
           <div class="ctl" id="eAudioBox" hidden>
             <label for="eOff">첫 박 위치 <output id="eOffOut">0ms</output></label>
             <input type="range" id="eOff" min="0" max="20000" step="5" value="0">
@@ -706,7 +724,7 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="ctl" id="mpJoin">
         <p class="sub">같은 방에 모인 사람들이 같은 맵을 동시에 시작하고, 점수를 실시간으로 겨뤄요. 최대 8명.</p>
         <button class="go" id="mpCreate">방 만들기</button>
-        <div class="rpick"><input class="text" id="mpCode" maxlength="5" placeholder="방 코드 5자리" autocomplete="off" style="text-transform:uppercase"><button class="small" id="mpJoinBtn">참가</button></div>
+        <div class="rpick"><input class="text" id="mpCode" maxlength="5" placeholder="방 코드 5자리" autocomplete="off" style="text-transform:uppercase"><button class="small" id="mpJoinBtn">참가</button><button class="small" id="mpSpecBtn">관전</button></div>
       </div>
       <div class="ctl" id="mpRoom" hidden>
         <div class="total"><span>방 코드 · 친구에게 알려 주세요</span><b id="mpCodeOut"></b></div>
@@ -716,6 +734,7 @@ a.go.off{opacity:.45;pointer-events:none}
         <div class="ctl" id="mpHostBox"><p class="label" style="margin:0">맵 · 방장이 골라요</p>
           <div class="rpick"><select class="text" id="mpMap" aria-label="맵"></select><select class="text" id="mpDiff" aria-label="난이도"></select></div>
           <button class="go" id="mpStart">모두 시작</button></div>
+        <div class="ctl" id="mpSpecBox" hidden><p class="label" style="margin:0">관전 중 · 실시간 점수</p><p class="rline" id="mpSpecState" style="margin:0"></p><ol class="board" id="mpSpecBoard"></ol></div>
         <p class="rline" id="mpMapInfo"></p>
         <p class="label" id="mpLastLabel" style="margin:0" hidden>지난 판 결과</p>
         <ol class="board" id="mpLast"></ol>
@@ -776,6 +795,8 @@ a.go.off{opacity:.45;pointer-events:none}
         <div class="grid2"><button class="small" id="rVidBig">고화질</button><button class="small" id="rVidSmall">문자용 작은 용량</button></div></div>
       <div class="ctl" id="rCardBox" hidden><span class="lab">가장 신났던 장면에 점수를 얹은 사진이에요</span>
         <input class="text" id="cardText" maxlength="30" placeholder="한마디 (선택) · 예: 드디어 깼다!" autocomplete="off"><button class="small" id="rCardSave">사진 저장</button></div>
+      <div class="ctl" id="rVsBox" hidden><p class="vswin" id="rVsWin"></p><p class="rline" id="rVsTxt" style="margin:0"></p></div>
+      <div class="ctl" id="rPlBox" hidden><span class="lab" id="rPlTxt"></span><button class="go" id="rPlNext">다음 곡</button></div>
       <button class="ghost" id="rReplay" hidden>방금 판 리플레이 보기</button>
       <div class="btns"><button class="go" id="retryBtn">다시 하기</button><button class="ghost" id="backBtn">맵 선택</button></div>
     </div>
@@ -804,7 +825,7 @@ a.go.off{opacity:.45;pointer-events:none}
 <script>
 (function(){var sent={},n=0;function rep(msg,src,stack){try{msg=String(msg||'');if(!msg||sent[msg]||n>=8)return;sent[msg]=1;n++;var tok=null;try{tok=(JSON.parse(localStorage.getItem('cb-acct')||'null')||{}).token||null}catch(e){}
 fetch('https://nkeeayhodmauifevmaga.supabase.co/rest/v1/rpc/bb_report_error',{method:'POST',headers:{apikey:'sb_publishable_u7M3MApb_n-h-5gAUe4rTg_fN2kj4yW','Content-Type':'application/json'},
-body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261109093347',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
+body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261109094220',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
 window.addEventListener('error',function(e){if(!e.message)return;rep(e.message,(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno,e.error&&e.error.stack)});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r&&r.code)return;rep('promise: '+(r&&r.message||r),'',r&&r.stack)});
 window.cbReport=rep;})();
@@ -1282,7 +1303,7 @@ function finish(fail){
 function pause(){if(state!=='play')return;state='pause';ctx.suspend();$('#pauseBtn').hidden=true;show('pause')}
 function resume(){state='play';ctx.resume();$('#pauseBtn').hidden=false;show(null)}
 function toMenu(){stopRun();state='menu';$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();renderMenu();show('menu');resize()}
-function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends','bday','hist','inbox','season','endless','story'].forEach(s=>$('#'+s).hidden=s!==id)}
+function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends','bday','hist','inbox','season','endless','story','plist'].forEach(s=>$('#'+s).hidden=s!==id)}
 function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.back){const f=sel.back;sel={type:'builtin'};f();return}if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
 
 /* ---------- calibration (tap along to a metronome) ---------- */
@@ -1503,7 +1524,7 @@ function draw(){
     if(combo>=3){g.textAlign='center';g.textBaseline='alphabetic';g.fillStyle=COL.ink;
       const cy=H*.5-44,cs=Math.min(52,Math.max(36,H*.11));
       g.font='700 '+cs+'px '+F.num;g.globalAlpha=.9;if(QS().fx>2){g.shadowColor=combo>=100?COL.lc[0]:COL.lc[1];g.shadowBlur=combo>=50?28:14}g.fillText(combo,cx,cy);g.shadowBlur=0;
-      g.font='600 12px '+F.body;g.fillStyle=COL.muted;g.fillText('콤보',cx,cy+16);g.globalAlpha=1}
+      g.font='600 12px '+F.body;g.fillStyle=COL.muted;g.fillText(tr('콤보'),cx,cy+16);g.globalAlpha=1}
     shownScore+=(score()-shownScore)*.2;
     const lx=Math.max(14,fx+14);
     g.textAlign='left';g.textBaseline='top';g.fillStyle=COL.ink;g.font='700 20px '+F.num;
@@ -1512,15 +1533,15 @@ function draw(){
     const bw=Math.min(140,fw*.4);
     const bar=(y,label,v,c)=>{g.font='600 11px '+F.body;g.fillStyle=COL.muted;g.textBaseline='middle';g.fillText(label,lx,y+3);
       g.fillStyle=COL.line;rr(lx+42,y,bw,6,3);g.fill();if(v>0){g.fillStyle=c;rr(lx+42,y,bw*v/100,6,3);g.fill()}};
-    bar(66,'체력',hp,hp>50?COL.great:hp>25?COL.perfect:COL.miss);
-    bar(80,'과부하',heat,heat>=HEAT.warn?COL.miss:COL.muted);
-    if(runInv){g.font='600 11px '+F.body;g.fillStyle=COL.good;g.textBaseline='middle';g.fillText(sel.practice||sel.tutorial?'연습':'무적',lx+42+bw+8,73)}
-    if(sel.multi)drawMulti(pn);if(sel.tutorial)drawTutorial(now);if(map.special)drawBirthday(now);if(map.boss)drawBoss(now);drawPet(now);
+    bar(66,tr('체력'),hp,hp>50?COL.great:hp>25?COL.perfect:COL.miss);
+    bar(80,tr('과부하'),heat,heat>=HEAT.warn?COL.miss:COL.muted);
+    if(runInv){g.font='600 11px '+F.body;g.fillStyle=COL.good;g.textBaseline='middle';g.fillText(tr(sel.practice||sel.tutorial?'연습':'무적'),lx+42+bw+8,73)}
+    if(sel.multi)drawMulti(pn);if(sel.tutorial)drawTutorial(now);if(map.special)drawBirthday(now);if(map.boss)drawBoss(now);drawPet(now);if(map.versus)drawVersus();
     if(heat>=HEAT.warn&&state==='play'){const a=(heat-HEAT.warn)/(100-HEAT.warn);g.strokeStyle=COL.miss;g.globalAlpha=.3+.5*a*(.6+.4*Math.sin(pn/60));g.lineWidth=4;g.strokeRect(fx+2,2,fw-4,H-4);
-      g.globalAlpha=1;g.font='15px '+F.display;g.textAlign='center';g.fillStyle=COL.miss;g.fillText('과부하 주의',fx+fw/2,H*.62)}
+      g.globalAlpha=1;g.font='15px '+F.display;g.textAlign='center';g.fillStyle=COL.miss;g.fillText(tr('과부하 주의'),fx+fw/2,H*.62)}
     if(hp<=25&&state==='play'){g.fillStyle=COL.miss;g.globalAlpha=.08+.06*Math.sin(pn/120);g.fillRect(0,0,W,H);g.globalAlpha=1}
     const prog=Math.max(0,Math.min(1,(now-T0)/(endTime-T0)));
-    bar(94,'진행',prog*100,COL.lc[0]);g.font='600 11px '+F.num;g.fillStyle=COL.muted;g.textAlign='left';g.textBaseline='middle';g.fillText(Math.floor(prog*100)+'%',lx+42+bw+8,97);
+    bar(94,tr('진행'),prog*100,COL.lc[0]);g.font='600 11px '+F.num;g.fillStyle=COL.muted;g.textAlign='left';g.textBaseline='middle';g.fillText(Math.floor(prog*100)+'%',lx+42+bw+8,97);
     if(death){const p=Math.min(1,(pn-death.t)/700);g.fillStyle=COL.bg;g.globalAlpha=.75*p;g.fillRect(0,0,W,H);g.globalAlpha=1;
       g.save();g.translate(fx+fw/2+(reduce?0:(1-p)*Math.sin(pn/25)*10),H*.45);g.textAlign='center';g.textBaseline='middle';
       g.font=Math.round(56+(reduce?0:(1-p)*20))+'px '+F.display;g.fillStyle=COL.miss;g.fillText(death.reason==='overload'?'과부하':'실패',0,0);
@@ -1751,6 +1772,7 @@ function renderComm(note){
     else if(isStaff())mk('adel',CM.del===L.id?'정말 강제 삭제':'강제 삭제',CM.del===L.id?'liked':'');
     if(!(me&&L.author.toLowerCase()===me))mk('report',CM.rep===L.id?'신고 취소':'신고');
     if(isStaff())mk('feat',L.featured?'추천 해제':'추천하기');
+    mk('plist','담기');
     c.appendChild(acts);
     if(CM.rep===L.id){const rr=document.createElement('div');rr.className='acts';const lb=document.createElement('span');lb.className='hint';lb.style.margin='0';lb.textContent='신고 이유:';rr.appendChild(lb);
       for(const [k,v] of Object.entries(REASONS)){const b=document.createElement('button');b.className='small';b.dataset.act='rep:'+k;b.textContent=v;rr.appendChild(b)}c.appendChild(rr)}
@@ -1770,6 +1792,7 @@ $('#cList').addEventListener('click',async e=>{
   try{
     if(act==='play'){CM.busy=true;msg.textContent='레벨을 불러오는 중…';const full=await fetchLevel(id);msg.textContent='';sel={type:'community',level:full};start()}
     else if(act==='rank')openRank(L);
+    else if(act==='plist')plAddLevel(L);
     else if(act==='feat'){CM.busy=true;await API.call('bb_admin_feature',{p_token:acct.token,p_id:id,p_on:!L.featured});L.featured=!L.featured;renderComm(L.featured?`'${L.title}'을(를) 이번 주 추천 레벨로 올렸어요.`:'추천을 해제했어요.');if(typeof loadMenuExtras==='function')loadMenuExtras()}
     else if(act==='edit'){CM.busy=true;const full=await fetchLevel(id);openEditor(full,false,'comm')}
     else if(act==='like'){
@@ -2133,13 +2156,13 @@ function openMulti(keep){
   state='multi';show('multi');if(!keep)mpMsg('');renderMulti();
 }
 const newCode=()=>{const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';const r=crypto.getRandomValues(new Uint8Array(5));for(const x of r)c+=A[x%A.length];return c};
-async function mpJoin(code,creating){
+async function mpJoin(code,creating,spec){
   code=String(code||'').toUpperCase().trim();
   if(!/^[A-Z2-9]{5}$/.test(code)){mpMsg('방 코드는 영문·숫자 5자리예요.');return}
   mpMsg('방에 들어가는 중…');
   try{await loadSB()}catch(e){mpMsg(ERR.network);return}
   if(!MP.client)MP.client=window.supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:false},realtime:{params:{eventsPerSecond:20}}});
-  await mpLeave(true);
+  await mpLeave(true);MP.spec=!!spec;MP.specs=[];
   Object.assign(MP,{code,me:acct.nick,at:Date.now(),players:[],host:creating,live:{},results:{},last:[],round:0,full:false});
   if(creating){MP.map=mapIdx;MP.diff=diffIdx}
   const ch=MP.client.channel('cb-room-'+code,{config:{broadcast:{self:true,ack:false},presence:{key:acct.nick}}});
@@ -2153,18 +2176,18 @@ async function mpJoin(code,creating){
   });
   renderMulti();
 }
-const mpTrack=()=>MP.ch&&MP.ch.track({nick:MP.me,at:MP.at,map:MP.map,diff:MP.diff});
+const mpTrack=()=>MP.ch&&MP.ch.track({nick:MP.me,at:MP.at,map:MP.map,diff:MP.diff,spec:!!MP.spec});
 async function mpLeave(silent){
   clearInterval(MP.liveT);
   const ch=MP.ch;if(MP.code)setRoom(null);MP.ch=null;MP.code='';MP.players=[];
   if(ch&&MP.client){try{await ch.untrack()}catch(e){}try{await MP.client.removeChannel(ch)}catch(e){}}
-  if(!silent){if(sel.multi)sel={type:'builtin'};renderMulti()}
+  if(!silent){MP.spec=false;if(sel.multi)sel={type:'builtin'};renderMulti()}
 }
 function mpSync(){
   if(!MP.ch)return;
   const st=MP.ch.presenceState(),ps=[];
-  for(const k of Object.keys(st)){const p=st[k]&&st[k][0];if(p&&typeof p.nick==='string')ps.push({nick:p.nick.slice(0,12),at:+p.at||0,map:Math.max(0,Math.min(MAPS.length-1,+p.map|0)),diff:Math.max(0,Math.min(2,+p.diff|0))})}
-  ps.sort((a,b)=>a.at-b.at||(a.nick<b.nick?-1:1));
+  for(const k of Object.keys(st)){const p=st[k]&&st[k][0];if(p&&typeof p.nick==='string')ps.push({spec:!!p.spec,nick:p.nick.slice(0,12),at:+p.at||0,map:Math.max(0,Math.min(MAPS.length-1,+p.map|0)),diff:Math.max(0,Math.min(2,+p.diff|0))})}
+  ps.sort((a,b)=>a.at-b.at||(a.nick<b.nick?-1:1));MP.specs=ps.filter(p=>p.spec).map(p=>p.nick);{const all=ps.splice(0,ps.length).filter(p=>!p.spec);ps.push(...all)}
   const myI=ps.findIndex(p=>p.nick===MP.me);
   if(myI>=8){mpLeave();mpMsg('방이 가득 찼어요. 최대 8명까지 들어갈 수 있어요.');return}
   MP.players=ps.slice(0,8);MP.host=MP.players.length>0&&MP.players[0].nick===MP.me;
@@ -2179,6 +2202,7 @@ function mpOnMsg(p){
   else if(p.t==='start'){
     const host=MP.players[0];if(!host||nick!==host.nick)return;
     MP.round=+p.round||0;MP.map=Math.max(0,Math.min(MAPS.length-1,+p.map|0));MP.diff=Math.max(0,Math.min(2,+p.diff|0));MP.live={};MP.results={};
+    if(MP.spec){mpMsg('경기가 시작됐어요! 실시간 점수를 보여드릴게요.');if(state==='multi')renderMulti();return}
     if(state==='play'||state==='pause'||state==='dying'||state==='calib'||state==='loading')return;
     mapIdx=MP.map;diffIdx=MP.diff;sel={type:'builtin',multi:true};
     if(state!=='multi')openMulti(true);mpMsg('곧 시작해요!');
@@ -2223,13 +2247,13 @@ function renderMulti(){
   if(!inRoom)return;
   $('#mpCodeOut').textContent=MP.code;
   boardRows($('#mpPlayers'),MP.players.map((p,i)=>({nick:p.nick,me:p.nick===MP.me,score:null,host:i===0})),r=>[emoOf(r.nick),r.host?'방장':'',r.me?'나':''].filter(Boolean).join(' · '));
-  $('#mpHostBox').hidden=!MP.host;
+  $('#mpHostBox').hidden=!MP.host||!!MP.spec;if(typeof specRender==='function')specRender();
   if(MP.host&&!$('#mpMap').options.length){
     $('#mpMap').innerHTML=MAPS.map((m,i)=>`<option value="${i}"${isUnlocked(i)?'':' disabled'}>Lv${m.level} ${m.name} · ${m.lanes}키${isUnlocked(i)?'':' (잠김)'}</option>`).join('');
     $('#mpDiff').innerHTML=DIFFS.map((d,i)=>`<option value="${i}">${d.name}</option>`).join('');
   }
   if(MP.host){$('#mpMap').value=MP.map;$('#mpDiff').value=MP.diff}
-  const m=MAPS[MP.map];$('#mpMapInfo').textContent=`이번 맵: Lv${m.level} ${m.name} · ${m.lanes}키 · ${m.bpm} BPM · ${DIFFS[MP.diff].name}`+(MP.host?'':' · 방장이 시작하면 같이 시작돼요');
+  const m=MAPS[MP.map];$('#mpMapInfo').textContent=`이번 맵: Lv${m.level} ${m.name} · ${m.lanes}키 · ${m.bpm} BPM · ${DIFFS[MP.diff].name}`+(MP.spec?' · 관전 중':MP.host?'':' · 방장이 시작하면 같이 시작돼요')+(MP.specs&&MP.specs.length?` · 관전 ${MP.specs.length}명`:'');
   const has=Object.keys(MP.results).length>0;$('#mpLastLabel').hidden=!has;
   if(has)boardRows($('#mpLast'),mpStandings(),r=>(r.me?'나 · ':'')+(r.done?(r.fail?'실패':r.acc.toFixed(1)+'%'):'기록 없음'));else $('#mpLast').textContent='';
 }
@@ -2584,7 +2608,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261109093347';
+const BUILD_ID='20261109094220';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2659,6 +2683,7 @@ function applyMods(){
   if(RUNPERM&&RUNPERM.length!==n)RUNPERM=null;
   for(const x of notes){let l=x.lane;if(RUNMODS.mirror)l=n-1-l;if(RUNPERM)l=RUNPERM[l];x.lane=l}
   if(sel.practice){notes=notes.filter(x=>x.step>=PR.fs&&x.step<PR.ts)}
+  if(typeof vsSetup==='function')vsSetup();
   REC=sel.replay?null:[];
 }
 function hidA(y){if(!RUNMODS.hidden)return 1;const a=hitY-H*.45,b=hitY-H*.22;return y<=a?1:y>=b?0:1-(y-a)/(b-a)}
@@ -2747,6 +2772,7 @@ function afterFinish(fail,sc,acc,key,test){
   if(typeof afterFinishB1==='function')afterFinishB1(fail,sc,acc,key,test,canReplay);
   if(typeof afterFinishB2==='function')afterFinishB2(fail,sc,acc,key,test);
   if(typeof afterFinishB3==='function')afterFinishB3(fail,sc,acc,key,test);
+  if(typeof afterFinishB4==='function')afterFinishB4();
   if(sel.tutorial&&!fail){LS.set('cb-tut-done',1);achGrant('tutorial')}
   if(sel.practice&&!fail)achGrant('practice');
   if(!fail&&!test)achCheckRun({sc,acc,key,fail});
@@ -2942,7 +2968,7 @@ async function loadFriends(){
       const h=el('h3');const dot=el('i','dot'+(f.online?' on':''));dot.title=f.online?'접속 중':'오프라인';h.append(dot,el('span',null,f.nick));if(f.title&&ACHT[f.title])h.appendChild(el('span','ttl',ACHT[f.title]));
       const m=el('div','meta',`누적 ${fmt(f.total)}`+(f.online?' · 접속 중':'')+(f.room?` · 멀티 방 ${f.room}`:'')+(f.mutual?' · 서로 친구':''));
       const a=el('div','acts');
-      if(f.room){const j=el('button','small play','방 참가');j.dataset.act='join';j.dataset.room=f.room;a.appendChild(j)}
+      if(f.room){const j=el('button','small play','방 참가');j.dataset.act='join';j.dataset.room=f.room;a.appendChild(j);const sp=el('button','small','관전');sp.dataset.act='spec';sp.dataset.room=f.room;a.appendChild(sp)}
       const pb=el('button','small','프로필');pb.dataset.act='prof';pb.dataset.nick=f.nick;a.appendChild(pb);
       const rb=el('button','small','삭제');rb.dataset.act='del';rb.dataset.nick=f.nick;a.appendChild(rb);
       c.append(h,m,a);list.appendChild(c)}
@@ -2953,6 +2979,7 @@ async function loadFriends(){
 $('#frList').addEventListener('click',async e=>{const b=e.target.closest('button[data-act]');if(!b)return;
   if(b.dataset.act==='prof'){openProfile(b.dataset.nick,()=>openFriends());return}
   if(b.dataset.act==='join'){openMulti(true);mpJoin(b.dataset.room,false);return}
+  if(b.dataset.act==='spec'){openMulti(true);specJoin(b.dataset.room);return}
   if(b.dataset.act==='del'){if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말 삭제';b.classList.add('liked');return}
     try{await API.call('bb_friend_remove',{p_token:acct.token,p_nick:b.dataset.nick});loadFriends()}catch(err){$('#frMsg').textContent=errText(err)}}});
 async function addFriend(){const n=$('#frNick').value.trim();if(!n)return;
@@ -3399,7 +3426,7 @@ specialRefresh();
 /* ---------- judgement analysis ---------- */
 var JA={d:[],miss:[],lanes:0};
 function jaReset(){JA={d:[],miss:new Array(map.lanes).fill(0),lanes:map.lanes}}
-function jaRec(lane,d,k){if(typeof bossHit==='function')bossHit(k);if(!JA.miss)return;if(d!==null&&k!=='miss')JA.d.push(d*1000);if(k==='miss'&&lane<JA.miss.length)JA.miss[lane]++;
+function jaRec(lane,d,k){if(typeof bossHit==='function')bossHit(k);if(VS)vsJudge(lane,k);if(!JA.miss)return;if(d!==null&&k!=='miss')JA.d.push(d*1000);if(k==='miss'&&lane<JA.miss.length)JA.miss[lane]++;
   if(k==='perfect'&&combo===maxCombo&&combo>=10)shotMaybe()}
 function renderAnalysis(){
   const box=$('#rAnaBox');if(!JA.d.length&&!JA.miss.some(x=>x)){box.hidden=true;return}box.hidden=false;
@@ -4022,6 +4049,286 @@ function afterFinishB3(fail,sc,acc,key,test){
 }
 var B3READY=true;
 function renderMenuB3(){snBtns();const bt=$('#bossTag');if(bt){const m=MAPS[mapIdx];bt.hidden=!(m&&m.boss);if(m&&m.boss)bt.textContent=`👾 보스 레벨 · ${m.boss}`}storyCheck()}
+
+/* ====================================================================
+   batch 4: 2-player battle on one screen, spectating rooms, playlists,
+   auto-charting from an mp3 (BPM finder + onset detection)
+   ==================================================================== */
+
+/* ---------- 2-player battle on one keyboard / tablet ---------- */
+DEFAULT_KEYS[8]=['KeyA','KeyS','KeyD','KeyF','KeyJ','KeyK','KeyL','Semicolon'];
+DEFAULT_KEYS[4]=DEFAULT_KEYS[4]||['KeyD','KeyF','KeyJ','KeyK'];
+var VS=null;
+function vsSetup(){ // called from applyMods: copy every note to the second player's half
+  if(!map.versus){VS=null;return}
+  const n=map.lanes;const extra=notes.map(x=>({...x,lane:x.lane+n}));notes.push(...extra);notes.sort((a,b)=>a.t-b.t||a.lane-b.lane);
+  map.lanes=n*2;VS={n,p:[{acc:0,c:0,max:0,perfect:0,miss:0},{acc:0,c:0,max:0,perfect:0,miss:0}]};
+}
+function vsJudge(lane,k){if(!VS)return;const P=VS.p[lane<VS.n?0:1];P.acc+=W8[k];if(k==='perfect'){P.c++;P.max=Math.max(P.max,P.c);P.perfect++}else if(k==='miss'){P.c=0;P.miss++}}
+function vsScore(i){return Math.round(VS.p[i].acc/(JC/2)*1e6*runMult)}
+function drawVersus(){
+  if(!VS)return;const half=fw/2;g.save();g.textBaseline='top';
+  for(let i=0;i<2;i++){const x=fx+half*i+half/2,s=vsScore(i),o=vsScore(1-i);
+    g.textAlign='center';g.font='700 13px '+F.body;g.fillStyle=i?COL.lc[2]:COL.lc[0];g.fillText(i?'P2':'P1',x,116);
+    g.font='700 22px '+F.num;g.fillStyle=s>=o?'#fff':COL.muted;g.fillText(fmt(s),x,134);
+    g.font='600 12px '+F.body;g.fillStyle=COL.muted;g.fillText(`${VS.p[i].c} ${tr('콤보')}`,x,162)}
+  g.fillStyle=COL.ink;g.globalAlpha=.35;g.fillRect(fx+half-1,0,2,H);g.restore();
+}
+function vsResult(){
+  if(!VS){$('#rVsBox').hidden=true;return}
+  const a=vsScore(0),b=vsScore(1);$('#rVsBox').hidden=false;
+  $('#rVsWin').textContent=a===b?(LANG==='en'?'Draw!':'무승부!'):(a>b?'P1':'P2')+(LANG==='en'?' wins!':' 승리!');
+  const ks=getKeys(VS.n*2);
+  $('#rVsTxt').textContent=`P1 (${ks.slice(0,VS.n).map(keyNameLong).join(' ')}) ${fmt(a)} · 퍼펙트 ${VS.p[0].perfect} · 미스 ${VS.p[0].miss}   vs   P2 (${ks.slice(VS.n).map(keyNameLong).join(' ')}) ${fmt(b)} · 퍼펙트 ${VS.p[1].perfect} · 미스 ${VS.p[1].miss}`;
+}
+$('#vsBtn').onclick=()=>{
+  const m=MAPS[mapIdx];if(m.lanes>4){toast('2인 대결은 4키 이하 맵에서 할 수 있어요');return}
+  if(!isUnlocked(mapIdx))return;if(offsetMs===null){openCalib(false);return}
+  const ks=getKeys(m.lanes*2);toast('2인 대결',`P1: ${ks.slice(0,m.lanes).map(keyNameLong).join(' ')}  ·  P2: ${ks.slice(m.lanes).map(keyNameLong).join(' ')}`,4500);
+  sel={type:'builtin',get map(){return{...m,versus:true,label:`${LANG==='en'?'2-player':'2인 대결'} · Lv${m.level} ${m.name}`}},versus:true,noRecord:true,back:()=>toMenu(),backLabel:'메뉴로'};start();
+};
+
+/* ---------- spectating a multiplayer room ---------- */
+function specJoin(code){mpJoin(code,false,true)}
+$('#mpSpecBtn').onclick=()=>{if(!acct){openAcct(()=>openMulti());return}specJoin($('#mpCode').value)};
+let specT=0;
+function specRender(){
+  const box=$('#mpSpecBox');if(!box)return;box.hidden=!MP.spec||!MP.code;if(box.hidden)return;
+  const rows=MP.players.map(p=>{const l=MP.live[p.nick]||{},r=MP.results[p.nick];return{nick:p.nick,score:r?r.score:(l.score||0),combo:l.combo||0,hp:l.hp,dead:l.dead||(r&&r.fail),done:!!r}}).sort((a,b)=>b.score-a.score);
+  const live=rows.some(r=>r.score>0)&&!rows.every(r=>r.done);
+  $('#mpSpecState').textContent=live?'경기 중이에요 · 0.5초마다 점수가 바뀌어요':rows.length?(rows.every(r=>r.done)&&rows.some(r=>r.done)?'경기가 끝났어요':'방장이 시작하기를 기다리는 중'):'아직 참가자가 없어요';
+  const ol=$('#mpSpecBoard');ol.textContent='';
+  rows.forEach((r,i)=>{const li=el('li');li.append(el('span','pos',i+1));const w=el('span','who',r.nick);w.appendChild(el('small',null,[emoOf(r.nick),r.done?(r.dead?'실패':'끝'):r.dead?'실패':r.hp!=null?`체력 ${r.hp} · 콤보 ${r.combo}`:''].filter(Boolean).join(' · ')));li.append(w,el('span','pts',fmt(r.score)));ol.appendChild(li)});
+}
+setInterval(()=>{if(MP.spec&&MP.code&&state==='multi')specRender()},500);
+
+/* ---------- playlists of community levels ---------- */
+const PL={cur:null,list:[],playing:null,idx:0};
+function plCur(){if(!PL.cur)PL.cur={id:null,title:'',levels:[]};return PL.cur}
+async function openPlaylists(){
+  state='plist';show('plist');$('#plMsg').textContent='불러오는 중…';renderPlEdit();
+  try{PL.list=await API.call('bb_playlists',{p_author:'',p_limit:40})||[];$('#plMsg').textContent=PL.list.length?'':'아직 플레이리스트가 없어요. 커뮤니티 레벨의 "담기"로 만들어 보세요.';renderPlList()}
+  catch(e){$('#plMsg').textContent=errText(e)}
+}
+function renderPlList(){
+  const list=$('#plList');list.textContent='';const me=acct?acct.nick.toLowerCase():'';
+  for(const p of PL.list){const c=el('article','lv-card');c.dataset.id=p.id;
+    const h=el('h3');h.appendChild(el('span',null,p.title));c.appendChild(h);
+    c.appendChild(el('div','by',`만든 사람 ${p.author} · ${p.n}곡 · ▶ ${p.plays}`));
+    c.appendChild(el('div','meta',(p.levels||[]).map((l,i)=>`${i+1}. ${l.title}`).join('  ')));
+    const a=el('div','acts');const mk=(act,t,cls)=>{const b=el('button','small'+(cls?' '+cls:''),t);b.dataset.act=act;a.appendChild(b)};
+    mk('play','전체 플레이','play');if(p.author.toLowerCase()===me){mk('edit','수정');mk('del','삭제')}else if(isStaff())mk('del','강제 삭제');
+    c.appendChild(a);list.appendChild(c)}
+}
+function renderPlEdit(){
+  const box=$('#plEdit'),c=PL.cur;box.hidden=!c||!c.levels.length;if(box.hidden)return;
+  $('#plTitle').value=c.title||'';const ol=$('#plItems');ol.textContent='';
+  c.levels.forEach((l,i)=>{const li=el('li');li.append(el('span','pos',i+1),el('span','who',l.title));const up=el('button','small','↑');up.dataset.up=i;const rm=el('button','small','빼기');rm.dataset.rm=i;li.append(up,rm);li.classList.add('wrp','wdel');ol.appendChild(li)});
+}
+$('#plItems').onclick=e=>{const c=PL.cur;if(!c)return;const u=e.target.closest('[data-up]'),r=e.target.closest('[data-rm]');
+  if(u){const i=+u.dataset.up;if(i>0)[c.levels[i-1],c.levels[i]]=[c.levels[i],c.levels[i-1]]}if(r)c.levels.splice(+r.dataset.rm,1);renderPlEdit()};
+$('#plSave').onclick=async()=>{const c=PL.cur;if(!c)return;if(!acct){openAcct(()=>openPlaylists());return}
+  c.title=$('#plTitle').value.trim();if(!c.title){$('#plMsg').textContent='플레이리스트 이름을 써 주세요.';return}
+  try{c.id=await API.call('bb_playlist_save',{p_token:acct.token,p_id:c.id,p_title:c.title,p_levels:c.levels.map(l=>l.id)});$('#plMsg').textContent='저장했어요.';PL.cur=null;openPlaylists()}
+  catch(e){$('#plMsg').textContent=e.code==='too_many_levels'?'플레이리스트는 20개까지 만들 수 있어요.':e.code==='bad_playlist'?'곡은 1~30개까지 담을 수 있어요.':errText(e)}};
+$('#plCancel').onclick=()=>{PL.cur=null;renderPlEdit()};
+$('#plList').addEventListener('click',async e=>{const b=e.target.closest('button[data-act]');if(!b)return;const id=b.closest('.lv-card').dataset.id,p=PL.list.find(x=>x.id===id);if(!p)return;
+  if(b.dataset.act==='play'){plPlay(p,0);return}
+  if(b.dataset.act==='edit'){PL.cur={id:p.id,title:p.title,levels:(p.levels||[]).map(l=>({id:l.id,title:l.title}))};renderPlEdit();$('#plEdit').scrollIntoView({behavior:'smooth'});return}
+  if(b.dataset.act==='del'){if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='정말 삭제';b.classList.add('liked');return}
+    try{await API.call('bb_playlist_delete',{p_token:acct.token,p_id:id});openPlaylists()}catch(err){$('#plMsg').textContent=errText(err)}}});
+async function plPlay(p,i){
+  if(!p.levels||!p.levels.length)return;if(i===0)API.call('bb_playlist_play',{p_id:p.id}).catch(()=>{});
+  PL.playing=p;PL.idx=i;
+  try{const L=await fetchLevel(p.levels[i].id);sel={type:'community',level:L,playlist:true,back:()=>{PL.playing=null;openPlaylists()},backLabel:'플레이리스트'};start()}
+  catch(e){toast('곡을 불러오지 못했어요',errText(e));if(i+1<p.levels.length)plPlay(p,i+1)}
+}
+function plAfter(){const box=$('#rPlBox');if(!sel.playlist||!PL.playing){box.hidden=true;return}
+  const p=PL.playing,i=PL.idx;box.hidden=false;$('#rPlTxt').textContent=`${p.title} · ${i+1}/${p.levels.length}`;
+  const nb=$('#rPlNext');nb.hidden=i+1>=p.levels.length;nb.textContent=i+1<p.levels.length?`다음 곡: ${p.levels[i+1].title}`:''}
+$('#rPlNext').onclick=()=>{if(PL.playing)plPlay(PL.playing,PL.idx+1)};
+$('#plBtn').onclick=openPlaylists;$('#plBack').onclick=()=>openComm(true);
+function plAddLevel(L){const c=plCur();if(c.levels.some(x=>x.id===L.id)){toast('이미 담긴 곡이에요');return}if(c.levels.length>=30){toast('30곡까지 담을 수 있어요');return}
+  c.levels.push({id:L.id,title:L.title});toast(`'${L.title}' 담았어요`,`지금 ${c.levels.length}곡 · 커뮤니티의 "플레이리스트"에서 저장하세요`)}
+
+/* ---------- editor: BPM finder and auto-chart from the mp3 ---------- */
+function onsetEnvelope(buf){ // spectral-flux-like onset strength on ~11.6ms hops, using band energies
+  const sr=buf.sampleRate,ch=buf.getChannelData(0),hop=Math.round(sr*.0116),win=hop*2,n=Math.floor((ch.length-win)/hop);
+  const env=new Float32Array(n),lowE=new Float32Array(n),highE=new Float32Array(n);let pl=0,ph=0,pm=0;
+  for(let i=0;i<n;i++){let lo=0,hi=0,mid=0,a=i*hop,prev=0,lp=0;
+    for(let j=0;j<win;j+=2){const x=ch[a+j];lp+=.12*(x-lp);const hp=x-prev;prev=x;lo+=lp*lp;hi+=hp*hp;mid+=x*x}
+    lowE[i]=lo;highE[i]=hi;env[i]=Math.max(0,lo-pl)*1.5+Math.max(0,hi-ph)*2+Math.max(0,mid-pm);pl=lo;ph=hi;pm=mid}
+  let mx=0;for(const v of env)mx=Math.max(mx,v);if(mx>0)for(let i=0;i<n;i++)env[i]/=mx;
+  return{env,lowE,highE,hopSec:hop/sr};
+}
+function findBpm(o){ // autocorrelation of the onset envelope between 70 and 200 BPM, then the best phase
+  const {env,hopSec}=o,best={bpm:120,score:-1};
+  for(let bpm=70;bpm<=200;bpm+=.5){const lag=60/bpm/hopSec;let s=0;const L=Math.floor(lag),f=lag-L;
+    for(let i=0;i+L+1<env.length;i++)s+=env[i]*(env[i+L]*(1-f)+env[i+L+1]*f);
+    s*=1+(bpm>=90&&bpm<=160?.08:0);if(s>best.score){best.score=s;best.bpm=bpm}}
+  const lag=60/best.bpm/hopSec;let bp=0,bs=-1;
+  for(let p=0;p<lag;p+=.5){let s=0;for(let t=p;t<env.length;t+=lag)s+=env[Math.round(t)]||0;if(s>bs){bs=s;bp=p}}
+  return{bpm:Math.round(best.bpm),offsetMs:Math.round(bp*hopSec*1000)};
+}
+$('#eBpmFind').onclick=()=>{
+  if(!ed.audioBuf){edToast('먼저 mp3를 골라 주세요');return}
+  const o=onsetEnvelope(ed.audioBuf),r=findBpm(o);pushUndo();
+  ed.bpm=Math.max(60,Math.min(260,r.bpm));ed.audio.offset=r.offsetMs;edPk=null;edFill();edPeaks&&edPeaks();edChanged();
+  edToast(`BPM ${ed.bpm} · 첫 박 ${r.offsetMs}ms 로 맞췄어요`)};
+$('#eAutoMusic').onclick=()=>{
+  if(!ed.audioBuf){edToast('먼저 mp3를 골라 주세요');return}
+  const lvl=$('#eAutoLv').value,o=onsetEnvelope(ed.audioBuf),{env,lowE,highE,hopSec}=o;
+  setTempoLocal({bpm:ed.bpm,tempo:ed.music.tempo});const off=ed.audio.offset/1000,total=ed.bars*16;
+  const thr=lvl==='easy'?.32:lvl==='hard'?.12:.2,grid=lvl==='easy'?4:lvl==='hard'?1:2;
+  // local peaks of the onset envelope
+  const peaks=[];for(let i=2;i<env.length-2;i++){if(env[i]>thr&&env[i]>=env[i-1]&&env[i]>env[i+1]&&env[i]>=env[i-2]&&env[i]>env[i+2])peaks.push(i)}
+  const steps=new Map();
+  for(const i of peaks){const t=i*hopSec-off;if(t<0)continue;let s=0;while(s<total&&localStT(s+1)<=t)s++;
+    const a=localStT(s),b=localStT(s+1),st=(t-a)<(b-t)?s:s+1;const q=Math.round(st/grid)*grid;if(q<0||q>=total)continue;
+    const bright=highE[i]/(lowE[i]+highE[i]+1e-9);const prev=steps.get(q);if(!prev||env[i]>prev.e)steps.set(q,{e:env[i],br:bright})}
+  if(!steps.size){edToast('박자를 찾지 못했어요. BPM과 첫 박 위치를 먼저 맞춰 주세요');return}
+  pushUndo();ed.notes=new Set();ed.holds=new Map();
+  const arr=[...steps.entries()].sort((a,b)=>a[0]-b[0]),brs=arr.map(x=>x[1].br).sort((a,b)=>a-b),q=k=>brs[Math.floor(brs.length*k)];
+  const cuts=[];for(let k=1;k<ed.lanes;k++)cuts.push(q(k/ed.lanes));let last=-1,lastL=-1;
+  for(const [st,v] of arr){let l=cuts.filter(c=>v.br>c).length;if(st-last<=grid&&l===lastL&&ed.lanes>1)l=(l+1)%ed.lanes;
+    ed.notes.add(st*8+l);
+    if(lvl==='hard'&&v.e>.7&&ed.lanes>=4&&st%4===0){const l2=(l+2)%ed.lanes;ed.notes.add(st*8+l2)}
+    last=st;lastL=l}
+  // long quiet gaps after a strong note become holds
+  const sts=arr.map(x=>x[0]);for(let i=0;i<sts.length-1;i++){const gap=sts[i+1]-sts[i];if(gap>=8&&lvl!=='easy'||gap>=12){for(const k of ed.notes){if(Math.floor(k/8)===sts[i]){ed.holds.set(k,Math.min(gap-2,16));break}}}}
+  edChanged();edFill();edToast(`음악에서 노트 ${ed.notes.size}개를 만들었어요 · 마음에 안 들면 되돌리기`);
+};
+
+/* ---------- glue ---------- */
+function afterFinishB4(){vsResult();plAfter()}
+
+/* ====================================================================
+   English UI: a dictionary for screen text plus patterns for messages
+   built at runtime. Map and level names stay as they are.
+   ==================================================================== */
+var LANG=LS.get('cb-lang','ko');
+const EN={
+'.cbeat 파일에 노트·설정·음악이 함께 담겨요. 다른 기기나 친구에게 옮길 때 쓰세요.':'A .cbeat file holds the notes, settings and music. Use it to move a level to another device or a friend.',
+'16마디':'16 bars','1마디':'1 bar','8마디':'8 bars','마디':'Bars',
+'1·2·4레인과 극한 단계의 6레인마다 따로 저장돼요. 칸을 누른 뒤 원하는 키를 누르세요. 이미 쓰는 키를 고르면 두 칸의 키가 서로 바뀝니다.':'Saved separately for 1, 2, 4 and 6 lanes. Tap a box, then press the key you want. Picking a key already in use swaps the two.',
+'20분마다':'Every 20 min','40분마다':'Every 40 min','60분마다':'Every 60 min','4자 이상':'4+ characters',
+'4키 · 쉬운 곡에서 시작해 몇 분마다 더 어렵고 빠른 곡으로 이어져요. 체력이 다 떨어질 때까지 버틴 만큼이 점수예요.':'4 keys · Starts easy and moves to harder, faster songs every few minutes. Your score is how long you last before your health runs out.',
+"Android 7 이상 · 설치할 때 '출처를 알 수 없는 앱' 허용이 필요할 수 있어요. 새 버전이 나오면 앱이 알려 줘요.":"Android 7+ · You may need to allow 'unknown apps' to install. The app tells you when a new version is out.",
+'Safari 화면의':'In Safari, tap','Safari로 이 사이트를 열고 아래쪽':'Open this site in Safari and tap the',
+'Windows 10 이상 · 받은 파일을 실행하면 바로 설치되고, 앱이 스스로 업데이트돼요.':'Windows 10+ · Run the file to install. The app updates itself.',
+'Windows 설치 파일 받기':'Download for Windows','mp3 고르기':'Choose mp3',
+'· 끝없이 빨라지는 곡에서 버티기':'· survive a song that keeps speeding up',
+'· 매일 자정(한국 시간)에 새 맵이 나와요. 모두 같은 맵, 같은 난이도로 겨뤄요.':'· A new map every midnight (Korea time). Everyone plays the same map on the same difficulty.',
+'· 새해 한정':'· New Year only','· 크리스마스 한정':'· Christmas only','· 특별한 곡이 열려 있어요':'· a special song is open for you',
+'▶ 듣기':'▶ Listen','● 녹화 중':'● Recording',
+'가장 신났던 장면에 점수를 얹은 사진이에요':'Your best moment with your score on top',
+'같은 방에 모인 사람들이 같은 맵을 동시에 시작하고, 점수를 실시간으로 겨뤄요. 최대 8명.':'Everyone in the room starts the same map together and competes live. Up to 8 players.',
+'검색':'Search','게임패드를 연결하면 바로 쓸 수 있어요. 십자키·LB·LT는 왼쪽 레인, A·B·RB·RT는 오른쪽 레인, START는 일시정지예요.':'Plug in a gamepad and play. D-pad/LB/LT are the left lanes, A/B/RB/RT the right lanes, START pauses.',
+'계속하기':'Resume','계절 한정 곡':'Seasonal song','계정':'Account','고화질':'High quality','곡 길이에 맞추기':'Fit to song length','곡 들으며 탭 → BPM':'Tap along → BPM',
+'곡 속도':'Song speed','곡 중간 BPM 바꾸기':'Change BPM mid-song','공유':'Share','공유 버튼':'Share button','공유 버튼을 누르세요.':'tap the Share button.',
+'공지 · 메뉴 맨 위에 보여요':'Notice · shown at the top of the menu','공지 내리기':'Remove notice','공지 내용':'Notice text','공지 올리기':'Post notice',
+'관리자 도구':'Admin tools','구간 편집 · 마디 단위':'Edit a range · in bars','구간이 끝나면 처음부터 반복':'Loop the section','굿':'Good',
+'그 마디부터 노트가 내려오는 박자가 바뀌어요. mp3를 쓰면 곡의 템포 변화에 맞춰 주세요.':'From that bar on, notes fall at the new tempo. With an mp3, match the song’s tempo changes.',
+'그래픽 품질':'Graphics quality','그레이트':'Great','기록':'History','기록 그래프':'History graph','길이':'Length','끄기':'Off','끝':'End','끝 마디':'End bar','끝나는 날':'End date',
+'나가기':'Quit','난이도':'Difficulty','낮음':'Low','내 레벨':'My levels',
+'내 점수를 넘어 보라고 친구에게 보내요. 친구가 이 맵을 하면 결과가 알림함으로 와요.':'Dare a friend to beat your score. When they play this map, the result arrives in your inbox.',
+'내 최고 기록':'My best','내 칭호 · 랭킹에서 닉네임 옆에 보여요':'My title · shown next to my name in rankings','내 코인 · 판을 끝까지 깨면 모여요':'My coins · earned by finishing songs',
+'내용':'Details','노트':'Notes','노트 모두 지우기':'Clear all notes','노트 속도':'Note speed','높음':'High','누적':'Total',
+'누적 점수 · 맵·난이도별 최고 기록 합계':'Total score · sum of your best per map and difficulty','느림':'Slow','닉네임':'Nickname','닉네임 검색':'Search nickname',
+'닉네임과 비밀번호를 입력하면 어느 기기에서든 기록이 동기화돼요. 처음 쓰는 닉네임이면 새로 만들어지고, 닉네임은 한 사람만 쓸 수 있어요. 다른 곳에서 쓰는 비밀번호는 넣지 마세요.':'Enter a nickname and password to sync your records on any device. A new nickname creates an account, and each nickname belongs to one person. Don’t reuse a password from elsewhere.',
+'다시':'Redo','다시 하기':'Retry','다음':'Next','닫기':'Close','더 보기':'More','도전장 보내기':'Send challenge','도전하기':'Play','돌아가기':'Back','되돌리기':'Undo','드럼':'Drums',
+'떨어지는 노트가 판정선에 닿는 순간 누르세요. 맵마다 레인 수가 다르고, 어려운 맵일수록 점수 배율이 높아요.':'Hit each falling note as it reaches the line. Maps have different lane counts, and harder maps score more.',
+'랭킹':'Rankings','레벨 설정':'Level settings','레벨 에디터':'Level editor','레벨 제목':'Level title','레벨 파일':'Level file','레인 수':'Lanes','로그아웃':'Log out','로그인':'Log in',
+'로그인 · 계정':'Log in · Account','로그인 · 동기화':'Log in · Sync','로그인하면 이 기록이 랭킹에 올라가요.':'Log in to put this score on the rankings.','로그인하지 않았어요':'Not logged in',
+'를 누르면 끝이에요.':'and you’re done.','를 누르세요.':'.','를 누르세요. 홈 화면에 code-beat 아이콘이 생기고, 앱처럼 전체 화면으로 열려요. 업데이트는 자동이에요.':'. A code-beat icon appears on your home screen and opens full screen like an app. Updates are automatic.',
+'많이 한':'Most played','매우 높음':'Very high','맵':'Map','맵 · 방장이 골라요':'Map · chosen by the host','맵 · 쉬운 순서 ·':'Maps · easiest first ·','맵 선택':'Maps','맵별':'By map','멀티플레이':'Multiplayer',
+'메트로놈 소리에 맞춰 아래 칸을 터치하거나 아무 키나 누르세요. 처음 4박은 듣기만 하고, 이어지는 16박 동안 박자에 맞춰 누르면 됩니다.':'Tap the box below or press any key with the metronome. Listen for the first 4 beats, then tap along for 16 beats.',
+'멜로디 음색':'Melody sound','멜로디는 놓은 노트를 따라 자동으로 연주돼요. 노트가 곧 멜로디예요.':'The melody follows the notes you place. Your notes are the melody.',
+'모두 시작':'Start for everyone','모드 · 켜면 점수 배율이 달라져요':'Mods · change the score multiplier','모든 레벨 잠금 해제':'Unlock all levels','목록을 내려':'Scroll down to',
+'무음 모드(옆의 스위치)가 켜져 있으면 소리가 안 나요.':'No sound while silent mode (side switch) is on.','무적 · 체력과 과부하로 실패하지 않아요. 이 판은 기록·랭킹·잠금 해제에 안 들어가요.':'Invincible · you can’t fail. These runs don’t count for records, rankings or unlocks.',
+'무적 모드 · 기록 안 남음':'Invincible · not recorded','무한 모드':'Endless mode','무한 모드 랭킹':'Endless rankings','문자용 작은 용량':'Small (for texting)','미스':'Miss',
+'박자 측정':'Timing test','반응 보내기':'Send a reaction','방 나가기':'Leave room','방 만들기':'Create room','방 코드 5자리':'5-letter room code','방 코드 · 친구에게 알려 주세요':'Room code · share it with friends',
+'방금 판 리플레이 보기':'Watch replay','방금 판을 다시 재생하면서 녹화해요. 끝나면 파일로 저장돼요.':'Replays your last run while recording, then saves it as a file.',
+'배경':'Background','배율':'Multiplier','배지 · 업적 중 3개까지':'Badges · up to 3 achievements','배치 간격':'Spacing','별점':'Rating','보내기':'Send','보통':'Normal',
+'보통 이상 난이도로 깨면 다음 레벨이 열려요.':'Clear on Normal or harder to unlock the next level.','복사':'Copy','붙여넣기':'Paste','붙여넣을 마디':'Paste at bar','비밀번호':'Password',
+'빠를수록 점수 배율이 올라가요.':'Faster means a higher multiplier.','빠름':'Fast','사진 저장':'Save photo','사진 카드':'Photo card','상점':'Shop','새 레벨 만들기':'New level','새 레벨로 시작':'Start a new level',
+'새 업데이트가 있어요':'An update is available','색약 모드 · 레인과 판정 색을 구분하기 쉬운 색으로 바꿔요':'Color-blind mode · easier-to-tell lane and judgement colors','생일 축하곡':'Birthday song','선물하기':'Send a gift',
+'설명 (선택)':'Description (optional)','설정':'Settings','쉬움':'Easy','스토리 다시 보기':'Replay story','시작':'Start','시작 마디':'Start bar','시작하는 날':'Start date','시즌':'Season',
+'신고된 레벨':'Reported levels','실패한 판의 점수는 기록에 남지 않아요.':'Failed runs aren’t recorded.','아무 아이템이나 하나! 이미 있으면 150 코인을 돌려줘요.':'A random item! If you already have it, you get 150 coins back.',
+'아이폰 · 아이패드':'iPhone · iPad','아이폰은 보안상 사이트가 직접 추가할 수 없어서, 이 두 번의 터치만 직접 해 주셔야 해요.':'iPhone doesn’t let sites add themselves, so just these two taps are needed.',
+'아주 쉬움':'Very easy','아주 어려움':'Very hard','안드로이드 APK 받기':'Download Android APK','알겠어요':'Got it','알림함':'Inbox','앱 받기':'Get the app','앱 받기 · PC · 안드로이드 · 아이폰':'Get the app · PC · Android · iPhone',
+'앱은 게임을 웹에서 불러와서, 게임이 바뀌면 늘 최신 버전으로 열려요. 로그인과 기록은 웹과 그대로 이어져요.':'The apps load the game from the web, so they always open the latest version. Login and records carry over.',
+'어떤 레벨인지 한 줄로':'Describe your level in a line','어려움':'Hard','언제까지 (비우면 계속)':'Until (blank = always)','업데이트 내용':'What’s new','업로드':'Upload','연습':'Practice','연습 모드':'Practice mode','연습 시작':'Start practice',
+'영상 저장':'Save video','오늘 내 최고 기록':'My best today','오늘의 도전':'Daily challenge','오늘의 랭킹':'Today’s rankings','오류 기록 모두 지우기':'Clear error log','오류 보고 · 최근 2주':'Error reports · last 2 weeks',
+'오른쪽 위':'top right','완료':'Done',
+'원곡 그대로, 한국어 가사를 노래하는 목소리와 함께 두 번 불러요. 인트로와 엔딩까지 약 50초. 이 곡에서만 나오는 노트, 배경, 효과, 히트사운드가 있어요.':'The original tune, sung twice in Korean. About 50 seconds with intro and ending. Has its own notes, background, effects and hit sounds.',
+'음계':'Scale','음악 볼륨':'Music volume','음악 빼기':'Remove music','음악 파일 · mp3, 10MB까지':'Music file · mp3 up to 10MB','음악 파일이 없으면 코드 진행으로 자동 연주돼요.':'Without a music file, the chord progression plays automatically.',
+'음악을 불러오는 중':'Loading music','응원 보내기':'Send cheer','응원 한마디 · 예: 오늘도 화이팅!':'A cheer · e.g. You got this!','이 곡의 랭킹':'Song rankings','이 기기에서 한 판들이에요. 최근 60판까지 보여요.':'Runs on this device. Shows the last 60.',
+'이 레벨':'This level','이 레벨 어땠어요?':'How was this level?','이 레인 기본값':'Defaults for this lane count','이 맵 기록 그래프':'History for this map','이 사람에게 열기':'Open for this person','이 장면 사진 카드로 저장':'Save this moment as a photo card',
+'이번 판 방 순위':'Room standings','이벤트 끝내기':'End event','이벤트 설정':'Set event','이벤트 이름 (선택) · 예: 겨울방학 이벤트':'Event name (optional) · e.g. Winter event','이전':'Previous','인기':'Popular',
+'인트로 · 두 번 연주 · 엔딩까지 약 1분. 이 곡에서만 나오는 노트, 배경, 효과, 히트사운드가 있어요.':'Intro · played twice · ending, about a minute. Has its own notes, background, effects and hit sounds.',
+'일시정지':'Paused','입력 보정':'Input offset','자동 채우기':'Auto fill','자동 채우기 · 지금 노트를 지우고 새로 만들어요':'Auto fill · replaces current notes','잘라내기':'Cut','잠시만 기다려 주세요.':'One moment, please.',
+'정확도':'Accuracy','제목이나 만든 사람 검색':'Search title or creator','조':'Key','좌우 반전':'Mirror','지금 적용':'Apply now','지난 판 결과':'Last round','지우기':'Delete','직접 만들었거나 사용해도 되는 곡이에요':'I made this song or am allowed to use it',
+'참가':'Join','참가자':'Players','처음부터':'Restart','처음이세요? 1분이면 끝나는 튜토리얼로 시작해 보세요.':'New here? Start with the 1-minute tutorial.','첫 박 위치':'First beat','체감 난이도':'Felt difficulty',
+'최고 기록 갱신':'New best!','최대 퍼펙트 콤보':'Max perfect combo','최신':'Newest','추가':'Add','축하 메시지 (선택) · 곡 화면과 엔딩에 나와요':'Message (optional) · shown on the song page and ending','취소':'Cancel',
+'측정 시작':'Start test','측정 전':'Not measured','측정된 보정값':'Measured offset','친구':'Friends','친구 닉네임':'Friend’s nickname','친구 추가':'Add friend','친구에게 도전장 보내기':'Challenge a friend','커뮤니티 레벨':'Community levels',
+"커뮤니티 레벨은 레벨 목록의 '강제 삭제'로, 랭킹 기록은 랭킹 화면의 '지우기'로 지울 수 있어요. 관리자 지정은 데이터베이스에서만 바꿀 수 있고, 부관리자는 관리자가 여기서 지정해요.":"Remove community levels with 'force delete' in the list and scores with 'delete' in rankings. Admins can only be set in the database; the admin assigns moderators here.",
+'코드 진행':'Chords','코인 이벤트 · 기간 동안 판마다 받는 코인이 늘어나요':'Coin event · more coins per song during the event','키 배치':'Key layout','키 설정':'Key bindings','타격 효과':'Hit effect',
+'탭 버튼을 누르면 곡이 처음부터 나와요. 박자에 맞춰 8번 이상 누르면 BPM과 첫 박 위치를 맞춰 줘요.':'Press tap to play the song from the start. Tap 8+ times on the beat to set BPM and the first beat.',
+'테마':'Theme','테스트':'Test','테스트 도구 · 이 기기에서만, 관리자 계정일 때만 적용':'Test tools · this device only, admin account only','통계':'Stats','튜토리얼':'Tutorial','튜토리얼 다시 하기':'Replay tutorial','특별한 곡':'Special song',
+'파일 불러오기':'Open file','파일로 저장':'Save to file','판정 글자':'Judgement text','판정 분석':'Timing analysis','판정선':'Judge line','퍼펙트':'Perfect','펫':'Pets','평점':'Top rated','프로필':'Profile','프로필 · 업적':'Profile · Achievements','프로필 꾸미기':'Customize profile',
+'플레이어':'Players','한글·영문·숫자 2~12자':'2–12 letters or numbers','한마디 (선택)':'Message (optional)','한마디 (선택) · 예: 드디어 깼다!':'Caption (optional) · e.g. Finally cleared it!','한마디 (선택) · 예: 이거 넘을 수 있어?':'Message (optional) · e.g. Can you beat this?',
+'할 수 있는 사람 · 관리자만 바꿀 수 있어요':'Who can play · admin only','홀드':'Hold','홈 화면에 추가':'Add to Home Screen','홈 화면에 추가하기':'Add to Home Screen','홈 화면에 추가하는 방법':'How to add to Home Screen','확인':'OK',
+'휴식 알림 · 오래 하면 쉬라고 알려 줘요':'Break reminder · nudges you to rest','히트사운드':'Hit sounds','🎄 징글벨':'🎄 Jingle Bells','🎆 올드 랭 사인':'🎆 Auld Lang Syne','🎲 뽑기 · 300 코인':'🎲 Gacha · 300 coins',
+// common runtime text
+'불러오는 중…':'Loading…','랭킹에 올리는 중…':'Uploading score…','랭킹에 올렸어요.':'Score uploaded.','방장':'Host','나':'Me','실패':'Failed','플레이 중':'Playing','기록 없음':'No record',
+'잔잔하게':'Gentle','강하게':'Strong','입문':'Beginner','초급':'Easy','중급':'Medium','상급':'Advanced','고급':'Expert','숙련':'Skilled','전문':'Pro','달인':'Master','극한':'Extreme','전설':'Legend',
+'누적 랭킹':'Total ranking','이번 주 추천 레벨':'Featured this week','🍀 오늘의 행운 곡':'🍀 Lucky song of the day','⭐ 이번 주 추천 레벨':'⭐ Featured this week','2인 대결':'2-player battle','관전':'Spectate','관전으로 참가':'Spectate',
+'플레이리스트':'Playlists','새 플레이리스트':'New playlist','담기':'Add to list','음악으로 자동 만들기':'Auto-chart from music','BPM 자동 찾기':'Find BPM',
+'일시정지 · ':'Paused · ','기록':'History','언어':'Language','업적':'Achievements','칭호 없음':'No title','이번 판 방 순위 ':'Room standings',
+'신고':'Report','신고 취소':'Cancel report','추천하기':'Feature','추천 해제':'Unfeature','플레이':'Play','수정':'Edit','삭제':'Delete','강제 삭제':'Force delete','정말 삭제':'Really delete?','정말 강제 삭제':'Really force delete?',
+'프로필':'Profile','친구 삭제':'Remove friend','방 참가':'Join room','답장':'Reply','다시 이기기':'Win it back','다시 도전':'Try again','되찾기':'Take it back','문제없음':'Dismiss','플레이해 보기':'Try it',
+'처음':'First','이 곡':'This song','오늘의 도전 · 보통':'Daily · Normal','보스':'Boss','콤보':'combo','체력':'HP','과부하':'Load','진행':'Prog','과부하 주의':'Overload!','무적':'God mode',
+'따라 불러요':'Sing along','다 같이 한 번 더!':'All together, once more!','다 같이 촛불을 끄세요!':'Blow out the candles together!','곧 시작해요 · 하나, 둘, 셋':'Starting soon · one, two, three',
+'인트로':'Intro','로그인:':'Logged in:','· 새 맵이 매일 바뀌어요':'· a new map every day','· 한 화면에서 둘이 겨루기':'· two players, one screen','깨면 +50 코인':'clear for +50 coins','보상 받음':'reward claimed','로그인하면 +50 코인':'log in for +50 coins',
+'이 기기에서 얻은 업적이 계정에 들어갔어요':'Achievements from this device were added to your account','한정 노트와 테마를 받았어요':'you got a limited note and theme','한정 노트를 받았어요':'you got a limited note',
+'업적 보상':'Achievement reward','오늘 처음 깨면 보너스 200 코인!':'Clear it today for a 200-coin bonus!','따라 불러요':'Sing along','결과':'Result','방금 판 리플레이 보기 ':'Watch replay',
+};
+const EN_RX=[
+  [/^Lv(\d+) (.+) · (\d)키$/,(m)=>`Lv${m[1]} ${m[2]} · ${m[3]} keys`],
+  [/^(\d)키 · (\d+) BPM · (.+)$/,(m)=>`${m[1]} keys · ${m[2]} BPM · ${m[3]}`],
+  [/^(\d)키$/,(m)=>`${m[1]} keys`],[/^(\d)레인$/,(m)=>`${m[1]} lanes`],
+  [/^내 최고 (.+)$/,(m)=>`My best ${m[1]}`],[/^(.+)개 맵$/,(m)=>`${m[1]} maps`],[/^(\d+)판$/,(m)=>`${m[1]} plays`],
+  [/^(\d{4})-(\d{2}) 시즌 (\d+)위 보상!$/,(m)=>`${m[1]}-${m[2]} season #${m[3]} reward!`],[/^업적 보상 \+(\d+) 코인$/,(m)=>`Achievement reward +${m[1]} coins`],
+  [/^\+(\d+) 코인$/,(m)=>`+${m[1]} coins`],[/^(.+) 코인$/,(m)=>`${m[1]} coins`],[/^내 코인 (.+)$/,(m)=>`My coins ${m[1]}`],
+  [/^새 알림 (\d+)개$/,(m)=>`${m[1]} new notifications`],[/^업적 달성 · (.+)$/,(m)=>`Achievement · ${m[1]}`],
+  [/^출석 (\d+)일째 · \+(\d+) 코인$/,(m)=>`Day ${m[1]} check-in · +${m[2]} coins`],
+  [/^Lv(\d+) (.+) 열림!$/,(m)=>`Lv${m[1]} ${m[2]} unlocked!`],
+  [/^(.+) 랭킹 (\d+)위 \/ (\d+)명$/,(m)=>`${m[1]} rank #${m[2]} of ${m[3]}`],
+  [/^(\d+)위$/,(m)=>`#${m[1]}`],[/^(\d+)명$/,(m)=>`${m[1]} players`],[/^(\d+)일$/,(m)=>`${m[1]} days`],[/^(\d+)개$/,(m)=>`${m[1]}`],
+  [/^보유$/,()=>'Owned'],[/^장착 중$/,()=>'Equipped'],[/^장착$/,()=>'Equip'],[/^구매$/,()=>'Buy'],
+];
+function tr1(k){if(EN[k]!==undefined)return EN[k];for(const [rx,f] of EN_RX){const m=k.match(rx);if(m)return f(m)}return null}
+function tr(s){if(LANG!=='en'||s==null)return s;const k=String(s).trim();const o=tr1(k);if(o!=null)return o;
+  if(k.includes(' · ')){let ch=false;const parts=k.split(' · ').map(x=>{const y=tr1(x.trim());if(y!=null){ch=true;return y}return x});if(ch)return parts.join(' · ')}
+  return s}
+function trNode(n){
+  if(n.nodeType===3){const v=n.nodeValue;if(!/[가-힣]/.test(v))return;const t=v.trim(),o=tr(t);if(o!==t)n.nodeValue=v.replace(t,o);return}
+  if(n.nodeType!==1||n.tagName==='SCRIPT'||n.tagName==='STYLE')return;
+  for(const a of ['placeholder','title','aria-label']){const v=n.getAttribute&&n.getAttribute(a);if(v&&/[가-힣]/.test(v)){const o=tr(v);if(o!==v)n.setAttribute(a,o)}}
+  for(const c of n.childNodes)trNode(c);
+}
+function langApply(){
+  if(LANG!=='en')return;document.documentElement.lang='en';
+  Object.assign(JTXT,{perfect:'PERFECT',great:'GREAT',good:'GOOD',miss:'MISS'});
+  DIFFS.forEach(d=>{d.name=tr(d.name)});for(let i=0;i<TIERS.length;i++)TIERS[i]=tr(TIERS[i]);
+  trNode(document.body);
+  new MutationObserver(ms=>{for(const m of ms){if(m.type==='characterData')trNode(m.target);else m.addedNodes.forEach(trNode)}})
+    .observe(document.body,{childList:true,subtree:true,characterData:true});
+}
+$('#langSel').value=LANG;
+$('#langSel').onchange=e=>{LS.set('cb-lang',e.target.value);location.reload()};
+langApply();if(LANG==='en')renderMenu();
 
 renderMenu();
 (document.fonts?document.fonts.ready:Promise.resolve()).finally(()=>requestAnimationFrame(loop));

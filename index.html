@@ -145,6 +145,20 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .startrow .ghost{padding-inline:22px}
 .startrow.three{grid-template-columns:1fr auto auto}
 .startrow.three .ghost{padding-inline:16px}
+.noticebar{padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,rgba(255,209,102,.16),rgba(255,111,181,.12));border:1px solid var(--accent);font-size:13px;line-height:1.5}
+.infocard{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;width:100%;text-align:left;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.infocard b{font-weight:700}.infocard span{color:var(--muted)}
+.infocard.feat{border-color:var(--accent)}
+.nbadge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:999px;background:#e5484d;color:#fff;font-size:11px;line-height:18px;text-align:center}
+.notice.unread{box-shadow:inset 3px 0 0 var(--accent)}
+.notice h3{display:flex;gap:8px;align-items:center}.nicon{font-size:18px}
+.rate{display:flex;gap:4px}.rate button{font-size:26px;line-height:1;padding:2px 4px;background:none;border:0;color:var(--line);cursor:pointer}
+.rate button[aria-pressed="true"]{color:#ffd166}
+#rtDiff button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#rtDiff button{font-size:11px;padding:8px 0}
+.gacha{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rtabs.five{grid-template-columns:repeat(5,1fr)}
+.lv-card .featb{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--bg);font-size:11px;font-weight:700}
 .grid3b{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .ana{width:100%;height:90px;display:block}
 .hchart{width:100%;height:200px;display:block}
@@ -268,8 +282,11 @@ a.go.off{opacity:.45;pointer-events:none}
         <p class="sub">떨어지는 노트가 판정선에 닿는 순간 누르세요. 맵마다 레인 수가 다르고, 어려운 맵일수록 점수 배율이 높아요.</p>
       </div>
       <div class="acct"><span id="acctName">로그인하지 않았어요</span><button class="small" id="acctBtn">로그인</button></div>
+      <div class="noticebar" id="noticeBar" hidden></div>
+      <button class="infocard" id="luckyBtn"></button>
+      <button class="infocard feat" id="featBtn" hidden></button>
       <div class="tutban" id="tutBan" hidden><span>처음이세요? 1분이면 끝나는 튜토리얼로 시작해 보세요.</span><div><button class="small" id="tutGo">튜토리얼</button><button class="small" id="tutNo">닫기</button></div></div>
-      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small wide bday" id="bdayBtn" hidden>생일 축하곡 <span>· 특별한 곡이 열려 있어요</span></button><button class="small wide daily" id="dailyBtn">오늘의 도전 <span id="dailySub"></span></button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small" id="profBtn">프로필 · 업적</button><button class="small" id="friendBtn">친구</button><button class="small wide2" id="setBtn">설정</button></div>
+      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small wide bday" id="bdayBtn" hidden>생일 축하곡 <span>· 특별한 곡이 열려 있어요</span></button><button class="small wide daily" id="dailyBtn">오늘의 도전 <span id="dailySub"></span></button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small" id="profBtn">프로필 · 업적</button><button class="small" id="friendBtn">친구</button><button class="small" id="inboxBtn">알림함 <span class="nbadge" id="inboxN" hidden></span></button><button class="small" id="setBtn">설정</button></div>
       <div class="total"><span>누적 점수 · 맵·난이도별 최고 기록 합계</span><b id="totalScore">0</b></div>
       <div>
         <p class="label">맵 · 쉬운 순서 · <span id="unlockCount"></span></p>
@@ -348,6 +365,17 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="ctl" id="adTools"><p class="label" style="margin:0">테스트 도구 · 이 기기에서만, 관리자 계정일 때만 적용</p>
       <label class="check"><input type="checkbox" id="adInv"> 무적 · 체력과 과부하로 실패하지 않아요. 이 판은 기록·랭킹·잠금 해제에 안 들어가요.</label>
       <label class="check"><input type="checkbox" id="adUnlock"> 모든 레벨 잠금 해제</label></div>
+      <p class="label" style="margin:0">통계</p>
+      <div class="ctl" id="adStats"></div>
+      <div class="ctl" id="adB2"><p class="label" style="margin:0">공지 · 메뉴 맨 위에 보여요</p>
+        <input class="text" id="adNotice" maxlength="140" placeholder="공지 내용" autocomplete="off">
+        <label class="mini">언제까지 (비우면 계속) <input class="text" type="date" id="adNoticeUntil"></label>
+        <div class="grid2"><button class="small" id="adNoticeSave">공지 올리기</button><button class="small" id="adNoticeOff">공지 내리기</button></div>
+        <p class="label" style="margin:0">코인 이벤트 · 기간 동안 판마다 받는 코인이 늘어나요</p>
+        <div class="grid3"><label class="mini">배율 <select class="text" id="adEvMult"><option value="1.5">×1.5</option><option value="2">×2</option><option value="3">×3</option></select></label>
+          <label class="mini">시작 <input class="text" type="date" id="adEvFrom"></label><label class="mini">끝 <input class="text" type="date" id="adEvTo"></label></div>
+        <input class="text" id="adEvLabel" maxlength="30" placeholder="이벤트 이름 (선택) · 예: 겨울방학 이벤트" autocomplete="off">
+        <div class="grid2"><button class="small" id="adEvSave">이벤트 설정</button><button class="small" id="adEvOff">이벤트 끝내기</button></div></div>
       <p class="label" style="margin:0">오류 보고 · 최근 2주</p>
       <div class="clist" id="adErrors"></div><button class="small" id="adErrClear">오류 기록 모두 지우기</button>
       <p class="label" style="margin:0">신고된 레벨</p>
@@ -366,9 +394,20 @@ a.go.off{opacity:.45;pointer-events:none}
       <h2>상점</h2>
       <div class="total"><span>내 코인 · 판을 끝까지 깨면 모여요</span><b id="shCoins">0</b></div>
       <div class="rtabs seven" role="tablist" id="shTabs"><button role="tab" data-t="note" aria-selected="true">노트</button><button role="tab" data-t="theme" aria-selected="false">테마</button><button role="tab" data-t="hit" aria-selected="false">타격 효과</button><button role="tab" data-t="sound" aria-selected="false">히트사운드</button><button role="tab" data-t="line" aria-selected="false">판정선</button><button role="tab" data-t="bg" aria-selected="false">배경</button><button role="tab" data-t="judge" aria-selected="false">판정 글자</button></div>
+      <div class="gacha"><button class="small" id="gachaBtn">🎲 뽑기 · 300 코인</button><span class="hint" style="margin:0">아무 아이템이나 하나! 이미 있으면 150 코인을 돌려줘요.</span></div>
+      <p class="rline" id="gachaOut" hidden></p>
       <div class="shgrid" id="shGrid"></div>
       <p class="keymsg" id="shMsg"></p>
       <button class="go" id="shBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="inbox" hidden>
+    <div class="panel">
+      <h2>알림함</h2>
+      <div class="clist" id="ibList"></div>
+      <p class="keymsg" id="ibMsg"></p>
+      <button class="ghost" id="ibBack">돌아가기</button>
     </div>
   </section>
 
@@ -444,6 +483,12 @@ a.go.off{opacity:.45;pointer-events:none}
       <div><h2 id="pfName">프로필</h2><span class="ttl big" id="pfTitle" hidden></span></div>
       <div class="ctl" id="pfTitleBox" hidden><label for="pfTitleSel">내 칭호 · 랭킹에서 닉네임 옆에 보여요</label><select class="text" id="pfTitleSel"></select></div>
       <button class="small" id="pfFriend" hidden>친구 추가</button>
+      <div class="ctl" id="pfSocial" hidden>
+        <div class="rpick"><input class="text" id="cheerMsg" maxlength="60" placeholder="응원 한마디 · 예: 오늘도 화이팅!" autocomplete="off"><button class="small" id="cheerSend">응원 보내기</button></div>
+        <button class="small" id="pfGiftBtn">선물하기</button>
+        <div class="ctl" id="pfGiftBox" hidden><span class="lab" id="gfMine"></span><select class="text" id="gfWhat"></select>
+          <input class="text" id="gfMsg" maxlength="60" placeholder="한마디 (선택)" autocomplete="off"><button class="small" id="gfSend">보내기</button></div>
+      </div>
       <div id="pfBody" class="ctl"></div>
       <p class="keymsg" id="pfMsg"></p>
       <button class="ghost" id="pfBack">돌아가기</button>
@@ -511,8 +556,8 @@ a.go.off{opacity:.45;pointer-events:none}
     <div class="panel">
       <h2>커뮤니티 레벨</h2>
       <div class="rpick"><input class="text" id="cSearch" maxlength="30" placeholder="제목이나 만든 사람 검색" autocomplete="off"><button class="small" id="cSearchBtn">검색</button></div>
-      <div class="rtabs four" role="tablist" id="cSort">
-        <button role="tab" data-s="new" aria-selected="true">최신</button><button role="tab" data-s="likes" aria-selected="false">인기</button><button role="tab" data-s="plays" aria-selected="false">많이 한</button><button role="tab" data-s="mine" aria-selected="false">내 레벨</button>
+      <div class="rtabs five" role="tablist" id="cSort">
+        <button role="tab" data-s="new" aria-selected="true">최신</button><button role="tab" data-s="likes" aria-selected="false">인기</button><button role="tab" data-s="plays" aria-selected="false">많이 한</button><button role="tab" data-s="rating" aria-selected="false">평점</button><button role="tab" data-s="mine" aria-selected="false">내 레벨</button>
       </div>
       <div class="clist" id="cList"></div>
       <p class="keymsg" id="cMsg"></p>
@@ -658,6 +703,15 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="mult" id="rMult"></div>
       <p class="failnote" id="rFailNote" hidden>실패한 판의 점수는 기록에 남지 않아요.</p>
       <div class="ctl" id="rAnaBox" hidden><p class="label" style="margin:0">판정 분석</p><canvas id="rAna" class="ana"></canvas><p class="rline" id="rAnaTxt" style="margin:0"></p></div>
+      <div class="ctl" id="rRateBox" hidden><span class="lab">이 레벨 어땠어요?</span>
+        <div class="rate" id="rtStars" aria-label="별점"><button data-v="1">★</button><button data-v="2">★</button><button data-v="3">★</button><button data-v="4">★</button><button data-v="5">★</button></div>
+        <span class="lab">체감 난이도</span>
+        <div class="seg5" id="rtDiff"><button data-v="1">아주 쉬움</button><button data-v="2">쉬움</button><button data-v="3">보통</button><button data-v="4">어려움</button><button data-v="5">아주 어려움</button></div>
+        <p class="keymsg" id="rtMsg" style="margin:0"></p></div>
+      <button class="small" id="rChal" hidden>친구에게 도전장 보내기</button>
+      <div class="ctl" id="rChalBox" hidden><span class="lab">내 점수를 넘어 보라고 친구에게 보내요. 친구가 이 맵을 하면 결과가 알림함으로 와요.</span>
+        <select class="text" id="chWho"></select><input class="text" id="chText" maxlength="60" placeholder="한마디 (선택) · 예: 이거 넘을 수 있어?" autocomplete="off">
+        <button class="small" id="chSend">도전장 보내기</button><p class="keymsg" id="chMsg" style="margin:0"></p></div>
       <div class="grid3b"><button class="small" id="rHist">기록 그래프</button><button class="small" id="rVideo">영상 저장</button><button class="small" id="rCardBtn">사진 카드</button></div>
       <div class="ctl" id="rVideoBox" hidden><span class="lab">방금 판을 다시 재생하면서 녹화해요. 끝나면 파일로 저장돼요.</span>
         <div class="grid2"><button class="small" id="rVidBig">고화질</button><button class="small" id="rVidSmall">문자용 작은 용량</button></div></div>
@@ -691,7 +745,7 @@ a.go.off{opacity:.45;pointer-events:none}
 <script>
 (function(){var sent={},n=0;function rep(msg,src,stack){try{msg=String(msg||'');if(!msg||sent[msg]||n>=8)return;sent[msg]=1;n++;var tok=null;try{tok=(JSON.parse(localStorage.getItem('cb-acct')||'null')||{}).token||null}catch(e){}
 fetch('https://nkeeayhodmauifevmaga.supabase.co/rest/v1/rpc/bb_report_error',{method:'POST',headers:{apikey:'sb_publishable_u7M3MApb_n-h-5gAUe4rTg_fN2kj4yW','Content-Type':'application/json'},
-body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261109085631',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
+body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261109090406',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
 window.addEventListener('error',function(e){if(!e.message)return;rep(e.message,(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno,e.error&&e.error.stack)});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r&&r.code)return;rep('promise: '+(r&&r.message||r),'',r&&r.stack)});
 window.cbReport=rep;})();
@@ -1169,7 +1223,7 @@ function finish(fail){
 function pause(){if(state!=='play')return;state='pause';ctx.suspend();$('#pauseBtn').hidden=true;show('pause')}
 function resume(){state='play';ctx.resume();$('#pauseBtn').hidden=false;show(null)}
 function toMenu(){stopRun();state='menu';$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();renderMenu();show('menu');resize()}
-function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends','bday','hist'].forEach(s=>$('#'+s).hidden=s!==id)}
+function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends','bday','hist','inbox'].forEach(s=>$('#'+s).hidden=s!==id)}
 function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.back){const f=sel.back;sel={type:'builtin'};f();return}if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
 
 /* ---------- calibration (tap along to a metronome) ---------- */
@@ -1608,7 +1662,7 @@ async function loadComm(reset){
   $('#cMsg').textContent='불러오는 중…';$('#cMore').hidden=true;
   try{
     const mine=CM.sort==='mine';
-    const rows=await API.call('bb_list_levels',{p_sort:mine?'new':CM.sort,p_search:mine?'':CM.q,p_author:mine?acct.nick:'',p_limit:20,p_offset:CM.offset})||[];
+    const rows=await API.call('bb_list_levels_v2',{p_sort:mine?'new':CM.sort,p_search:mine?'':CM.q,p_author:mine?acct.nick:'',p_limit:20,p_offset:CM.offset})||[];
     CM.items=CM.items.concat(rows);CM.offset+=rows.length;CM.more=rows.length===20;renderComm();
   }catch(e){$('#cMsg').textContent=errText(e)}
 }
@@ -1625,6 +1679,8 @@ function renderComm(note){
     const meta=document.createElement('div');meta.className='meta';
     const mb=best['c:'+L.id];
     meta.textContent=`${L.lanes}키 · ${L.bpm} BPM · ${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')} · 노트 ${L.note_count} · ▶ ${L.plays}`+(mb?` · 내 최고 ${fmt(mb)}`:'');
+    if(L.ratings>0)meta.textContent+=` · ★${L.stars} (${L.ratings}) · 체감 난이도 ${L.diff}`;
+    if(L.featured){const fb=document.createElement('span');fb.className='featb';fb.textContent='추천';h.insertBefore(fb,h.children[1])}
     c.append(h,by,meta);
     if(L.description){const d=document.createElement('p');d.className='desc';d.textContent=L.description;c.appendChild(d)}
     const acts=document.createElement('div');acts.className='acts';
@@ -1635,6 +1691,7 @@ function renderComm(note){
     if(me&&L.author.toLowerCase()===me){mk('edit','수정');mk('del',CM.del===L.id?'정말 삭제':'삭제',CM.del===L.id?'liked':'')}
     else if(isStaff())mk('adel',CM.del===L.id?'정말 강제 삭제':'강제 삭제',CM.del===L.id?'liked':'');
     if(!(me&&L.author.toLowerCase()===me))mk('report',CM.rep===L.id?'신고 취소':'신고');
+    if(isStaff())mk('feat',L.featured?'추천 해제':'추천하기');
     c.appendChild(acts);
     if(CM.rep===L.id){const rr=document.createElement('div');rr.className='acts';const lb=document.createElement('span');lb.className='hint';lb.style.margin='0';lb.textContent='신고 이유:';rr.appendChild(lb);
       for(const [k,v] of Object.entries(REASONS)){const b=document.createElement('button');b.className='small';b.dataset.act='rep:'+k;b.textContent=v;rr.appendChild(b)}c.appendChild(rr)}
@@ -1654,6 +1711,7 @@ $('#cList').addEventListener('click',async e=>{
   try{
     if(act==='play'){CM.busy=true;msg.textContent='레벨을 불러오는 중…';const full=await fetchLevel(id);msg.textContent='';sel={type:'community',level:full};start()}
     else if(act==='rank')openRank(L);
+    else if(act==='feat'){CM.busy=true;await API.call('bb_admin_feature',{p_token:acct.token,p_id:id,p_on:!L.featured});L.featured=!L.featured;renderComm(L.featured?`'${L.title}'을(를) 이번 주 추천 레벨로 올렸어요.`:'추천을 해제했어요.');if(typeof loadMenuExtras==='function')loadMenuExtras()}
     else if(act==='edit'){CM.busy=true;const full=await fetchLevel(id);openEditor(full,false,'comm')}
     else if(act==='like'){
       if(!acct){openAcct(()=>openComm(true));$('#aMsg').textContent='좋아요를 누르려면 먼저 로그인하세요.';return}
@@ -2191,7 +2249,7 @@ const ADM=Object.assign({inv:false,unlock:false},LS.get('cb-admin-tools',{}));
 function adminOn(k){return !!(acct&&acct.admin&&ADM[k])}
 function openAdmin(){
   if(!isStaff()){openSettings();return}
-  state='admin';$('#adTools').hidden=!acct.admin;$('#adTitle').textContent=acct.admin?'관리자 도구':'부관리자 도구';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();loadReports();loadErrors();
+  state='admin';$('#adTools').hidden=!acct.admin;$('#adTitle').textContent=acct.admin?'관리자 도구':'부관리자 도구';$('#adInv').checked=!!ADM.inv;$('#adUnlock').checked=!!ADM.unlock;show('admin');loadAdminPlayers();loadReports();loadErrors();$('#adB2').hidden=!acct.admin;loadAdminB2();
 }
 let adArm=null;
 async function loadAdminPlayers(){
@@ -2466,7 +2524,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261109085631';
+const BUILD_ID='20261109090406';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2622,6 +2680,7 @@ function afterFinish(fail,sc,acc,key,test){
     LAST_RUN={key,sel:{...sel},back,rp:makeReplay(key)}}
   $('#rReplay').hidden=!canReplay;
   if(typeof afterFinishB1==='function')afterFinishB1(fail,sc,acc,key,test,canReplay);
+  if(typeof afterFinishB2==='function')afterFinishB2(fail,sc,acc,key,test);
   if(sel.tutorial&&!fail){LS.set('cb-tut-done',1);achGrant('tutorial')}
   if(sel.practice&&!fail)achGrant('practice');
   if(!fail&&!test)achCheckRun({sc,acc,key,fail});
@@ -2739,6 +2798,7 @@ async function onLogin(){
   if(!acct)return;
   if(typeof specialRefresh==='function')specialRefresh();
   if(typeof flushPending==='function')setTimeout(flushPending,2000);
+  if(typeof inboxPoll==='function')setTimeout(inboxPoll,1500);
   achSync();
   if(LS.get('cb-checkin','')!==kstDay()+acct.nick){
     try{const r=await API.call('bb_checkin',{p_token:acct.token});LS.set('cb-checkin',kstDay()+acct.nick);
@@ -2760,13 +2820,14 @@ async function openProfile(nick,back){
   const box=$('#pfBody'),msg=$('#pfMsg');box.textContent='';msg.textContent='';
   $('#pfName').textContent=profNick||'내 프로필';$('#pfTitle').textContent='';$('#pfTitle').hidden=true;
   $('#pfFriend').hidden=true;$('#pfTitleBox').hidden=!mine||!acct;
+  $('#pfSocial').hidden=true;$('#pfGiftBox').hidden=true;
   if(!profNick){renderProfile(null,true);msg.textContent='로그인하면 기록과 업적이 계정에 저장되고, 다른 사람도 내 프로필을 볼 수 있어요.';return}
   msg.textContent='불러오는 중…';
   try{const p=await API.call('bb_profile',{p_nick:profNick});msg.textContent='';
     if(mine){for(const a of p.ach||[])if(ACHT[a])achLocal.add(a);LS.set('cb-ach',[...achLocal]);myTitle=p.title}
     renderProfile(p,mine);
     if(!mine&&acct){const fr=await API.call('bb_friends',{p_token:acct.token})||[];const is=fr.some(f=>f.nick.toLowerCase()===p.nick.toLowerCase());
-      const b=$('#pfFriend');b.hidden=false;b.textContent=is?'친구 삭제':'친구 추가';b.dataset.on=is?'1':''}
+      $('#pfSocial').hidden=false;      const b=$('#pfFriend');b.hidden=false;b.textContent=is?'친구 삭제':'친구 추가';b.dataset.on=is?'1':''}
   }catch(e){msg.textContent=errText(e);authFail(e)}
 }
 function renderProfile(p,mine){
@@ -2954,6 +3015,7 @@ function renderMenuExtra0(){
   const t=$('#tutBan');if(t)t.hidden=!!LS.get('cb-tut-done',0)||Object.keys(best).length>0;
   const ds=$('#dailySub');if(ds){const b=best['d:'+kstDay()];ds.textContent=b?`· 오늘 ${fmt(b)}`:'· 새 맵이 매일 바뀌어요'}
   if(typeof bdBtnShow==='function')bdBtnShow();
+  if(typeof renderMenuB2==='function'&&typeof FEAT!=='undefined')renderMenuB2();
   const pb=$('#practiceBtn');if(pb)pb.disabled=!isUnlocked(mapIdx);
 }
 $('#mods').onclick=e=>{const b=e.target.closest('[data-mod]');if(!b)return;MODS[b.dataset.mod]=!MODS[b.dataset.mod];LS.set('cb-mods',MODS);renderMenu()};
@@ -3443,6 +3505,179 @@ function afterFinishB1(fail,sc,acc,key,test,canReplay){
   $('#rVideo').hidden=!canReplay;
   try{renderAnalysis()}catch(e){$('#rAnaBox').hidden=true}
 }
+
+/* ====================================================================
+   batch 2: inbox (gifts, challenges, cheers, passed records), level ratings,
+   featured level, notice banner & coin events, play log + admin stats,
+   lucky song of the day, gacha
+   ==================================================================== */
+const ERR2={self_gift:'나 자신에게는 보낼 수 없어요.',bad_amount:'코인은 10~5000개 사이로 보낼 수 있어요.',no_coins:'코인이 부족해요.',owned:'친구가 이미 가진 아이템이에요.',
+  no_score:'이 맵에 내 기록이 있어야 도전장을 보낼 수 있어요.',too_many:'오늘은 더 보낼 수 없어요. 내일 다시 해 주세요.',bad_msg:'메시지를 1~60자로 써 주세요.',not_cleared:'이 곡을 깬 기록을 찾지 못했어요.'};
+const e2t=e=>ERR2[e&&e.code]||errText(e);
+const itemName=key=>{const [s,v]=key.split(':');const it=(SHOP[s]||[]).find(x=>x[0]===v);const kind={note:'노트',theme:'테마',hit:'타격 효과',sound:'히트사운드',line:'판정선',bg:'배경',judge:'판정 글자'}[s]||'';return it?`${it[1].split(' · ')[0]} ${kind}`:key};
+function anonId(){let a=LS.get('cb-anon','');if(!/^[a-z0-9]{16}$/.test(a)){a=Array.from({length:16},()=>'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random()*36)]).join('');LS.set('cb-anon',a)}return a}
+
+/* ---------- inbox ---------- */
+let inboxN=0;
+async function inboxPoll(){
+  if(!acct){inboxN=0;inboxBadge();return}
+  try{const r=await API.call('bb_notices',{p_token:acct.token});inboxN=+r.unread||0;inboxBadge();
+    if(inboxN&&LS.get('cb-inbox-seen',0)<inboxN&&state==='menu'){toast(`새 알림 ${inboxN}개`,'메뉴의 알림함에서 확인하세요');LS.set('cb-inbox-seen',inboxN)}
+    return r}catch(e){return null}
+}
+function inboxBadge(){const b=$('#inboxN');if(b){b.textContent=inboxN?String(inboxN):'';b.hidden=!inboxN}}
+setInterval(()=>{if(acct&&state==='menu')inboxPoll()},120000);
+function noticeText(n){
+  const d=n.data||{},k=d.key?keyTitle(d.key):'';
+  switch(n.kind){
+    case 'gift':return{icon:'🎁',t:d.item?`${d.nick}님이 '${itemName(d.item)}'을(를) 선물했어요`:`${d.nick}님이 ${fmt(d.coins)} 코인을 보냈어요`,m:d.msg};
+    case 'challenge':return{icon:'⚔️',t:`${d.nick}님의 도전장 · ${k}`,m:`${fmt(d.score)}점을 넘어 보세요${d.msg?' · “'+d.msg+'”':''}`,act:'도전하기'};
+    case 'challenge_result':return d.won?{icon:'😮',t:`${d.nick}님이 내 도전장을 이겼어요`,m:`${k} · ${fmt(d.their)} > 내 ${fmt(d.mine)}`,act:'다시 이기기'}:{icon:'🏆',t:`${d.nick}님이 내 도전장에 졌어요`,m:`${k} · ${fmt(d.their)} < 내 ${fmt(d.mine)}`};
+    case 'challenge_done':return d.won?{icon:'🏆',t:`도전 성공! ${d.nick}님을 이겼어요`,m:`${k} · 내 ${fmt(d.mine)} > ${fmt(d.their)}`}:{icon:'💪',t:`아깝게 졌어요 · ${d.nick}님의 도전장`,m:`${k} · 내 ${fmt(d.mine)} < ${fmt(d.their)}`,act:'다시 도전'};
+    case 'passed':return{icon:'⚡',t:`${d.nick}님이 내 기록을 넘었어요`,m:`${k} · ${fmt(d.their)} > 내 ${fmt(d.mine)}`,act:'되찾기'};
+    case 'cheer':return{icon:'📣',t:`${d.nick}님의 응원`,m:d.msg,act:'답장'};
+    default:return{icon:'•',t:n.kind,m:''};
+  }
+}
+async function openInbox(){
+  if(!acct){openAcct(()=>openInbox());$('#aMsg').textContent='알림함은 로그인하면 볼 수 있어요.';return}
+  state='inbox';show('inbox');const list=$('#ibList'),msg=$('#ibMsg');list.textContent='';msg.textContent='불러오는 중…';
+  const r=await inboxPoll();if(!r){msg.textContent='알림을 불러오지 못했어요.';return}
+  msg.textContent=r.items.length?'':'아직 알림이 없어요. 친구에게 도전장이나 응원을 보내 보세요.';
+  for(const n of r.items){const x=noticeText(n),c=el('article','lv-card notice'+(n.read?'':' unread'));
+    const h=el('h3');h.append(el('span','nicon',x.icon),el('span',null,x.t));c.appendChild(h);
+    if(x.m)c.appendChild(el('div','meta',x.m));
+    c.appendChild(el('div','by',String(n.at).slice(5,16).replace('T',' ')));
+    if(x.act){const a=el('div','acts'),b=el('button','small play',x.act);b.dataset.kind=n.kind;b.dataset.key=(n.data||{}).key||'';b.dataset.nick=(n.data||{}).nick||'';a.appendChild(b);c.appendChild(a)}
+    list.appendChild(c)}
+  if(r.unread){API.call('bb_notices_read',{p_token:acct.token}).catch(()=>{});inboxN=0;inboxBadge();LS.set('cb-inbox-seen',0)}
+}
+async function playKey(key,back){
+  try{
+    if(key.startsWith('c:')){const L=await fetchLevel(key.slice(2));sel={type:'community',level:L,back,backLabel:'돌아가기'};start();return}
+    if(key.startsWith('d:')){if(key.slice(2)!==kstDay()){toast('지난 오늘의 도전은 다시 할 수 없어요');return}openDaily();return}
+    const i=key.lastIndexOf('-'),mi=MAPS.findIndex(m=>m.id===key.slice(0,i)),di=DIFFS.findIndex(d=>d.id===key.slice(i+1));
+    if(mi<0||di<0)throw{code:'no_level'};
+    if(!isUnlocked(mi)){toast('아직 열리지 않은 레벨이에요',`Lv${MAPS[mi].level}까지 먼저 깨 주세요`);return}
+    mapIdx=mi;diffIdx=di;sel={type:'builtin',back,backLabel:'돌아가기'};start();
+  }catch(e){toast('열 수 없어요',errText(e))}
+}
+$('#ibList').addEventListener('click',e=>{const b=e.target.closest('button[data-kind]');if(!b)return;
+  if(b.dataset.kind==='cheer'){openProfile(b.dataset.nick,()=>openInbox());return}
+  if(b.dataset.key)playKey(b.dataset.key,()=>openInbox())});
+$('#ibBack').onclick=()=>toMenu();
+$('#inboxBtn').onclick=openInbox;
+
+/* ---------- gifts & cheers (from a friend's profile) ---------- */
+function giftOptions(){
+  const s=$('#gfWhat');if(s.dataset.ready)return;s.dataset.ready='1';
+  for(const n of [50,100,300,500,1000]){const o=el('option',null,`${fmt(n)} 코인`);o.value='c:'+n;s.appendChild(o)}
+  for(const slot of SLOTS)for(const [id,name] of SHOP[slot]){const k=slot+':'+id,p=PRICE[k];if(!(p>0))continue;const o=el('option',null,`${itemName(k)} · ${fmt(p)} 코인`);o.value='i:'+k;s.appendChild(o)}
+}
+$('#pfGiftBtn').onclick=()=>{giftOptions();$('#pfGiftBox').hidden=!$('#pfGiftBox').hidden;$('#gfMine').textContent=`내 코인 ${fmt(WAL.coins)}`};
+$('#gfSend').onclick=async()=>{const v=$('#gfWhat').value,msg=$('#pfMsg');
+  try{const r=await API.call('bb_gift',{p_token:acct.token,p_nick:profNick,p_coins:v.startsWith('c:')?+v.slice(2):0,p_item:v.startsWith('i:')?v.slice(2):null,p_msg:$('#gfMsg').value.trim()});
+    setWallet(r);$('#gfMine').textContent=`내 코인 ${fmt(WAL.coins)}`;$('#gfMsg').value='';msg.textContent=`${profNick}님에게 선물을 보냈어요.`;$('#pfGiftBox').hidden=true}
+  catch(e){msg.textContent=e2t(e);authFail(e)}};
+$('#cheerSend').onclick=async()=>{const t=$('#cheerMsg').value.trim(),msg=$('#pfMsg');if(!t){msg.textContent='응원 한마디를 써 주세요.';return}
+  try{await API.call('bb_cheer',{p_token:acct.token,p_nick:profNick,p_msg:t});$('#cheerMsg').value='';msg.textContent=`${profNick}님에게 응원을 보냈어요. 다음에 접속하면 보여요.`}
+  catch(e){msg.textContent=e.code==='too_many'?'같은 친구에게는 1시간에 한 번 보낼 수 있어요.':e2t(e);authFail(e)}};
+
+/* ---------- challenges (from the result screen) ---------- */
+let chKey='';
+$('#rChal').onclick=async()=>{const box=$('#rChalBox');box.hidden=!box.hidden;if(box.hidden)return;const s=$('#chWho');s.textContent='';
+  try{const fr=await API.call('bb_friends',{p_token:acct.token})||[];if(!fr.length){$('#chMsg').textContent='먼저 친구를 추가해 주세요.';return}
+    $('#chMsg').textContent='';for(const f of fr){const o=el('option',null,f.nick+(f.online?' · 접속 중':''));o.value=f.nick;s.appendChild(o)}}catch(e){$('#chMsg').textContent=errText(e)}};
+$('#chSend').onclick=async()=>{const nick=$('#chWho').value;if(!nick)return;
+  try{await API.call('bb_challenge',{p_token:acct.token,p_nick:nick,p_key:chKey,p_msg:$('#chText').value.trim()});$('#chMsg').textContent=`${nick}님에게 도전장을 보냈어요. 결과는 알림함으로 와요.`;$('#chText').value=''}
+  catch(e){$('#chMsg').textContent=e2t(e);authFail(e)}};
+
+/* ---------- rating community levels (after playing one) ---------- */
+let rateSel={s:0,d:0,id:null};
+function renderRate(){
+  $('#rtStars').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v<=rateSel.s));
+  $('#rtDiff').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===rateSel.d));
+}
+async function sendRate(){if(!rateSel.s||!rateSel.d||!acct)return;
+  try{const r=await API.call('bb_rate_level',{p_token:acct.token,p_id:rateSel.id,p_stars:rateSel.s,p_diff:rateSel.d});$('#rtMsg').textContent=`고마워요! 평균 ★${r.stars} (${r.n}명) · 체감 난이도 ${r.diff}`}catch(e){$('#rtMsg').textContent=errText(e)}}
+$('#rtStars').onclick=e=>{const b=e.target.closest('button');if(!b)return;rateSel.s=+b.dataset.v;renderRate();sendRate()};
+$('#rtDiff').onclick=e=>{const b=e.target.closest('button');if(!b)return;rateSel.d=+b.dataset.v;renderRate();sendRate()};
+
+/* ---------- play log, lucky song ---------- */
+function luckyPick(){
+  const n=Math.max(1,Math.min(MAPS.length,unlockedCount())),i=hashStr('lucky-'+kstDay()+'-'+(acct?acct.nick:anonId()))%n;
+  return{idx:i,key:MAPS[i].id+'-normal'};
+}
+function renderLucky(){const b=$('#luckyBtn');if(!b||!MAPS)return;const L=luckyPick(),m=MAPS[L.idx],got=LS.get('cb-lucky','')===kstDay();
+  b.textContent='';b.append(el('b',null,'🍀 오늘의 행운 곡'),el('span',null,` Lv${m.level} ${m.name} · 보통`+(got?' · 보상 받음':acct?' · 깨면 +50 코인':' · 로그인하면 +50 코인')))}
+$('#luckyBtn').onclick=()=>{const L=luckyPick();mapIdx=L.idx;diffIdx=1;renderMenu();$('#startBtn').click()};
+async function afterFinishB2(fail,sc,acc,key,test){
+  const real=!sel.replay&&!sel.practice&&!sel.tutorial&&!test;
+  $('#rChal').hidden=!(real&&!fail&&acct&&!key.startsWith('s:'));$('#rChalBox').hidden=true;chKey=key;
+  const comm=real&&map.community&&!sel.test&&acct;$('#rRateBox').hidden=!comm;
+  if(comm){rateSel={s:0,d:0,id:map.levelId};$('#rtMsg').textContent='';renderRate()}
+  if(!real)return;
+  try{await API.call('bb_log_play_v2',{p_token:acct?acct.token:null,p_anon:anonId(),p_key:key,p_fail:!!fail,p_acc:Math.round(acc*10)/10})}catch(e){}
+  if(!fail&&acct&&key===luckyPick().key&&LS.get('cb-lucky','')!==kstDay()){
+    try{const r=await API.call('bb_lucky_claim',{p_token:acct.token,p_key:key});LS.set('cb-lucky',kstDay());if(r&&r.coins){toast('🍀 오늘의 행운 곡 보상',`+${r.coins} 코인`);loadWallet()}}catch(e){}}
+}
+
+/* ---------- featured level, notice banner, coin events ---------- */
+var FEAT=null,SETTINGS={};
+async function loadMenuExtras(){
+  try{FEAT=await API.call('bb_featured',{})}catch(e){FEAT=null}
+  try{SETTINGS=await API.call('bb_get_settings',{})||{}}catch(e){SETTINGS={}}
+  renderMenuB2();
+}
+function renderMenuB2(){
+  const fb=$('#featBtn');if(fb){fb.hidden=!FEAT;if(FEAT){fb.textContent='';fb.append(el('b',null,'⭐ 이번 주 추천 레벨'),el('span',null,` ${FEAT.title} · ${FEAT.author} · ${FEAT.lanes}키`))}}
+  const nb=$('#noticeBar');if(nb){const n=SETTINGS.notice,ev=SETTINGS.event,parts=[];
+    if(n&&n.text)parts.push(n.text);
+    if(ev&&ev.mult>1){const live=kstDay()>=ev.from;const [,m,d]=ev.to.split('-');parts.push(`🎉 ${ev.label||'코인 이벤트'} · 코인 ×${ev.mult} · ${live?'':'곧 시작 · '}${+m}/${+d}까지`)}
+    nb.hidden=!parts.length;nb.textContent=parts.join('   ·   ')}
+  renderLucky();
+}
+$('#featBtn').onclick=async()=>{if(!FEAT)return;try{const L=await fetchLevel(FEAT.id);sel={type:'community',level:L};start()}catch(e){toast('추천 레벨을 열 수 없어요',errText(e))}};
+setInterval(()=>{if(state==='menu')loadMenuExtras()},600000);
+
+/* ---------- gacha ---------- */
+$('#gachaBtn').onclick=async()=>{
+  if(!acct){openAcct(()=>openShop());$('#aMsg').textContent='뽑기는 로그인하면 할 수 있어요.';return}
+  const b=$('#gachaBtn');b.disabled=true;
+  try{const r=await API.call('bb_gacha',{p_token:acct.token});setWallet(r);
+    $('#gachaOut').hidden=false;$('#gachaOut').textContent=r.dup?`'${itemName(r.item)}' · 이미 있어서 150 코인을 돌려받았어요`:`새 아이템! '${itemName(r.item)}' · 상점에서 장착하세요`;
+    toast(r.dup?'이미 있는 아이템이에요':'뽑기 성공!',r.dup?`${itemName(r.item)} · 150 코인 돌려받음`:itemName(r.item))}
+  catch(e){$('#gachaOut').hidden=false;$('#gachaOut').textContent=e2t(e);authFail(e)}
+  finally{b.disabled=false}};
+
+/* ---------- admin: notice, event, stats ---------- */
+async function loadAdminB2(){
+  const n=SETTINGS.notice,ev=SETTINGS.event;
+  $('#adNotice').value=n&&n.text||'';$('#adNoticeUntil').value=n&&n.until||'';
+  $('#adEvMult').value=ev?String(ev.mult):'2';$('#adEvFrom').value=ev?ev.from:kstDay();$('#adEvTo').value=ev?ev.to:kstDay(6);$('#adEvLabel').value=ev&&ev.label||'';
+  const box=$('#adStats');box.textContent='불러오는 중…';
+  try{const s=await API.call('bb_admin_stats',{p_token:acct.token});box.textContent='';
+    box.appendChild(el('p','rline',`가입 ${fmt(s.players)}명 · 이번 주 플레이한 사람 ${fmt(s.week_players)}명 · 커뮤니티 레벨 ${fmt(s.levels)}개`));
+    const c=el('canvas','hchart');box.appendChild(c);
+    requestAnimationFrame(()=>{const w=c.clientWidth||320,h=200,dpr=Math.min(2,window.devicePixelRatio||1);c.width=w*dpr;c.height=h*dpr;const x=c.getContext('2d');x.scale(dpr,dpr);
+      const d=s.days||[],mp=Math.max(1,...d.map(r=>r.plays)),mu=Math.max(1,...d.map(r=>r.players)),bw=(w-20)/Math.max(1,d.length);
+      d.forEach((r,i)=>{const bh=(h-40)*r.plays/mp;x.fillStyle=COL.lc[1];x.globalAlpha=.35;x.fillRect(10+i*bw+2,h-24-bh,bw-4,bh);x.globalAlpha=1;
+        const uh=(h-40)*r.players/mu;x.fillStyle=COL.lc[0];x.fillRect(10+i*bw+bw/2-3,h-24-uh,6,uh);
+        x.fillStyle=COL.ink;x.globalAlpha=.6;x.font='10px '+F.body;x.textAlign='center';if(i%2===d.length%2)x.fillText(String(r.day).slice(8,10),10+i*bw+bw/2,h-10);x.globalAlpha=1});
+      x.font='11px '+F.body;x.textAlign='left';x.fillStyle=COL.lc[0];x.fillText('■ 플레이한 사람',10,12);x.fillStyle=COL.lc[1];x.fillText('■ 판 수',110,12)});
+    const list=(title,rows,f)=>{box.appendChild(el('p','label',title));const ol=el('ol','board');rows.forEach((r,i)=>{const li=el('li');li.append(el('span','pos',i+1),el('span','who',keyTitle(r.key)),el('span','pts',f(r)));ol.appendChild(li)});box.appendChild(ol);if(!rows.length)box.appendChild(el('p','hint','아직 기록이 부족해요.'))};
+    list('많이 한 맵 · 최근 7일',s.top||[],r=>`${r.plays}판`);list('실패가 많은 맵 · 최근 30일, 5판 이상',s.hard||[],r=>`실패 ${r.fail}%`);
+  }catch(e){box.textContent=errText(e)}
+}
+async function setSetting(key,val,okMsg){try{await API.call('bb_admin_set_setting',{p_token:acct.token,p_key:key,p_value:val});$('#adMsg').textContent=okMsg;loadMenuExtras().then(loadAdminB2)}catch(e){$('#adMsg').textContent=e.code==='bad_dates'?'날짜와 배율을 확인해 주세요.':e.code==='bad_msg'?'공지는 1~140자로 써 주세요.':errText(e)}}
+$('#adNoticeSave').onclick=()=>{const t=$('#adNotice').value.trim();if(!t){$('#adMsg').textContent='공지 내용을 써 주세요.';return}setSetting('notice',{text:t,until:$('#adNoticeUntil').value||null},'공지를 올렸어요.')};
+$('#adNoticeOff').onclick=()=>setSetting('notice',null,'공지를 내렸어요.');
+$('#adEvSave').onclick=()=>setSetting('event',{mult:+$('#adEvMult').value,from:$('#adEvFrom').value,to:$('#adEvTo').value,label:$('#adEvLabel').value.trim()||null},'이벤트를 설정했어요.');
+$('#adEvOff').onclick=()=>setSetting('event',null,'이벤트를 끝냈어요.');
+
+/* ---------- startup ---------- */
+loadMenuExtras();
+if(acct)setTimeout(inboxPoll,2500);
 
 renderMenu();
 (document.fonts?document.fonts.ready:Promise.resolve()).finally(()=>requestAnimationFrame(loop));

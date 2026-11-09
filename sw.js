@@ -1,6 +1,6 @@
 // code-beat service worker: always tries the network first so players get the newest game,
 // and falls back to the last saved copy when offline.
-const CACHE = 'code-beat-v1';
+const CACHE = 'code-beat-v2';
 const CORE = ['./', './index.html', './icon.svg', './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -21,8 +21,10 @@ self.addEventListener('fetch', (e) => {
   const fonts = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
   if (!sameOrigin && !fonts) return; // server calls, music files and releases are never cached here
 
+  // pages and version checks always go to the network first, skipping the browser cache
+  const fresh = req.mode === 'navigate' || url.pathname.endsWith('version.json');
   e.respondWith(
-    fetch(req)
+    fetch(fresh ? req.url : req, fresh ? { cache: 'no-store', credentials: 'same-origin' } : undefined)
       .then((res) => {
         if (res.ok && (sameOrigin || fonts)) {
           const copy = res.clone();

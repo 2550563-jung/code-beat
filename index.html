@@ -825,7 +825,7 @@ a.go.off{opacity:.45;pointer-events:none}
 <script>
 (function(){var sent={},n=0;function rep(msg,src,stack){try{msg=String(msg||'');if(!msg||sent[msg]||n>=8)return;sent[msg]=1;n++;var tok=null;try{tok=(JSON.parse(localStorage.getItem('cb-acct')||'null')||{}).token||null}catch(e){}
 fetch('https://nkeeayhodmauifevmaga.supabase.co/rest/v1/rpc/bb_report_error',{method:'POST',headers:{apikey:'sb_publishable_u7M3MApb_n-h-5gAUe4rTg_fN2kj4yW','Content-Type':'application/json'},
-body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261109094220',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
+body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261109095141',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
 window.addEventListener('error',function(e){if(!e.message)return;rep(e.message,(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno,e.error&&e.error.stack)});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r&&r.code)return;rep('promise: '+(r&&r.message||r),'',r&&r.stack)});
 window.cbReport=rep;})();
@@ -2608,12 +2608,12 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261109094220';
+const BUILD_ID='20261109095141';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
   try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const j=await r.json();
-    if(j&&j.v&&j.v!==BUILD_ID){updInfo=j;showUpdBar()}}catch(e){}
+    if(j&&j.v&&j.v!==BUILD_ID&&+j.v>+BUILD_ID){updInfo=j;showUpdBar()}}catch(e){}
 }
 const BUSY_STATES=['play','pause','dying','loading','calib'];
 function showUpdBar(){if(!updInfo||BUSY_STATES.includes(state))return;$('#updBar').hidden=false}
@@ -2623,9 +2623,15 @@ function showUpdNotes(info,title){
   if(!ol.children.length){const li=document.createElement('li');li.textContent='여러 가지가 좋아졌어요.';ol.appendChild(li)}
   $('#updTitle').textContent=title;$('#updSheet').hidden=false;
 }
-function applyUpdate(){LS.set('cb-upd-shown',null);LS.set('cb-upd-pending',updInfo);location.reload()}
+function updTries(v){const t=LS.get('cb-upd-try',null);return t&&t.v===v?t.n:0}
+function applyUpdate(){
+  const v=updInfo&&updInfo.v;LS.set('cb-upd-shown',null);LS.set('cb-upd-pending',updInfo);LS.set('cb-upd-try',{v,n:updTries(v)+1});
+  // open a fresh address so no cache can hand back the old page
+  const u=new URL(location.href);u.searchParams.set('v',v||Date.now());location.replace(u.toString());
+}
 function updAfterLevel(){
   if(!updInfo||sel.multi)return;
+  if(updTries(updInfo.v)>=1)return; // tried once already: leave it to the update bar, never loop
   const rl=$('#rRankLine');rl.hidden=false;rl.innerHTML=(rl.innerHTML?rl.innerHTML+'<br>':'')+'<b>새 업데이트를 적용하려고 곧 다시 시작해요.</b>';
   setTimeout(()=>{if(state==='result')applyUpdate()},3500);
 }

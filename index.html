@@ -2424,7 +2424,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261109053521';
+const BUILD_ID='20261109055503';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2900,7 +2900,8 @@ $('#tutGo').onclick=startTutorial;$('#tutAgain').onclick=startTutorial;
 $('#tutNo').onclick=()=>{LS.set('cb-tut-done',1);$('#tutBan').hidden=true};
 
 /* ---------- menu extras ---------- */
-function renderMenuExtra(){
+function renderMenuExtra(){try{renderMenuExtra0()}catch(e){console.error(e)}}
+function renderMenuExtra0(){
   if(!MODS)return;
   const box=$('#mods');if(box){box.textContent='';
     for(const k in MOD_INFO){const b=el('button','chip',MOD_INFO[k].n);b.dataset.mod=k;b.setAttribute('aria-pressed',!!MODS[k]);
@@ -3132,8 +3133,8 @@ function specialRefresh(){
   if(!acct){SPECIAL=[];bdBtnShow();return}
   API.call('bb_special_access',{p_token:acct.token}).then(r=>{SPECIAL=Array.isArray(r)?r:[];bdBtnShow()}).catch(()=>{SPECIAL=[];bdBtnShow()});
 }
-function bdBtnShow(){const b=$('#bdayBtn');if(b)b.hidden=!acct||!SPECIAL.some(x=>x.map==='birthday')}
-function bdGrant(){return SPECIAL.find(x=>x.map==='birthday')}
+function bdBtnShow(){const b=$('#bdayBtn');if(b)b.hidden=!acct||!Array.isArray(SPECIAL)||!SPECIAL.some(x=>x.map==='birthday')}
+function bdGrant(){return Array.isArray(SPECIAL)?SPECIAL.find(x=>x.map==='birthday'):null}
 function openBday(){
   const gr=bdGrant();if(!gr){toMenu();return}
   state='bday';show('bday');

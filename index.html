@@ -145,6 +145,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .startrow .ghost{padding-inline:22px}
 .startrow .ghost:disabled{opacity:.4;cursor:default}
 .navrow .daily{background:transparent;border-color:var(--accent);color:var(--accent)}
+.navrow .bday{background:linear-gradient(90deg,#ff6fb5,#ffd166,#5ee6c4);color:#1a0f24;border:0}
+.navrow .bday span{font-weight:500;font-size:12px;opacity:.75}
+.bdmsg{margin:0;padding:12px 14px;border-radius:10px;background:var(--panel);border-left:3px solid #ff6fb5;font-size:14px}
 .navrow .daily span{font-weight:400;color:var(--muted);font-size:12px}
 .tutban{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-radius:10px;border:1px dashed var(--accent);font-size:13px}
 .tutban div{display:flex;gap:6px}
@@ -256,7 +259,7 @@ a.go.off{opacity:.45;pointer-events:none}
       </div>
       <div class="acct"><span id="acctName">로그인하지 않았어요</span><button class="small" id="acctBtn">로그인</button></div>
       <div class="tutban" id="tutBan" hidden><span>처음이세요? 1분이면 끝나는 튜토리얼로 시작해 보세요.</span><div><button class="small" id="tutGo">튜토리얼</button><button class="small" id="tutNo">닫기</button></div></div>
-      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small wide daily" id="dailyBtn">오늘의 도전 <span id="dailySub"></span></button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small" id="profBtn">프로필 · 업적</button><button class="small" id="friendBtn">친구</button><button class="small wide2" id="setBtn">설정</button></div>
+      <div class="navrow"><button class="small wide" id="multiBtn">멀티플레이</button><button class="small wide bday" id="bdayBtn" hidden>생일 축하곡 <span>· 특별한 곡이 열려 있어요</span></button><button class="small wide daily" id="dailyBtn">오늘의 도전 <span id="dailySub"></span></button><button class="small" id="commBtn">커뮤니티 레벨</button><button class="small" id="editBtn">레벨 에디터</button><button class="small" id="rankBtn">랭킹</button><button class="small" id="shopBtn">상점</button><button class="small" id="profBtn">프로필 · 업적</button><button class="small" id="friendBtn">친구</button><button class="small wide2" id="setBtn">설정</button></div>
       <div class="total"><span>누적 점수 · 맵·난이도별 최고 기록 합계</span><b id="totalScore">0</b></div>
       <div>
         <p class="label">맵 · 쉬운 순서 · <span id="unlockCount"></span></p>
@@ -352,6 +355,32 @@ a.go.off{opacity:.45;pointer-events:none}
       <div class="shgrid" id="shGrid"></div>
       <p class="keymsg" id="shMsg"></p>
       <button class="go" id="shBack">돌아가기</button>
+    </div>
+  </section>
+
+  <section class="screen" id="bday" hidden>
+    <div class="panel">
+      <p class="label" style="margin:0">특별한 곡</p>
+      <h2>생일 축하곡</h2>
+      <p class="sub" id="bdHello"></p>
+      <p class="bdmsg" id="bdMsg" hidden></p>
+      <p class="rline" id="bdWhen"></p>
+      <p class="hint" style="text-align:left;margin:0">인트로 · 1절 · 2절 · 조 바꿈 · 마지막 절 · 엔딩까지 약 1분. 이 곡에서만 나오는 노트, 배경, 효과, 히트사운드가 있어요.</p>
+      <div class="seg" id="bdDiffs" role="radiogroup" aria-label="난이도"><button role="radio" data-i="0">쉬움</button><button role="radio" data-i="1">보통</button><button role="radio" data-i="2">어려움</button></div>
+      <div class="total"><span>내 최고 기록</span><b id="bdBest">—</b></div>
+      <button class="go" id="bdStart">시작</button>
+      <p class="label" style="margin:0">이 곡의 랭킹</p>
+      <ol class="board" id="bdBoard"></ol>
+      <div class="ctl" id="bdAdmin" hidden>
+        <span class="lab">할 수 있는 사람 · 관리자만 바꿀 수 있어요</span>
+        <div id="bdGrants" class="tplist"></div>
+        <input class="text" id="bdNick" maxlength="12" placeholder="닉네임" autocomplete="off">
+        <div class="grid2"><label class="mini">시작하는 날 <input class="text" type="date" id="bdFrom"></label><label class="mini">끝나는 날 <input class="text" type="date" id="bdTo"></label></div>
+        <input class="text" id="bdNote" maxlength="80" placeholder="축하 메시지 (선택) · 곡 화면과 엔딩에 나와요" autocomplete="off">
+        <button class="small" id="bdAdd">이 사람에게 열기</button>
+        <p class="keymsg" id="bdAdMsg" style="margin:0"></p>
+      </div>
+      <button class="ghost" id="bdBack">돌아가기</button>
     </div>
   </section>
 
@@ -776,6 +805,7 @@ function leadFromNotes(s){
   return lead;
 }
 function buildSong(s){
+  if(s.special)return new Array(barsOf(s)*16).fill(-1);
   if(s.community)return leadFromNotes(s);
   const rnd=rng(s.seed),top=s.scale.length+4;
   const makePhrase=()=>{
@@ -802,7 +832,7 @@ function buildSong(s){
   lead[(BARS-1)*16]=s.scale.length;
   return lead;
 }
-function buildChart(s,lead,diff){
+function buildChart(s,lead,diff){if(s.special)return s.chartFn(diff);
   if(s.community){const seen=new Set(),out=[];for(const [st,l,ln] of s.chart){const k=st*8+l;if(seen.has(k)||l<0||l>=s.lanes)continue;seen.add(k);const o={step:st+INTRO*16,lane:l};if(ln>=2)o.len=ln;out.push(o)}
     return out.sort((a,b)=>a.step-b.step||a.lane-b.lane)}
   const n=s.lanes,notes=[];
@@ -887,7 +917,7 @@ function drum(kind,v,out){
 }
 function hitSound(lane,n,judged){
   if(!ctx||hsVol<=0)return;
-  if(SKIN.sound!=='drum'&&packSound(SKIN.sound,lane,n,judged?1:.6,hsOut()))return;drum((HS_KINDS[n]||HS_KINDS[4])[lane]||'snare',judged?1:.6,hsOut());
+  if(map&&map.special&&bdSound(lane))return;if(SKIN.sound!=='drum'&&packSound(SKIN.sound,lane,n,judged?1:.6,hsOut()))return;drum((HS_KINDS[n]||HS_KINDS[4])[lane]||'snare',judged?1:.6,hsOut());
 }
 
 const LEADV={sine:[.18,3600],triangle:[.17,3600],square:[.09,2400],sawtooth:[.08,2200]};
@@ -975,6 +1005,7 @@ const songNow=()=>ctx?ctx.currentTime-lat():0;
 const playNow=()=>songNow()-(offsetMs||0)/1000;
 
 function playStep(i,t){
+  if(map.special){map.stepFn(i,t);return}
   const s=map,st=i%16,bar=Math.floor(i/16),[lv,lc]=LEADV[s.lead];
   if(s.audio){if(bar<INTRO&&st%4===0)click(t,st===0);return}
   if(bar===barsOf(s)-1){if(st===0){kick(t);noise(t,'highpass',5000,.3,1.2);pad(t,s,0,2.2);tone(t,s.key-24+s.prog[0][0],1.4,'sawtooth',.3,500);if(lead[i]>=0)tone(t,degPitch(s,lead[i]),1.2,s.lead,lv,lc)}return}
@@ -998,7 +1029,7 @@ async function start(){
   if(pre&&pre.music&&pre.music.audio){abuf=pre.audioBuf||await loadAudio(pre.music.audio.url);if(!abuf)return}
   clearInterval(timer);newBus();
   map=sel.map?sel.map:sel.type==='community'?commMap(sel.level):MAPS[mapIdx];lead=buildSong(map);
-  setTempo(map,sel.practice?PR.rate:1);totalSteps=barsOf(map)*16;
+  if(map.special)bdEnter();setTempo(map,sel.practice?PR.rate:1);totalSteps=barsOf(map)*16;
   if(sel.type==='community'&&!sel.test&&!sel.counted){sel.counted=true;API.call('bb_count_play',{p_id:sel.level.id}).catch(()=>{})}
   T0=ctx.currentTime+.5;if(sel.practice)practiceT0();
   if(abuf&&map.audio){const src=ctx.createBufferSource();src.buffer=abuf;src.connect(bus);const rt=sel.practice?PR.rate:1;src.playbackRate.value=rt;const ss=T0+stT(INTRO*16)-map.audio.offset/1000/rt,nw=ctx.currentTime+.03;if(ss>=nw)src.start(ss);else src.start(nw,(nw-ss)*rt)}
@@ -1097,7 +1128,7 @@ function finish(fail){
 function pause(){if(state!=='play')return;state='pause';ctx.suspend();$('#pauseBtn').hidden=true;show('pause')}
 function resume(){state='play';ctx.resume();$('#pauseBtn').hidden=false;show(null)}
 function toMenu(){stopRun();state='menu';$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();renderMenu();show('menu');resize()}
-function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends'].forEach(s=>$('#'+s).hidden=s!==id)}
+function show(id){$('#editor').hidden=id!=='editor';['menu','calib','pause','result','keys','rank','acct','comm','loading','settings','multi','apps','admin','shop','daily','practice','profile','friends','bday'].forEach(s=>$('#'+s).hidden=s!==id)}
 function goBack(){stopRun();$('#pauseBtn').hidden=true;if(ctx&&ctx.state==='suspended')ctx.resume();if(sel.back){const f=sel.back;sel={type:'builtin'};f();return}if(sel.multi){openMulti(true);return}if(sel.test)openEditor(null,true);else if(sel.type==='community')openComm(true);else toMenu()}
 
 /* ---------- calibration (tap along to a metronome) ---------- */
@@ -1182,7 +1213,7 @@ function renderMenu(){
   $('#offsetOut').textContent=offsetMs===null?'측정 전':(offsetMs>0?'+':'')+offsetMs+'ms';
   $('#calibBtn').textContent=offsetMs===null?'박자 측정':'다시 측정';
   $('#speed').value=speed;$('#speedOut').textContent=(+speed).toFixed(1);
-  $('#totalScore').textContent=fmt(Object.keys(best).filter(k=>!k.startsWith('c:')&&!k.startsWith('d:')).reduce((a,k)=>a+best[k],0));
+  $('#totalScore').textContent=fmt(Object.keys(best).filter(k=>!k.includes(':')).reduce((a,k)=>a+best[k],0));
   renderAcct();if(typeof renderMenuExtra==='function')renderMenuExtra();
 }
 $('#songs').addEventListener('click',e=>{const b=e.target.closest('.song');if(!b)return;if(!isUnlocked(+b.dataset.i)){$('#unlockHint').textContent=`Lv${+b.dataset.i} ${MAPS[+b.dataset.i-1].name}을(를) 보통 이상 난이도로 깨면 열려요.`;return}mapIdx=+b.dataset.i;LS.set('bam-bakja-map',mapIdx);const st=$('#songs').scrollTop;renderMenu();$('#songs').scrollTop=st});
@@ -1265,7 +1296,7 @@ function draw(){
   g.fillStyle=COL.bg;g.fillRect(0,0,W,H);
   const now=!playing?pn/1000:death?death.now:playNow();
   const pps=H*.35*speed,bd=playing?beatDur:.6,base=playing?T0:0;
-  const phase=(((now-base)/bd)%1+1)%1,pulse=QS().fx?Math.pow(1-phase,3):0;if(QS().fx>2)drawAmbient(pulse);if(QS().fx&&SKIN.bg!=='none')drawBgOn(g,SKIN.bg,W,H,performance.now(),pulse,Math.min(1,QS().fx/2));
+  const phase=(((now-base)/bd)%1+1)%1,pulse=QS().fx?Math.pow(1-phase,3):0;if(QS().fx>2)drawAmbient(pulse);if(map&&map.special){if(QS().fx)bdBg(g,W,H,performance.now())}else if(QS().fx&&SKIN.bg!=='none')drawBgOn(g,SKIN.bg,W,H,performance.now(),pulse,Math.min(1,QS().fx/2));
   for(let l=0;l<lanes;l++){
     const x=fx+l*laneW,c=laneColor(l,lanes);
     g.globalAlpha=.05+pulse*.03;g.fillStyle=c;g.fillRect(x,0,laneW,H);
@@ -1276,7 +1307,7 @@ function draw(){
   for(let l=0;l<=lanes;l++){const x=Math.round(fx+l*laneW)+.5;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke()}
   drawBeatLines(now,pps,base,bd);
   if(QS().fx>2){const hg=g.createLinearGradient(0,hitY-26,0,hitY+26);hg.addColorStop(0,'transparent');hg.addColorStop(.5,COL.lc[0]);hg.addColorStop(1,'transparent');g.globalAlpha=.22+pulse*.25;g.fillStyle=hg;g.fillRect(fx,hitY-26,fw,52)}
-  drawLineOn(g,SKIN.line,fx,fw,hitY,pulse,now*1000);g.globalAlpha=.75;g.fillStyle=COL.ink;
+  if(map&&map.special)bdLine(g,fx,fw,hitY,pulse,map.lanes);else drawLineOn(g,SKIN.line,fx,fw,hitY,pulse,now*1000);g.globalAlpha=.75;g.fillStyle=COL.ink;
   const inset=Math.min(6,laneW*.08);
   for(let l=0;l<lanes;l++){g.strokeStyle=laneColor(l,lanes);g.globalAlpha=playing&&pressed[l]?.95:.35;g.lineWidth=2;rr(fx+l*laneW+inset,hitY-9,laneW-inset*2,18,6);g.stroke()}
   g.globalAlpha=1;
@@ -1293,13 +1324,13 @@ function draw(){
       if(y>H+nh)continue;
       g.fillStyle=c;if(QS().fx&&SKIN.note==='bar'&&hidA(y)>.5){g.globalAlpha=.25;rr(x-3,y-nh/2-3,w+6,nh+6,8);g.fill()}
       if(QS().fx>2){const tl=Math.min(90,pps*.12),tg=g.createLinearGradient(0,y-nh/2-tl,0,y-nh/2);tg.addColorStop(0,'transparent');tg.addColorStop(1,c);g.globalAlpha=.35;g.fillStyle=tg;g.fillRect(x+w*.15,y-nh/2-tl,w*.7,tl);g.fillStyle=c}
-      const ha=hidA(y);if(ha<=0){g.globalAlpha=1;continue}g.globalAlpha=ha;if(QS().fx>2){g.shadowColor=c;g.shadowBlur=22}drawNoteOn(g,SKIN.note,x,y,w,nh,c);g.shadowBlur=0;
+      const ha=hidA(y);if(ha<=0){g.globalAlpha=1;continue}g.globalAlpha=ha;if(QS().fx>2){g.shadowColor=c;g.shadowBlur=22}if(map.special)bdNote(g,x,y,w,nh,c);else drawNoteOn(g,SKIN.note,x,y,w,nh,c);g.shadowBlur=0;
       if(SKIN.note==='bar'){g.fillStyle=COL.ink;g.globalAlpha=.55;g.fillRect(x+6,y-nh/2+3,Math.max(0,w-12),2)}g.globalAlpha=1;
     }
     bursts=bursts.filter(b=>pn-b.t<360);
     for(const b of (QS().fx?bursts:[])){const p=(pn-b.t)/360,cx=fx+b.lane*laneW+laneW/2,c=laneColor(b.lane,lanes);
       g.strokeStyle=c;g.globalAlpha=1-p;g.lineWidth=3*(1-p)+1;
-      drawHitOn(g,SKIN.hit,p,cx,hitY,laneW,c,b.t);
+      if(map&&map.special)bdHit(g,p,cx,hitY,laneW,b.t);else drawHitOn(g,SKIN.hit,p,cx,hitY,laneW,c,b.t);
       if(b.k==='perfect'&&QS().fx>1){g.fillStyle=c;g.globalAlpha=(1-p)*.35;g.fillRect(fx+b.lane*laneW,hitY-H*.25*(1-p),laneW,H*.25*(1-p))}
     }
     g.globalAlpha=1;
@@ -1312,7 +1343,7 @@ function draw(){
       g.fillStyle=COL.lc[n%4];g.globalAlpha=.4+.6*Math.pow((left/bd)%1,.5);g.fillText(String(n),cx,H*.42);g.globalAlpha=1}
     if(lastJ&&pn-lastJ.t<600){const p=(pn-lastJ.t)/600,s=reduce?1:1+.25*Math.max(0,1-p*5);
       g.save();g.translate(cx,H*.5);g.scale(s,s);g.globalAlpha=1-Math.max(0,p-.6)/.4;
-      g.font='34px '+F.display;g.textAlign='center';g.textBaseline='middle';g.fillStyle=COL[lastJ.k];if(QS().fx>2){g.shadowColor=COL[lastJ.k];g.shadowBlur=24}drawJudgeOn(g,SKIN.judge,lastJ.k,p);g.shadowBlur=0;
+      g.font='34px '+F.display;g.textAlign='center';g.textBaseline='middle';g.fillStyle=COL[lastJ.k];if(QS().fx>2){g.shadowColor=COL[lastJ.k];g.shadowBlur=24}if(map&&map.special)bdJudge(g,lastJ.k,p);else drawJudgeOn(g,SKIN.judge,lastJ.k,p);g.shadowBlur=0;
       if(lastJ.k==='great'||lastJ.k==='good'){g.font='600 13px '+F.body;g.fillStyle=COL.muted;g.fillText(lastJ.early?'빠름':'느림',0,28)}
       g.restore();g.globalAlpha=1}
     if(combo>=3){g.textAlign='center';g.textBaseline='alphabetic';g.fillStyle=COL.ink;
@@ -1330,7 +1361,7 @@ function draw(){
     bar(66,'체력',hp,hp>50?COL.great:hp>25?COL.perfect:COL.miss);
     bar(80,'과부하',heat,heat>=HEAT.warn?COL.miss:COL.muted);
     if(runInv){g.font='600 11px '+F.body;g.fillStyle=COL.good;g.textBaseline='middle';g.fillText(sel.practice||sel.tutorial?'연습':'무적',lx+42+bw+8,73)}
-    if(sel.multi)drawMulti(pn);if(sel.tutorial)drawTutorial(now);
+    if(sel.multi)drawMulti(pn);if(sel.tutorial)drawTutorial(now);if(map.special)drawBirthday(now);
     if(heat>=HEAT.warn&&state==='play'){const a=(heat-HEAT.warn)/(100-HEAT.warn);g.strokeStyle=COL.miss;g.globalAlpha=.3+.5*a*(.6+.4*Math.sin(pn/60));g.lineWidth=4;g.strokeRect(fx+2,2,fw-4,H-4);
       g.globalAlpha=1;g.font='15px '+F.display;g.textAlign='center';g.fillStyle=COL.miss;g.fillText('과부하 주의',fx+fw/2,H*.62)}
     if(hp<=25&&state==='play'){g.fillStyle=COL.miss;g.globalAlpha=.08+.06*Math.sin(pn/120);g.fillRect(0,0,W,H);g.globalAlpha=1}
@@ -1463,8 +1494,8 @@ async function submitResult(key,sc,acc,combo){
     const r=await API.call('bb_my_rank',{p_token:acct.token,p_key:key});
     if(state!=='result')return;
     const parts=[];
-    if(r&&r.map)parts.push(`${key.startsWith('c:')?'이 레벨':key.startsWith('d:')?'오늘의 도전':'이 맵'} 랭킹 <b>${r.map}위</b> / ${r.map_count}명`);
-    if(r&&!key.startsWith('c:')&&!key.startsWith('d:')&&r.total)parts.push(`누적 랭킹 <b>${r.total}위</b> / ${r.total_count}명`);
+    if(r&&r.map)parts.push(`${key.startsWith('c:')?'이 레벨':key.startsWith('d:')?'오늘의 도전':key.startsWith('s:')?'이 곡':'이 맵'} 랭킹 <b>${r.map}위</b> / ${r.map_count}명`);
+    if(r&&!key.includes(':')&&r.total)parts.push(`누적 랭킹 <b>${r.total}위</b> / ${r.total_count}명`);
     if(got)parts.unshift(`<b>+${got} 코인</b>`+(sub.daily_bonus?' (오늘의 도전 보너스 포함)':''));
     rl.innerHTML=parts.join(' · ')||'랭킹에 올렸어요.';
   }catch(e){rl.textContent='랭킹에 올리지 못했어요. '+errText(e);authFail(e);if(!acct)hint.hidden=false}
@@ -2393,7 +2424,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261108122627';
+const BUILD_ID='20261109053521';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -2446,6 +2477,7 @@ const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className
 function keyTitle(k){
   if(k.startsWith('d:')){const [,m,d]=k.slice(2).split('-');return `오늘의 도전 ${+m}/${+d}`}
   if(k.startsWith('c:'))return '커뮤니티 레벨';
+  if(k.startsWith('s:'))return '생일 축하곡';
   const i=k.lastIndexOf('-'),m=MAPS.find(x=>x.id===k.slice(0,i)),d=DIFFS.find(x=>x.id===k.slice(i+1));
   return m?`Lv${m.level} ${m.name}${d?' · '+d.name:''}`:k;
 }
@@ -2516,12 +2548,13 @@ async function playReplay(rp,who,back){
   try{
     if(key.startsWith('c:')){const L=await fetchLevel(key.slice(2));s={type:'community',level:L,test:false,counted:true}}
     else if(key.startsWith('d:')){s={type:'builtin',map:dailyMap(key.slice(2))};diffIdx=1}
+    else if(key.startsWith('s:birthday-')){const di=DIFFS.findIndex(d=>d.id===key.slice(11));if(di<0||!bdGrant())throw{code:'no_level'};s={type:'builtin',map:bdMap(DIFFS[di].id),special:true};diffIdx=di}
     else{const i=key.lastIndexOf('-'),mi=MAPS.findIndex(m=>m.id===key.slice(0,i)),di=DIFFS.findIndex(d=>d.id===key.slice(i+1));
       if(mi<0||di<0)throw{code:'no_level'};mapIdx=mi;diffIdx=di}
   }catch(e){toast('리플레이를 열 수 없어요',errText(e));return}
   if(+rp.speed>=1&&+rp.speed<=4)speed=+rp.speed;
   sel={...s,replay:{...rp,ev:decodeEv(Array.isArray(rp.ev)?rp.ev:[]),i:0},who:who||'',noRecord:true,
-    back:()=>{restore();(back||toMenu)()},backLabel:'돌아가기'};
+    back:()=>{restore();if(s.special)applySkin();(back||toMenu)()},backLabel:'돌아가기'};
   start();
 }
 async function watchReplay(key,nick,back){
@@ -2661,6 +2694,7 @@ function onWallet(){if(WAL.owned.length>=5)achGrant('collector')}
 let seasonChecked=false;
 async function onLogin(){
   if(!acct)return;
+  if(typeof specialRefresh==='function')specialRefresh();
   achSync();
   if(LS.get('cb-checkin','')!==kstDay()+acct.nick){
     try{const r=await API.call('bb_checkin',{p_token:acct.token});LS.set('cb-checkin',kstDay()+acct.nick);
@@ -2874,6 +2908,7 @@ function renderMenuExtra(){
       if(MOD_INFO[k].m!==1)b.appendChild(el('small',null,'×'+MOD_INFO[k].m));box.appendChild(b)}}
   const t=$('#tutBan');if(t)t.hidden=!!LS.get('cb-tut-done',0)||Object.keys(best).length>0;
   const ds=$('#dailySub');if(ds){const b=best['d:'+kstDay()];ds.textContent=b?`· 오늘 ${fmt(b)}`:'· 새 맵이 매일 바뀌어요'}
+  if(typeof bdBtnShow==='function')bdBtnShow();
   const pb=$('#practiceBtn');if(pb)pb.disabled=!isUnlocked(mapIdx);
 }
 $('#mods').onclick=e=>{const b=e.target.closest('[data-mod]');if(!b)return;MODS[b.dataset.mod]=!MODS[b.dataset.mod];LS.set('cb-mods',MODS);renderMenu()};
@@ -2940,6 +2975,207 @@ function edStepTime(s){setTempoLocal({bpm:ed.bpm,tempo:ed.music.tempo});return l
 renderMenu();
 achCheckProgress();
 if(acct)setTimeout(onLogin,1500);
+
+/* ====================================================================
+   Special song: "생일 축하곡" (Happy Birthday to You — public domain melody)
+   Only the admin and people the admin picks (for chosen dates) can play it.
+   Its notes, background, hit effects, hit sounds and texts exist only here.
+   ==================================================================== */
+var SPECIAL=[];          // what this account may play today: [{map,from,to,message,admin}]
+const BD_TR=[0,0,2];     // verse 3 goes up a whole step
+const BD_PRE=48;                               // intro before the first verse (plus the 2-bar count-in)
+const BD_OFF=[BD_PRE,BD_PRE+96,BD_PRE+204];      // where each verse starts
+const BD_BRIDGE=BD_PRE+196,BD_END=BD_PRE+304,BD_OUT=48; // key-change bar, last melody note ends, outro length
+const BD_MEL=[[67,3],[67,1],[69,4],[67,4],[72,4],[71,8],[67,3],[67,1],[69,4],[67,4],[74,4],[72,8],
+  [67,3],[67,1],[79,4],[76,4],[72,4],[71,4],[69,4],[77,3],[77,1],[76,4],[72,4],[74,4],[72,12]];
+const BD_CH=[[0,'M'],[7,'M'],[7,'M'],[0,'M'],[0,'M'],[5,'M'],[0,'M'],[0,'M']];
+const BD_LYR=['생일 축하합니다','생일 축하합니다','사랑하는 {name}의','생일 축하합니다'];
+const BD_PAL={bg:'#1a0f24',line:'#3d2550',lc:['#ffd166','#ff6fb5','#5ee6c4','#7cc8ff','#ffffff']};
+const BD_JTXT={perfect:'축하해!',great:'멋져요',good:'좋아요',miss:'앗!'};
+let bdEvents=null;
+
+function bdMelody(){ // every melody note of the song: {s(local step), p(midi), d(steps), v(verse)}
+  if(bdEvents)return bdEvents;const out=[];
+  for(let v=0;v<3;v++){let s=BD_OFF[v];
+    BD_MEL.forEach(([p,d],i)=>{const last=i===BD_MEL.length-1;out.push({s,p:p+BD_TR[v],d:last&&v<2?8:d,v,i});s+=d})}
+  return bdEvents=out;
+}
+const bdVerse=L=>L>=BD_OFF[2]?2:L>=BD_OFF[1]?1:0;
+function bdChord(L){ // chord under local step L: [rootSemitone, quality] or null
+  if(L<BD_PRE+4){const k=Math.floor((L+32)/12);return[[0,'M'],[0,'M'],[5,'M'],[0,'M'],[5,'M'],[7,'M'],[7,'M']][Math.max(0,Math.min(6,k))]}
+  if(L>=BD_END){const k=Math.floor((L-BD_END)/12);return[[7,'M'],[9,'M'],[2,'M'],[2,'M']][Math.min(3,k)]}
+  if(L>=BD_BRIDGE&&L<BD_BRIDGE+12)return[9,'M'];
+  const v=bdVerse(L),rel=L-BD_OFF[v]-4;if(rel<0)return BD_CH[7];
+  const k=Math.min(7,Math.floor(rel/12)),pos=rel%12;
+  if(k===6&&pos>=8)return[7+BD_TR[v],'M'];
+  return[BD_CH[k][0]+BD_TR[v],BD_CH[k][1]];
+}
+function bdChart(diff){
+  const ev=bdMelody(),notes=[],base=INTRO*16;let lane=1,prev=null;
+  const hard=diff==='hard',easy=diff==='easy';
+  for(const e of ev){
+    if(prev){const dp=e.p-prev.p;if(dp!==0){const st=Math.abs(dp)>=5?2:1;let nl=lane+Math.sign(dp)*st;if(nl<0||nl>3)nl=lane-Math.sign(dp)*st;lane=Math.max(0,Math.min(3,nl))}}
+    prev=e;
+    if(easy&&e.d===1)continue;
+    const n={step:base+e.s,lane};
+    const long=e.d>=8;if(long)n.len=easy?Math.min(6,e.d-2):e.d-2;
+    if(e.v===2&&e.i===BD_MEL.length-1)n.len=12;
+    notes.push(n);
+    const down=(e.s-BD_OFF[e.v]-4)%12===0;
+    if(!easy&&e.v>=1&&(down||long)){notes.push({step:base+e.s,lane:lane>=2?lane-2:lane+2})}
+    if(hard&&e.v===2&&e.d===4&&!long){notes.push({step:base+e.s+2,lane:lane%2?lane-1:lane+1})}
+  }
+  // finale: blow out the candles together
+  const fin=base+BD_END+36;(easy?[1,2]:[0,1,2,3]).forEach(l=>notes.push({step:fin,lane:l,len:easy?0:8}));
+  notes.sort((a,b)=>a.step-b.step||a.lane-b.lane);
+  const seen=new Set();return notes.filter(n=>{const k=n.step*8+n.lane;if(seen.has(k))return false;seen.add(k);return true});
+}
+function bdStep(i,t){
+  const L=i-INTRO*16,key=48;
+  // intro: music box sparkles over a soft waltz, building up into verse 1
+  if(L<BD_PRE){const ch=bdChord(L),rel=((L+32)%12+12)%12,m=Math.floor((L+32)/12);
+    if(ch){const iv=chordIv(ch[1]);if(rel%4===0){const d=iv[(rel/4+m)%3];tone(t,key+24+ch[0]+d,stepDur*6,'sine',.2,5000);tone(t,key+36+ch[0]+d,stepDur*2,'sine',.05,8000)}
+      if(rel===0&&m>=2)tone(t,key-12+ch[0],stepDur*10,'sine',.25,600);
+      if(m>=5&&rel%4===0)noise(t,'highpass',7000,.06+.02*(m-5),.05);
+      if(m===6&&rel===8){kick(t);noise(t,'highpass',3000,.2,.5)}}
+    return}
+  // ending: candles, a last chord and party noise
+  if(L>=BD_END){const rel=L-BD_END,ch=bdChord(L);
+    if(rel<36&&rel%4===0){const iv=chordIv(ch[1]);iv.forEach((x,j)=>tone(t+j*.06,key+24+ch[0]+x,stepDur*4,'sine',.14,6000));if(rel%12===0){tone(t,key-12+ch[0],stepDur*10,'sawtooth',.2,500);kick(t)}}
+    if(rel===36){[0,4,7,12,16].forEach(x=>tone(t,key+14+x,3.2,'triangle',.12,2600));tone(t,key-10,3,'sawtooth',.3,500);kick(t);noise(t,'highpass',5000,.4,2);
+      for(let k=0;k<6;k++)tone(t+.12+k*.09,key+38+[0,4,7,12,7,4][k],.4,'sine',.07,9000)}
+    return}
+  const v=bdVerse(L);
+  // melody: music box
+  for(const e of bdMelody())if(e.s===L){const dur=e.d*stepDur;tone(t,e.p,dur*1.1,'sine',.32,4000);tone(t,e.p+12,dur*.5,'triangle',.07,6000);if(v===2)tone(t,e.p+24,.25,'sine',.05,8000)}
+  // waltz accompaniment
+  const ch=bdChord(L);if(!ch)return;
+  const rel=((L-BD_PRE-4)%12+12)%12;
+  if(rel===0){tone(t,key-12+ch[0],stepDur*7,'sawtooth',.22,420+v*120);if(v>=1)kick(t)}
+  if(rel===4||rel===8){chordIv(ch[1]).forEach(x=>tone(t,key+12+ch[0]+x,stepDur*2.2,'triangle',.06,1800));noise(t,'highpass',7000,v?.1:.05,.04);if(v===2)noise(t,'bandpass',1500,.18,.08)}
+}
+function bdMap(diffId){
+  return {id:'birthday',special:'birthday',name:'생일 축하곡',label:`생일 축하곡 · ${DIFFS.find(d=>d.id===diffId).name}`,fixedKey:'s:birthday-'+diffId,
+    lanes:4,bpm:112,key:60,sc:'major',scale:SC.major,prog:[[0,'M'],[7,'M'],[5,'M'],[0,'M']],lead:'sine',drive:1,
+    bars:Math.ceil((INTRO*16+BD_END+BD_OUT+28)/16),level:40,tier:2,busy:1,seed:1225,chartFn:bdChart,stepFn:bdStep};
+}
+
+/* ---------- birthday-only looks, sounds and words ---------- */
+function bdEnter(){Object.assign(COL,{bg:BD_PAL.bg,line:BD_PAL.line});BD_PAL.lc.forEach((c,i)=>COL.lc[i]=c);glowCache.clear()}
+function bdSound(lane){if(!ctx)return true;const t=ctx.currentTime,p=[72,76,79,84,88,91][lane%6],out=hsOut();
+  hsOsc(t,'sine',midiHz(p),.5,.35,out);hsOsc(t,'sine',midiHz(p)*3,.08,.12,out);return true}
+const BD_COLS=['#ffd166','#ff6fb5','#5ee6c4','#7cc8ff','#ffffff','#c49bff'];
+function bdHit(c,p,cx,hy,lw,seed){
+  const r=rng(Math.floor(seed*1000)%100000+7);c.save();c.globalAlpha=Math.max(0,1-p);
+  for(let i=0;i<12;i++){const a=-Math.PI*(.1+.8*r()),sp=(.5+r())*lw*.9,x=cx+Math.cos(a)*sp*p,y=hy+Math.sin(a)*sp*p+p*p*lw*.6;
+    c.fillStyle=BD_COLS[i%BD_COLS.length];c.save();c.translate(x,y);c.rotate(p*8+i);c.fillRect(-3,-1.5,6,3);c.restore()}
+  c.fillStyle='#ffd166';c.globalAlpha=Math.max(0,1-p*1.4);c.beginPath();for(let k=0;k<10;k++){const rr=k%2?4:10*(1-p*.5),a=k*Math.PI/5-Math.PI/2;c.lineTo(cx+Math.cos(a)*rr,hy-14+Math.sin(a)*rr-p*16)}c.fill();
+  c.restore();
+}
+function bdBg(c,w,h,now){
+  const ts=now/1000;c.save();
+  for(let i=0;i<9;i++){const sp=.035+hash01(i+40)*.03,y=h+60-((ts*sp+hash01(i+90))%1)*(h+140),x=hash01(i+5)*w+Math.sin(ts*.7+i)*12,r=14+hash01(i+11)*10;
+    c.globalAlpha=.32;c.strokeStyle='#ffffff';c.lineWidth=1;c.beginPath();c.moveTo(x,y+r);c.quadraticCurveTo(x+6,y+r+20,x,y+r+42);c.stroke();
+    c.fillStyle=BD_COLS[i%BD_COLS.length];c.beginPath();c.ellipse(x,y,r*.85,r,0,0,7);c.fill();
+    c.globalAlpha=.25;c.fillStyle='#fff';c.beginPath();c.ellipse(x-r*.3,y-r*.35,r*.18,r*.28,-.5,0,7);c.fill()}
+  for(let i=0;i<40;i++){const sp=.06+hash01(i+300)*.06,y=((ts*sp+hash01(i+500))%1)*(h+20)-10,x=hash01(i+700)*w+Math.sin(ts*1.3+i)*10;
+    c.globalAlpha=.35;c.fillStyle=BD_COLS[i%BD_COLS.length];c.save();c.translate(x,y);c.rotate(ts*2+i);c.fillRect(-3,-1.2,6,2.4);c.restore()}
+  c.restore();
+}
+function bdLine(c,x,w,y,pulse,lanes){
+  c.save();const gr=c.createLinearGradient(x,0,x+w,0);BD_COLS.forEach((col,i)=>gr.addColorStop(i/(BD_COLS.length-1),col));
+  c.fillStyle=gr;c.globalAlpha=.95;c.fillRect(x,y-1.5,w,3);
+  const lw=w/lanes;for(let l=0;l<lanes;l++){const cx=x+lw*(l+.5);c.globalAlpha=.9;c.fillStyle='#fff3c4';c.fillRect(cx-2,y-14,4,11);
+    c.fillStyle='#ffb347';c.globalAlpha=.7+.3*pulse;c.beginPath();c.ellipse(cx,y-18,3,5+pulse*2,0,0,7);c.fill()}
+  c.restore();
+}
+function bdNote(c,x,y,w,nh,col){
+  c.save();c.fillStyle=col;rrOn(c,x,y-nh/2,w,nh,4);c.fill();
+  c.fillStyle='rgba(255,255,255,.85)';c.fillRect(x+w/2-3,y-nh/2,6,nh);c.globalAlpha=.55;c.fillRect(x,y-1.5,w,3);
+  c.globalAlpha=1;c.fillStyle='#fff';c.beginPath();c.ellipse(x+w/2-6,y-nh/2-3,5,3,-.5,0,7);c.ellipse(x+w/2+6,y-nh/2-3,5,3,.5,0,7);c.fill();c.restore();
+}
+function bdJudge(c,k,p){
+  const b=Math.abs(Math.sin(Math.min(1,p*2.2)*Math.PI*1.5))*(1-p);c.save();c.translate(0,-b*12);c.scale(1+b*.2,1+b*.2);c.fillText(BD_JTXT[k]||'',0,0);c.restore();
+}
+function bdName(){return acct?acct.nick:'친구'}
+function drawBirthday(now){
+  const L=tSt(now-T0)-INTRO*16,name=bdName(),x=fx+fw/2;
+  g.save();g.textAlign='center';g.textBaseline='middle';
+  const glow=(txt,size,y,col,a)=>{g.font=`700 ${size}px `+F.display;g.globalAlpha=a;g.fillStyle=col||'#fff';g.shadowColor='#ff6fb5';g.shadowBlur=16;g.fillText(txt,x,y,fw-16);g.shadowBlur=0};
+  if(L<BD_PRE){ // intro title card
+    const a=Math.min(1,(L+32)/16)*Math.min(1,(BD_PRE-L)/12);
+    g.font='600 13px '+F.body;g.globalAlpha=.8*a;g.fillStyle='#ffd166';g.fillText('HAPPY BIRTHDAY',x,H*.24-30);
+    glow('생일 축하곡',32,H*.24+4,'#fff',a);
+    g.font='500 14px '+F.body;g.globalAlpha=.85*a;g.fillStyle='#fff';g.fillText(`${name}님을 위한 특별한 곡`,x,H*.24+38,fw-16);
+  } else if(L<BD_END){
+    const v=bdVerse(L);let txt,tag=['1절','2절','마지막'][v];
+    if(L>=BD_BRIDGE&&L<BD_OFF[2]){txt='한 번 더, 더 크게!';tag='조 바꿈'}
+    else{const line=Math.max(0,Math.min(3,Math.floor((L-BD_OFF[v])/24)));txt=BD_LYR[line].replace('{name}',name)}
+    g.font='600 12px '+F.body;g.globalAlpha=.75;g.fillStyle='#ffd166';g.fillText(tag,x,H*.2-26);
+    glow(txt,22,H*.2,'#fff',.95);
+  } else { // ending
+    const rel=L-BD_END;
+    if(rel<36)glow('다 같이 촛불을 끄세요!',22,H*.2,'#ffd166',.95);
+    else{glow(`생일 축하해요, ${name}!`,26,H*.2,'#fff',1);const gr=bdGrant();
+      if(gr&&gr.message){g.font='500 14px '+F.body;g.globalAlpha=.9;g.fillStyle='#ffd166';g.fillText(gr.message,x,H*.2+34,fw-16)}}
+    // fireworks
+    const ts=now;for(let f=0;f<5;f++){const per=1.6,ph=((ts+f*.37)%per)/per,cx=fx+fw*(.15+.7*hash01(f+Math.floor((ts+f*.37)/per)*7)),cy=H*(.12+.25*hash01(f+30+Math.floor((ts+f*.37)/per)));
+      g.globalAlpha=Math.max(0,1-ph);g.fillStyle=BD_COLS[f%BD_COLS.length];
+      for(let k=0;k<14;k++){const a=k/14*Math.PI*2,r=ph*fw*.16;g.beginPath();g.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r+ph*ph*20,2.2,0,7);g.fill()}}
+  }
+  g.restore();
+}
+
+/* ---------- screen ---------- */
+const BD={diff:1,req:0};
+function specialRefresh(){
+  if(!acct){SPECIAL=[];bdBtnShow();return}
+  API.call('bb_special_access',{p_token:acct.token}).then(r=>{SPECIAL=Array.isArray(r)?r:[];bdBtnShow()}).catch(()=>{SPECIAL=[];bdBtnShow()});
+}
+function bdBtnShow(){const b=$('#bdayBtn');if(b)b.hidden=!acct||!SPECIAL.some(x=>x.map==='birthday')}
+function bdGrant(){return SPECIAL.find(x=>x.map==='birthday')}
+function openBday(){
+  const gr=bdGrant();if(!gr){toMenu();return}
+  state='bday';show('bday');
+  const md=d=>{const [,m,dd]=String(d).split('-');return `${+m}월 ${+dd}일`};
+  $('#bdHello').textContent=`생일 축하해요, ${bdName()}!`;
+  $('#bdMsg').textContent=gr.message||'';$('#bdMsg').hidden=!gr.message;
+  $('#bdWhen').textContent=gr.admin?'관리자 · 언제나 열려 있어요':(gr.from===gr.to?`${md(gr.from)} 하루만 열려 있어요`:`${md(gr.from)} ~ ${md(gr.to)}까지 열려 있어요`);
+  $('#bdDiffs').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-checked',i===BD.diff));
+  const k='s:birthday-'+DIFFS[BD.diff].id;$('#bdBest').textContent=best[k]?fmt(best[k]):'—';
+  $('#bdAdmin').hidden=!(acct&&acct.admin);
+  if(acct&&acct.admin){const t=kstDay();if(!$('#bdFrom').value)$('#bdFrom').value=t;if(!$('#bdTo').value)$('#bdTo').value=t;loadBdGrants()}
+  loadBdBoard(k);
+}
+async function loadBdBoard(k){
+  const id=++BD.req,board=$('#bdBoard');board.textContent='';
+  try{const rows=await API.call('bb_leaderboard_v2',{p_key:k,p_limit:20})||[];if(id!==BD.req)return;
+    fillBoard(board,rows.map(r=>({pos:r.pos,nick:r.nick,title:r.title,pts:r.score,sub:r.acc>0?(+r.acc).toFixed(1)+'%':'',replay:r.has_replay?k:null})),()=>openBday())}catch(e){}
+}
+async function loadBdGrants(){
+  const list=$('#bdGrants'),msg=$('#bdAdMsg');list.textContent='';
+  try{const rows=await API.call('bb_admin_special_grants',{p_token:acct.token,p_map:'birthday'})||[];const today=kstDay();
+    for(const r of rows){const c=el('div','tprow');const on=today>=r.from_day&&today<=r.to_day;
+      c.append(el('span',null,`${r.nick}${on?' · 지금 열림':today>r.to_day?' · 지남':''}`),el('b',null,`${r.from_day.slice(5).replace('-','/')} ~ ${r.to_day.slice(5).replace('-','/')}`));
+      const x=el('button','small','빼기');x.dataset.nick=r.nick;c.appendChild(x);list.appendChild(c);
+      if(r.message){const m=el('p','hint',`“${r.message}”`);m.style.cssText='text-align:left;margin:-2px 0 4px 10px';list.appendChild(m)}}
+    if(!rows.length)list.appendChild(el('p','hint','아직 고른 사람이 없어요. 지금은 나만 할 수 있어요.'));
+  }catch(e){msg.textContent=errText(e)}
+}
+$('#bdGrants').onclick=async e=>{const b=e.target.closest('button[data-nick]');if(!b)return;
+  try{await API.call('bb_admin_special_revoke',{p_token:acct.token,p_map:'birthday',p_nick:b.dataset.nick});$('#bdAdMsg').textContent=`${b.dataset.nick}은(는) 이제 못 해요.`;loadBdGrants()}catch(err){$('#bdAdMsg').textContent=errText(err)}};
+$('#bdAdd').onclick=async()=>{const nick=$('#bdNick').value.trim(),f=$('#bdFrom').value,t=$('#bdTo').value,msg=$('#bdAdMsg');
+  if(!nick){msg.textContent='닉네임을 입력하세요.';return}if(!f||!t||t<f){msg.textContent='날짜를 확인하세요. 끝나는 날이 시작하는 날보다 빠를 수 없어요.';return}
+  try{await API.call('bb_admin_special_grant',{p_token:acct.token,p_map:'birthday',p_nick:nick,p_from:f,p_to:t,p_message:$('#bdNote').value.trim()});
+    msg.textContent=`${nick}에게 ${f===t?f:f+' ~ '+t} 동안 열었어요.`;$('#bdNick').value='';$('#bdNote').value='';loadBdGrants()}
+  catch(err){msg.textContent=err.code==='no_player'?'그런 닉네임이 없어요. 먼저 그 사람이 가입해야 해요.':err.code==='bad_dates'?'날짜를 확인하세요. 최대 1년까지 열 수 있어요.':errText(err)}};
+$('#bdDiffs').onclick=e=>{const b=e.target.closest('button');if(!b)return;BD.diff=+b.dataset.i;openBday()};
+$('#bdStart').onclick=()=>{if(offsetMs===null){openCalib(false);return}
+  const pd=diffIdx;diffIdx=BD.diff;
+  sel={type:'builtin',map:bdMap(DIFFS[BD.diff].id),back:()=>{diffIdx=pd;applySkin();openBday()},backLabel:'생일 축하곡'};start()};
+$('#bdBack').onclick=()=>toMenu();
+$('#bdayBtn').onclick=openBday;
+specialRefresh();
 
 renderMenu();
 (document.fonts?document.fonts.ready:Promise.resolve()).finally(()=>requestAnimationFrame(loop));

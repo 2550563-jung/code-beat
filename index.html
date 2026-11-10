@@ -873,7 +873,7 @@ a.go.off{opacity:.45;pointer-events:none}
 <script>
 (function(){var sent={},n=0;function rep(msg,src,stack){try{msg=String(msg||'');if(!msg||sent[msg]||n>=8)return;sent[msg]=1;n++;var tok=null;try{tok=(JSON.parse(localStorage.getItem('cb-acct')||'null')||{}).token||null}catch(e){}
 fetch('https://nkeeayhodmauifevmaga.supabase.co/rest/v1/rpc/bb_report_error',{method:'POST',headers:{apikey:'sb_publishable_u7M3MApb_n-h-5gAUe4rTg_fN2kj4yW','Content-Type':'application/json'},
-body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261110081623',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
+body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261110090704',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
 window.addEventListener('error',function(e){if(!e.message)return;rep(e.message,(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno,e.error&&e.error.stack)});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r&&r.code)return;rep('promise: '+(r&&r.message||r),'',r&&r.stack)});
 window.cbReport=rep;})();
@@ -2663,7 +2663,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261110081623';
+const BUILD_ID='20261110090704';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -4020,13 +4020,16 @@ function drawBossBody(c,look,cx,cy,S,pn,mood,alpha){
 }
 function bossPick(bar,tier){const set=ATK_SET[tier],i=Math.floor(hash01(bar*7+tier*31)*set.length*8);const a=[set[i%set.length]];if(BOSS.phase===2&&set.length>1)a.push(set[(i+1)%set.length]);return a}
 function bossAttack(a,pn,len){BOSS.fx[a]={t:pn,len};BOSS.n++;
-  if(a==='drain'&&!runInv&&state==='play'){hp=Math.max(12,hp-12);BOSS.drains.push({t:pn,v:12})}
-  if(a==='shock'&&!runInv&&state==='play'){BOSS.shake=pn;hp=Math.max(12,hp-6);BOSS.drains.push({t:pn,v:6})}
+  if(a==='shock'){BOSS.shake=pn}
   if(a==='heat'&&state==='play'){heat=Math.min(85,heat+35)}}
 // before each attack, the next notes turn gold: hit them well to block it
 function bossMarkShields(bar,k){BOSS.shields=[];const s0=INTRO*16+bar*16,s1=s0+16,now=playNow();
   const c=notes.filter(n=>!n.done&&!n.len&&!n.bomb&&n.step>=s0+4&&n.step<s1-1&&n.t>now+.35);
   for(let i=0;i<k&&c.length;i++){const n=c.splice(Math.floor(c.length*(.4+.4*hash01(bar*3+i))),1)[0];n.shield=true;BOSS.shields.push(n)}}
+// an attack that isn't blocked takes 1/4 to 4/5 of full health: more on harder difficulties and as the boss gets angrier
+function bossDmg(){return Math.round(25+55*(Math.min(4,diffIdx)/4*.6+BOSS.phase/2*.4))}
+function bossStrike(pn){if(state!=='play')return;const dmg=bossDmg();const before=hp;hp=Math.max(1,hp-dmg);BOSS.drains.push({t:pn,v:Math.round(before-hp)});BOSS.strikeT=pn;
+  if(ctx){const t=ctx.currentTime;noise(t,'lowpass',300,.7,.6);tone(t,22,.8,'sine',.6,140)}}
 function bossShield(n,k){if(!map.boss||BOSS.beaten)return;if(k==='perfect'||k==='great'){BOSS.blocks++;BOSS.pops.push({t:performance.now(),x:0,v:'🛡',crit:true})}}
 function bossFx(a,pn){const f=BOSS.fx&&BOSS.fx[a];if(!f||BOSS.beaten)return 0;const d=pn-f.t;if(d<0||d>f.len)return 0;return Math.min(1,d/250)*Math.min(1,(f.len-d)/400)}
 function bossNoteAlpha(y){if(!map||!map.boss||sel.practice)return 1;const pn=performance.now();
@@ -4047,7 +4050,7 @@ function drawBoss(now){ // health bar, attacks, banners, effects in front of the
   if(BOSS.charging&&BOSS.warn!==bar){BOSS.warn=bar;BOSS.next=bossPick(bar+1,tier);BOSS.blocks=0;bossMarkShields(bar,BOSS.next.length)}
   if(state==='play'&&bar>=every&&bar%every===0&&bar!==BOSS.lastBar&&!BOSS.beaten){BOSS.lastBar=bar;const atk=BOSS.next||bossPick(bar,tier);BOSS.next=null;bossSfx('attack');
     const len=16*stepDur*1000*(BOSS.phase>0?1.4:1.1);let blk=0;
-    for(const a of atk){BOSS.attacks++;if(BOSS.blocks>0){BOSS.blocks--;blk++;BOSS.blocked++}else bossAttack(a,pn,len)}
+    for(const a of atk){BOSS.attacks++;if(BOSS.blocks>0){BOSS.blocks--;blk++;BOSS.blocked++}else{bossAttack(a,pn,len);bossStrike(pn)}}
     for(const n of BOSS.shields)n.shield=false;BOSS.shields=[];BOSS.blocks=0;
     if(blk){BOSS.blockT=pn;BOSS.blockTxt=blk===atk.length?'🛡 막았어요! 반사 피해':'🛡 하나는 막았어요';BOSS.hp=Math.max(blk?1:0,BOSS.hp-BOSS.max*.03*blk);BOSS.hurt=pn;bossSfx('block')}
     if(blk<atk.length)BOSS.shake=pn}
@@ -4056,7 +4059,7 @@ function drawBoss(now){ // health bar, attacks, banners, effects in front of the
   g.save();
   // charge-up warning
   if(BOSS.charging){const a=.5+.5*Math.sin(pn/80);g.globalAlpha=a;g.font='800 18px '+F.display;g.textAlign='center';g.fillStyle='#ff2d55';g.fillText('⚠ '+(BOSS.next?BOSS.next.map(x=>ATK_NAME[x]).join(' + '):'공격')+'이(가) 와요!',cx,cy+S*.75,fw-16);
-    g.globalAlpha=1;g.font='700 13px '+F.body;g.fillStyle='#ffd166';g.fillText(BOSS.shields.length?`🛡 금색 노트를 퍼펙트·그레이트로 치면 막아요 (${BOSS.blocks}/${BOSS.shields.length})`:'',cx,cy+S*.75+20,fw-16);g.globalAlpha=a;
+    g.globalAlpha=1;g.font='700 13px '+F.body;g.fillStyle='#ffd166';g.fillText(BOSS.shields.length?`🛡 금색 노트를 퍼펙트·그레이트로 치면 막아요 (${BOSS.blocks}/${BOSS.shields.length}) · 못 막으면 체력 -${bossDmg()}`:'',cx,cy+S*.75+20,fw-16);g.globalAlpha=a;
     g.globalAlpha=.25*a;g.strokeStyle='#ff2d55';g.lineWidth=3;g.beginPath();g.arc(cx,cy,S*.7+Math.sin(pn/60)*4,0,7);g.stroke()}
   // the attack: a shockwave from the boss down to the judge line
   const at=(pn-BOSS.shake)/600;
@@ -4070,6 +4073,8 @@ function drawBoss(now){ // health bar, attacks, banners, effects in front of the
   // blocked attacks
   if(BOSS.blockT&&pn-BOSS.blockT<1300){const q=(pn-BOSS.blockT)/1300;g.globalAlpha=Math.min(1,(1-q)*2);g.font='800 24px '+F.display;g.textAlign='center';g.fillStyle='#ffd166';g.shadowColor='#ffd166';g.shadowBlur=18;g.fillText(BOSS.blockTxt,fx+fw/2,H*.5-q*30,fw-16);g.shadowBlur=0;
     g.globalAlpha=(1-q)*.8;g.strokeStyle='#ffd166';g.lineWidth=4;g.beginPath();g.arc(fx+fw/2,hitY,fw*.2+q*fw*.4,Math.PI,0);g.stroke()}
+  // a hit that wasn't blocked: the screen flashes red
+  if(BOSS.strikeT&&pn-BOSS.strikeT<900){const q=(pn-BOSS.strikeT)/900;g.globalAlpha=.45*(1-q);g.fillStyle='#ff0033';g.fillRect(0,0,W,H);g.globalAlpha=1-q;g.font='800 30px '+F.display;g.textAlign='center';g.fillStyle='#fff';g.shadowColor='#ff0033';g.shadowBlur=20;g.fillText('💥 직격!',fx+fw/2,H*.42-q*20);g.shadowBlur=0}
   // overheating
   const ht=bossFx('heat',pn);if(ht>0){g.globalAlpha=.18*ht;g.fillStyle='#ff6b35';g.fillRect(fx,0,fw,H)}
   // health drained by the boss

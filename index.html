@@ -355,6 +355,9 @@ a.go.off{opacity:.45;pointer-events:none}
         <input type="range" id="musVol" min="0" max="100" step="10" value="80"></div>
       <div class="ctl"><label for="hsVol">히트사운드 <output id="hsOut">60%</output></label>
         <input type="range" id="hsVol" min="0" max="100" step="10" value="60"></div>
+      <div class="ctl"><label for="hsMode">히트사운드 타이밍</label>
+        <select id="hsMode"><option value="auto">자동 (소리가 늦은 기기면 박자에 맞춰)</option><option value="tap">누를 때 나오기</option><option value="pre">박자에 맞춰 미리 나오기</option></select>
+        <p class="hint" id="hsModeNote" style="margin:4px 0 0"></p></div>
       <div class="ctl"><span class="lab">그래픽 품질</span>
         <div class="seg4" id="qSeg" role="radiogroup" aria-label="그래픽 품질"><button role="radio" data-q="ultra">매우 높음</button><button role="radio" data-q="high">높음</button><button role="radio" data-q="mid">보통</button><button role="radio" data-q="low">낮음</button></div>
         <p class="hint" style="text-align:left;margin:0" id="qHint"></p></div>
@@ -873,7 +876,7 @@ a.go.off{opacity:.45;pointer-events:none}
 <script>
 (function(){var sent={},n=0;function rep(msg,src,stack){try{msg=String(msg||'');if(!msg||sent[msg]||n>=8)return;sent[msg]=1;n++;var tok=null;try{tok=(JSON.parse(localStorage.getItem('cb-acct')||'null')||{}).token||null}catch(e){}
 fetch('https://nkeeayhodmauifevmaga.supabase.co/rest/v1/rpc/bb_report_error',{method:'POST',headers:{apikey:'sb_publishable_u7M3MApb_n-h-5gAUe4rTg_fN2kj4yW','Content-Type':'application/json'},
-body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261110091728',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
+body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261113081638',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
 window.addEventListener('error',function(e){if(!e.message)return;rep(e.message,(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno,e.error&&e.error.stack)});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r&&r.code)return;rep('promise: '+(r&&r.message||r),'',r&&r.stack)});
 window.cbReport=rep;})();
@@ -933,7 +936,7 @@ const NEW_NAMES=['반딧불','종이배','첫눈','산책길','풍선','빗방�
   '태양풍','붉은 달','천둥','무한 궤도','빛의 속도','카오스','성운','퀘이사','펄사','차원 이동',
   '종말의 시계','빅뱅','초월','신의 영역','최후의 별','영원','무한대','특이점','코드 비트'];
 const MAPS=(()=>{
-  const base=BASE_MAPS.map((m,i)=>({...m,busy:m.busy??Math.min(1.35,.25+i*.05)}));
+  const base=BASE_MAPS.map((m,i)=>({...m,busy:m.busy!=null?m.busy:Math.min(1.35,.25+i*.05)}));
   const at=new Map();base.forEach((m,i)=>at.set(i<25?Math.round(1+i*3.5):[91,93,95,97,99,100][i-25],m));
   const r=rng(2026),scales=['major','minor','dorian','penta'],progs=base.map(m=>m.prog);
   const out=[];let n=0;
@@ -1127,7 +1130,7 @@ function hsOut(){if(!hitBus){hitBus=ctx.createGain();hitBus.connect(master)}hitB
 function hsNoise(t,type,f,q,v,dec,out){const n=ctx.createBufferSource();n.buffer=noiseBuf;const fl=ctx.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=ctx.createGain();env(g,t,v,dec,.001);n.connect(fl).connect(g).connect(out);n.start(t);n.stop(t+dec+.02)}
 function hsOsc(t,type,hz,v,dec,out,to){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(hz,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+dec*.6);env(g,t,v,dec,.001);o.connect(g).connect(out);o.start(t);o.stop(t+dec+.03)}
 function drum(kind,v,out){
-  const t=ctx.currentTime;
+  const t=HS_AT||ctx.currentTime;
   switch(kind){
     case 'kick':  hsOsc(t,'sine',170,1.0*v,.24,out,45);hsOsc(t,'triangle',900,.25*v,.012,out,200);hsNoise(t,'lowpass',2500,.7,.4*v,.018,out);break;
     case 'snare': hsOsc(t,'triangle',200,.32*v,.09,out,150);hsNoise(t,'highpass',1500,.7,.42*v,.15,out);hsNoise(t,'bandpass',4000,1,.16*v,.07,out);break;
@@ -1223,8 +1226,8 @@ const WIN={p:.045,gr:.09,go:.135};
 const W8={perfect:1,great:.7,good:.4,miss:0};
 let isTouch=matchMedia('(pointer: coarse)').matches;
 
-const lat=()=>ctx?(ctx.outputLatency||ctx.baseLatency||0):0;
-const songNow=()=>ctx?ctx.currentTime-lat():0;
+const lat=()=>ctx?(LATV!=null?LATV:rawLat()):0;
+const songNow=()=>ctx?audioClock()-lat():0;
 const playNow=()=>songNow()-(offsetMs||0)/1000;
 
 function playStep(i,t){
@@ -1243,7 +1246,7 @@ function playStep(i,t){
   }
   if(lead[i]>=0)tone(t,degPitch(s,lead[i]),holdSteps[i]?holdSteps[i]*stepDur:stepDur*1.6,s.lead,lv,lc);
 }
-function scheduler(){const ahead=ctx.currentTime+.15;while(nextStep<totalSteps&&T0+stT(nextStep)<ahead){playStep(nextStep,T0+stT(nextStep));nextStep++}}
+function scheduler(){const ahead=ctx.currentTime+.15;while(nextStep<totalSteps&&T0+stT(nextStep)<ahead){playStep(nextStep,T0+stT(nextStep));if(hsPre())hsPreStep(nextStep,T0+stT(nextStep));nextStep++}}
 
 async function start(){
   ensureAudio();if(ctx.state!=='running'){try{await ctx.resume()}catch(e){}}
@@ -1291,7 +1294,7 @@ function press(l,at){
   pressed[l]=performance.now();
   const t=at!==undefined?at:playNow(),arr=laneNotes[l];if(REC)REC.push([Math.round((t-T0)*1000),l]);let bn=null,bd=1;
   for(let i=ptr[l];i<arr.length;i++){const n=arr[i];if(n.done)continue;const d=t-n.t;if(d<-WIN.go-.05)break;if(Math.abs(d)<bd){bd=Math.abs(d);bn=n}}
-  if(bombPress(l,t,bn?bd:9))return;const hit=bn&&bd<=WIN.go;hitSound(l,map.lanes,hit);
+  if(bombPress(l,t,bn?bd:9))return;const hit=bn&&bd<=WIN.go;if(!hsPre())hitSound(l,map.lanes,hit);
   if(hit){judge(bn,t-bn.t)}
   else if(t>=firstNoteT-WIN.go){heat+=HEAT.tap;if(heat>=100){heat=100;if(!runInv)die('overload')}}
 }
@@ -1889,7 +1892,7 @@ function newLevel(){return{id:null,audio:null,audioBuf:null,audioFile:null,title
 function edFromData(d){
   const L=newLevel();if(!d||typeof d!=='object')return L;
   if(typeof d.id==='string'&&/^[0-9a-f-]{36}$/.test(d.id))L.id=d.id;
-  L.title=String(d.title||'').slice(0,30);L.desc=String(d.desc??d.description??'').slice(0,120);
+  L.title=String(d.title||'').slice(0,30);L.desc=String(d.desc!=null?d.desc:d.description!=null?d.description:'').slice(0,120);
   if([1,2,4,6].includes(+d.lanes))L.lanes=+d.lanes;
   L.bpm=Math.max(60,Math.min(260,Math.round(+d.bpm||128)));L.bars=Math.max(4,Math.min(48,Math.round(+d.bars||16)));
   const m=d.music||{};
@@ -2075,7 +2078,7 @@ function genNotes(d){
   for(let bar=0;bar<ed.bars;bar+=4){for(const [st,l] of order[(bar/4)%4]){const s=bar*16+st;if(s<ed.bars*16)out.add(s*8+l)}}
   const holds=new Map();
   if(d>=1){const byLane={};for(const k of out)(byLane[k%8]||(byLane[k%8]=[])).push(Math.floor(k/8));
-    for(const l of Object.keys(byLane)){const arr=byLane[l].sort((a,b)=>a-b);for(let i=0;i<arr.length;i++){const gap=(arr[i+1]??ed.bars*16)-arr[i];
+    for(const l of Object.keys(byLane)){const arr=byLane[l].sort((a,b)=>a-b);for(let i=0;i<arr.length;i++){const gap=(arr[i+1]!=null?arr[i+1]:ed.bars*16)-arr[i];
       if(gap>=6&&r()<.14+d*.04){const len=Math.max(4,Math.min(gap-2,16)&~1);if(arr[i]+len<=ed.bars*16){holds.set(arr[i]*8+(+l),len);i++}}}}}
   out.holds=holds;return out;
 }
@@ -2546,7 +2549,7 @@ applySkin();
 /* ---------- extra skin kinds: hit-sound packs, judge line, background, judge text ---------- */
 const PENTA=[0,3,5,7,10,12];
 function packSound(kind,lane,n,v,out){
-  const t=ctx.currentTime,st=PENTA[Math.min(lane,5)]+(n<=2?5:0),f=b=>b*Math.pow(2,st/12);
+  const t=HS_AT||ctx.currentTime,st=PENTA[Math.min(lane,5)]+(n<=2?5:0),f=b=>b*Math.pow(2,st/12);
   switch(kind){
     case 'clap':for(let i=0;i<3;i++)hsNoiseAt(t+i*.011,'bandpass',f(1100),1.2,.5*v,i<2?.02:.13,out);break;
     case 'wood':hsOsc(t,'sine',f(820),.85*v,.07,out,f(760));hsOsc(t,'triangle',f(1640),.22*v,.03,out);break;
@@ -2663,7 +2666,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261110091728';
+const BUILD_ID='20261113081638';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -3356,7 +3359,7 @@ function bdMap(diffId){
 
 /* ---------- birthday-only looks, sounds and words ---------- */
 function bdEnter(){Object.assign(COL,{bg:BD_PAL.bg,line:BD_PAL.line});BD_PAL.lc.forEach((c,i)=>COL.lc[i]=c);glowCache.clear()}
-function bdSound(lane){if(!ctx)return true;const t=ctx.currentTime,p=[72,76,79,84,88,91][lane%6],out=hsOut();
+function bdSound(lane){if(!ctx)return true;const t=HS_AT||ctx.currentTime,p=[72,76,79,84,88,91][lane%6],out=hsOut();
   hsOsc(t,'sine',midiHz(p),.5,.35,out);hsOsc(t,'sine',midiHz(p)*3,.08,.12,out);return true}
 const BD_COLS=['#ffd166','#ff6fb5','#5ee6c4','#7cc8ff','#ffffff','#c49bff'];
 function bdHit(c,p,cx,hy,lw,seed){
@@ -4572,11 +4575,69 @@ pushUi();setTimeout(pushRelink,3000);
   if(f==='push-inbox')setTimeout(()=>{if(acct&&state==='menu')openInbox()},1200)})();
 
 /* ====================================================================
+   batch E: timing on slow / high-latency devices
+   ==================================================================== */
+// 1) smooth audio clock. Some devices only advance ctx.currentTime in big chunks, which made note timing and
+//    calibration jump around. Follow the upper edge of the audio clock against performance.now(), drifting slowly.
+var ACLK={off:null,lastP:0},HS_AT=0,LATV=null;
+function audioClock(){const c=ctx.currentTime;if(ctx.state!=='running'){ACLK.off=null;return c}
+  const p=performance.now()/1000,s=c-p;
+  if(ACLK.off===null||Math.abs(s-ACLK.off)>.2){ACLK.off=s;ACLK.lastP=p;return c}
+  const dt=Math.max(0,p-ACLK.lastP);ACLK.lastP=p;ACLK.off=Math.max(s,ACLK.off-dt*.01);return p+ACLK.off}
+// the device-reported output latency can change mid-song on some phones; only pick it up between songs
+function rawLat(){return ctx?(ctx.outputLatency||ctx.baseLatency||0):0}
+setInterval(()=>{if(ctx&&!['play','pause','dying','calib','loading'].includes(state))LATV=rawLat()},1000);
+
+// 2) calibration that also works when sound comes out very late (emulators, TV boxes, Bluetooth)
+CB.bpm=60;
+calibTap=function(){
+  if(!cal.run)return;const t=songNow(),x=(t-cal.T0)/cal.bd;
+  if(x<CB.lead-.3||x>CB.lead+CB.taps+.9)return;
+  cal.offs.push(x);let d=x-Math.round(x);addDot(d*cal.bd);
+  const p=$('#cBeat');p.style.borderColor=COL.ink;setTimeout(()=>p.style.borderColor='',90)};
+calibFrame=function(){
+  if(!cal.run)return;const t=songNow(),x=(t-cal.T0)/cal.bd,k=Math.floor(x),ph=x-k;const beat=$('#cBeat'),cnt=$('#cCount');
+  if(x<0){beat.style.transform='scale(.7)';beat.style.opacity=.5;return}
+  const s=reduce?1:1-.3*ph;beat.style.transform=`scale(${s})`;beat.style.opacity=1-.5*ph;
+  if(k<CB.lead){cnt.textContent=String(CB.lead-k);cnt.style.color=COL.muted}else if(k<CB.lead+CB.taps){cnt.textContent=String(CB.lead+CB.taps-k);cnt.style.color=COL.ink}
+  if(x>CB.lead+CB.taps+1){cal.run=false;stopBus();cnt.textContent='';beat.style.transform='scale(.7)';beat.style.opacity=.5;finishCalib()}};
+finishCalib=function(){
+  const xs=cal.offs;
+  if(xs.length<8){$('#cMsg').textContent=`탭이 ${xs.length}번만 기록됐어요. 16박 동안 박자마다 눌러 주세요.`;setCalibBtns('fail');return}
+  // average the tap phases on a circle so that a late device doesn't get counted on the wrong beat
+  let sx=0,sy=0;for(const x of xs){const a=2*Math.PI*x;sx+=Math.cos(a);sy+=Math.sin(a)}
+  let ph=Math.atan2(sy,sx)/(2*Math.PI);if(ph<-.2)ph+=1;if(ph>=.8)ph-=1;   // offset range: -200 .. +800ms
+  const wrap=v=>v-Math.round(v);let ds=xs.map(x=>wrap(x-ph)).sort((a,b)=>Math.abs(a)-Math.abs(b));
+  ds=ds.slice(0,Math.max(6,Math.ceil(ds.length*.8)));
+  const mean=ds.reduce((a,b)=>a+b,0)/ds.length,sd=Math.sqrt(ds.reduce((a,b)=>a+(b-mean)**2,0)/ds.length)*cal.bd;
+  cal.result=Math.max(-200,Math.min(800,Math.round((ph+mean)*cal.bd*1000)));
+  $('#cVal').textContent=(cal.result>0?'+':'')+cal.result+'ms';
+  $('#cSpread').textContent=`탭 ${xs.length}회 · 흔들림 ±${Math.round(sd*1000)}ms`+(sd>.05?' · 편차가 커요, 한 번 더 측정해 보세요':'');
+  $('#cRes').hidden=false;
+  $('#cMsg').textContent=cal.result>=120?`이 기기는 소리가 약 ${cal.result}ms 늦게 나와요. 판정을 그만큼 늦추고, 히트사운드는 박자에 맞춰 미리 나오게 할게요.`
+    :cal.result>0?'박자보다 늦게 누르는 편이에요. 판정을 그만큼 늦춰 맞춥니다.':cal.result<0?'박자보다 빠르게 누르는 편이에요. 판정을 그만큼 당겨 맞춥니다.':'박자에 딱 맞게 누르고 있어요.';
+  setCalibBtns('done')};
+
+// 3) hit sounds on high-latency devices: a sound made when you tap comes out late, so play it on the beat instead
+var HSMODE=LS.get('cb-hsmode','auto');
+function hsPre(){return HSMODE==='pre'||(HSMODE==='auto'&&Math.abs(offsetMs||0)>=120)}
+const HSP={notes:null,by:null};
+function hsPreStep(step,t){
+  if(state!=='play'||!notes.length)return;
+  if(HSP.notes!==notes){HSP.notes=notes;HSP.by=new Map();for(const n of notes){const a=HSP.by.get(n.step);if(a)a.push(n.lane);else HSP.by.set(n.step,[n.lane])}}
+  const ls=HSP.by.get(step);if(!ls)return;
+  try{HS_AT=t;for(const l of ls.slice(0,2))hitSound(l,map.lanes,true)}finally{HS_AT=0}}
+function hsModeUi(){const s=$('#hsMode');if(!s)return;s.value=HSMODE;$('#hsModeNote').textContent=HSMODE==='auto'?(hsPre()?'지금: 박자에 맞춰 미리 (이 기기는 소리가 늦게 나와요)':'지금: 누를 때'):''}
+$('#hsMode').onchange=e=>{HSMODE=e.target.value;LS.set('cb-hsmode',HSMODE);hsModeUi()};
+hsModeUi();
+const _openSettingsE=openSettings;openSettings=function(){_openSettingsE.apply(this,arguments);hsModeUi()};
+
+/* ====================================================================
    English UI: a dictionary for screen text plus patterns for messages
    built at runtime. Map and level names stay as they are.
    ==================================================================== */
 var LANG=LS.get('cb-lang','ko');
-const EN={'🔔 알림 켜기':'🔔 Turn on notifications','알림 끄기':'Turn off notifications','시험 알림 보내기':'Send a test','새 업데이트':'New updates','공지 · 이벤트':'Notices & events','주간 토너먼트 · 월간 시즌':'Weekly tournament & season','매일 저녁 출석 · 데일리 알림':'Evening check-in & daily','친구 · 선물 · 응원 · 도전 · 댓글':'Friends, gifts, cheers, challenges, comments','매우 어려움':'Expert','지옥':'Hell','💣 폭탄 놓는 중':'💣 Placing bombs','➰ 슬라이드 놓는 중':'➰ Placing slides',
+const EN={'히트사운드 타이밍':'Hit sound timing','자동 (소리가 늦은 기기면 박자에 맞춰)':'Auto (on the beat if sound is late)','누를 때 나오기':'When you tap','박자에 맞춰 미리 나오기':'On the beat (scheduled)','🔔 알림 켜기':'🔔 Turn on notifications','알림 끄기':'Turn off notifications','시험 알림 보내기':'Send a test','새 업데이트':'New updates','공지 · 이벤트':'Notices & events','주간 토너먼트 · 월간 시즌':'Weekly tournament & season','매일 저녁 출석 · 데일리 알림':'Evening check-in & daily','친구 · 선물 · 응원 · 도전 · 댓글':'Friends, gifts, cheers, challenges, comments','매우 어려움':'Expert','지옥':'Hell','💣 폭탄 놓는 중':'💣 Placing bombs','➰ 슬라이드 놓는 중':'➰ Placing slides',
 '.cbeat 파일에 노트·설정·음악이 함께 담겨요. 다른 기기나 친구에게 옮길 때 쓰세요.':'A .cbeat file holds the notes, settings and music. Use it to move a level to another device or a friend.',
 '16마디':'16 bars','1마디':'1 bar','8마디':'8 bars','마디':'Bars',
 '1·2·4레인과 극한 단계의 6레인마다 따로 저장돼요. 칸을 누른 뒤 원하는 키를 누르세요. 이미 쓰는 키를 고르면 두 칸의 키가 서로 바뀝니다.':'Saved separately for 1, 2, 4 and 6 lanes. Tap a box, then press the key you want. Picking a key already in use swaps the two.',

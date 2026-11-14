@@ -876,7 +876,7 @@ a.go.off{opacity:.45;pointer-events:none}
 <script>
 (function(){var sent={},n=0;function rep(msg,src,stack){try{msg=String(msg||'');if(!msg||sent[msg]||n>=8)return;sent[msg]=1;n++;var tok=null;try{tok=(JSON.parse(localStorage.getItem('cb-acct')||'null')||{}).token||null}catch(e){}
 fetch('https://nkeeayhodmauifevmaga.supabase.co/rest/v1/rpc/bb_report_error',{method:'POST',headers:{apikey:'sb_publishable_u7M3MApb_n-h-5gAUe4rTg_fN2kj4yW','Content-Type':'application/json'},
-body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261113081638',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
+body:JSON.stringify({p_msg:msg,p_src:src||'',p_stack:String(stack||'').slice(0,2000),p_build:'20261114034452',p_ua:navigator.userAgent,p_token:tok})}).catch(function(){})}catch(e){}}
 window.addEventListener('error',function(e){if(!e.message)return;rep(e.message,(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno,e.error&&e.error.stack)});
 window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r&&r.code)return;rep('promise: '+(r&&r.message||r),'',r&&r.stack)});
 window.cbReport=rep;})();
@@ -2666,7 +2666,7 @@ $('#shBack').onclick=()=>toMenu();
 $('#shopBtn').onclick=openShop;
 
 /* ---------- update notice: check for a newer build, restart after the current level ---------- */
-const BUILD_ID='20261113081638';
+const BUILD_ID='20261114034452';
 let updInfo=null;
 async function checkUpdate(){
   if(BUILD_ID==='dev'||location.protocol!=='https:')return;
@@ -4548,27 +4548,52 @@ const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,
 async function pushReg(){return navigator.serviceWorker.ready}
 async function pushSend(sub){const k=sub.toJSON?sub.toJSON().keys:null;
   return API.call('bb_push_subscribe',{p_token:acct?acct.token:'',p_endpoint:sub.endpoint,p_p256dh:k?k.p256dh:b64u(sub.getKey('p256dh')),p_auth:k?k.auth:b64u(sub.getKey('auth')),p_prefs:pushPrefs()})}
+// the PC and Android apps can't use web push: they fetch notifications themselves (see the app code)
+const APPPUSH=(()=>{const a=window.CodeBeatAndroid,d=window.codeBeatDesktop;
+  if(a&&typeof a.pushEnable==='function')return{kind:'android',enable:(dev)=>Promise.resolve(a.pushEnable(dev,SB_URL,SB_KEY)),disable:()=>Promise.resolve(a.pushDisable()),poll:()=>Promise.resolve(a.pushPollNow()),perm:()=>Promise.resolve(a.pushPermission())};
+  if(d&&d.push)return{kind:'desktop',enable:(dev)=>d.push.enable(dev,SB_URL,SB_KEY),disable:()=>d.push.disable(),poll:()=>d.push.pollNow(),perm:()=>Promise.resolve('granted')};
+  if(a||d)return{old:true};return null})();
+function pushDevice(){let v=LS.get('cb-push-dev','');if(!/^[a-z0-9-]{16,64}$/.test(v)){v='d'+Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');LS.set('cb-push-dev',v)}return v}
+const appReg=()=>API.call('bb_app_push_register',{p_device:pushDevice(),p_token:acct?acct.token:'',p_prefs:pushPrefs()});
+function pushIsOn(){if(APPPUSH)return !APPPUSH.old&&!!LS.get('cb-push-on',false);return !!LS.get('cb-push-on',false)&&PUSH.ok&&Notification.permission==='granted'}
 async function pushOn(){const m=$('#pushMsg');
+  if(APPPUSH){
+    if(APPPUSH.old){m.textContent='앱을 새 버전으로 업데이트하면 알림을 받을 수 있어요.';return}
+    try{const r=await APPPUSH.enable(pushDevice());await appReg();LS.set('cb-push-on',true);
+      m.textContent=(r==='denied'?'휴대폰 설정에서 code-beat 알림을 허용해 주세요. ':r==='asking'?'알림 허용 창에서 허용을 눌러 주세요. ':'')+
+        (APPPUSH.kind==='desktop'?'알림을 켰어요. 창을 닫아도 트레이에서 알림을 받고, 컴퓨터를 켜면 자동으로 시작돼요.':'알림을 켰어요. 휴대폰은 15분마다 새 알림을 확인해요.')+(acct?'':' 로그인하면 친구·선물 알림도 받아요.')}
+    catch(e){m.textContent='알림을 켜지 못했어요 · '+(e&&e.message?e.message:errText(e))}
+    pushUi();return}
   if(!PUSH.ok){m.textContent='이 브라우저에서는 알림을 받을 수 없어요. 아이폰은 홈 화면에 추가한 앱에서만 돼요.';return}
   try{const perm=await Notification.requestPermission();if(perm!=='granted'){m.textContent='알림이 차단되어 있어요. 브라우저 설정에서 이 사이트의 알림을 허용해 주세요.';pushUi();return}
     const key=await API.call('bb_push_pubkey',{});if(!key)throw{code:'no_key'};
-    const reg=await pushReg();let sub=await reg.pushManager.getSubscription();
+    const reg=await Promise.race([pushReg(),new Promise((_,j)=>setTimeout(()=>j({message:'서비스 워커가 준비되지 않았어요. 새로고침 후 다시 해 주세요.'}),8000))]);
+    let sub=await reg.pushManager.getSubscription();
     if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64key(key)});
     PUSH.sub=sub;await pushSend(sub);LS.set('cb-push-on',true);m.textContent=acct?'알림을 켰어요! 시험 알림을 보내 볼 수도 있어요.':'알림을 켰어요. 로그인하면 친구·선물 알림도 받을 수 있어요.'}
   catch(e){m.textContent='알림을 켜지 못했어요 · '+(e&&e.message?e.message:errText(e))}
   pushUi()}
-async function pushOff(){const m=$('#pushMsg');try{const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(sub){await API.call('bb_push_unsubscribe',{p_endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe()}PUSH.sub=null;LS.set('cb-push-on',false);m.textContent='알림을 껐어요.'}catch(e){m.textContent=errText(e)}pushUi()}
-async function pushRelink(){if(!PUSH.ok||!LS.get('cb-push-on',false))return;try{const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(sub){PUSH.sub=sub;await pushSend(sub)}}catch(e){}}
-function pushUi(){const box=$('#pushBox');if(!box)return;const on=!!LS.get('cb-push-on',false)&&PUSH.ok&&Notification.permission==='granted';
+async function pushOff(){const m=$('#pushMsg');
+  try{if(APPPUSH&&!APPPUSH.old){await APPPUSH.disable();await API.call('bb_app_push_unregister',{p_device:pushDevice()}).catch(()=>{})}
+    else{const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(sub){await API.call('bb_push_unsubscribe',{p_endpoint:sub.endpoint}).catch(()=>{});await sub.unsubscribe()}PUSH.sub=null}
+    LS.set('cb-push-on',false);m.textContent='알림을 껐어요.'}catch(e){m.textContent=errText(e)}pushUi()}
+async function pushResend(){if(APPPUSH){if(!APPPUSH.old)await appReg();return}const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(sub)await pushSend(sub)}
+async function pushRelink(){if(!LS.get('cb-push-on',false))return;try{if(APPPUSH){if(!APPPUSH.old){await APPPUSH.enable(pushDevice());await appReg()}return}
+  if(!PUSH.ok)return;const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(sub){PUSH.sub=sub;await pushSend(sub)}}catch(e){}}
+function pushUi(){const box=$('#pushBox');if(!box)return;const on=pushIsOn();
   $('#pushToggle').textContent=on?'알림 끄기':'🔔 알림 켜기';$('#pushTest').hidden=!on;$('#pushCats').hidden=!on;
-  if(!PUSH.ok)$('#pushMsg').textContent=$('#pushMsg').textContent||'이 브라우저에서는 알림을 받을 수 없어요. 아이폰은 홈 화면에 추가한 앱에서만 돼요.';
+  const msg=$('#pushMsg');if(!msg.textContent){if(APPPUSH&&APPPUSH.old)msg.textContent='앱을 새 버전으로 업데이트하면 알림을 받을 수 있어요.';else if(!APPPUSH&&!PUSH.ok)msg.textContent='이 브라우저에서는 알림을 받을 수 없어요. 아이폰은 홈 화면에 추가한 앱에서만 돼요.'}
   const p=pushPrefs(),c=$('#pushCats');if(!c.childElementCount)for(const [k,t] of PUSH_CATS){const l=el('label','check');const i=document.createElement('input');i.type='checkbox';i.dataset.cat=k;l.append(i,document.createTextNode(' '+t));c.appendChild(l)}
   c.querySelectorAll('input').forEach(i=>{i.checked=p[i.dataset.cat]})}
-$('#pushToggle').onclick=()=>{const on=!!LS.get('cb-push-on',false)&&PUSH.ok&&Notification.permission==='granted';on?pushOff():pushOn()};
+$('#pushToggle').onclick=()=>{pushIsOn()?pushOff():pushOn()};
 $('#pushCats').onchange=async e=>{const i=e.target.closest('input[data-cat]');if(!i)return;const p=pushPrefs();p[i.dataset.cat]=i.checked;LS.set('cb-push-prefs',p);
-  try{const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(sub)await pushSend(sub);$('#pushMsg').textContent='알림 종류를 저장했어요.'}catch(err){$('#pushMsg').textContent=errText(err)}};
-$('#pushTest').onclick=async()=>{const m=$('#pushMsg');try{const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(!sub){m.textContent='먼저 알림을 켜 주세요.';return}await API.call('bb_push_test',{p_endpoint:sub.endpoint});m.textContent='시험 알림을 보냈어요. 몇 초 안에 와요.'}
-  catch(e){m.textContent=e&&e.code==='too_fast'?'1분에 한 번만 보낼 수 있어요.':errText(e)}};
+  try{await pushResend();$('#pushMsg').textContent='알림 종류를 저장했어요.'}catch(err){$('#pushMsg').textContent=errText(err)}};
+$('#pushTest').onclick=async()=>{const m=$('#pushMsg');try{
+    if(APPPUSH){await API.call('bb_push_test',{p_endpoint:'app:'+pushDevice()});await APPPUSH.poll();m.textContent=APPPUSH.kind==='desktop'?'시험 알림을 보냈어요. 몇 초 안에 와요.':'시험 알림을 보냈어요. 1분 안에 와요.';return}
+    const reg=await pushReg(),sub=await reg.pushManager.getSubscription();if(!sub){m.textContent='먼저 알림을 켜 주세요.';return}await API.call('bb_push_test',{p_endpoint:sub.endpoint});m.textContent='시험 알림을 보냈어요. 몇 초 안에 와요.'}
+  catch(e){m.textContent=e&&e.code==='too_fast'?'1분에 한 번만 보낼 수 있어요.':e&&e.code==='no_sub'?'알림을 껐다가 다시 켜 주세요.':errText(e)}};
+window.addEventListener('cb-open-inbox',()=>{if(acct&&state==='menu')openInbox()});
+if(window.codeBeatDesktop&&window.codeBeatDesktop.onOpenInbox)window.codeBeatDesktop.onOpenInbox(()=>{if(acct&&state==='menu')openInbox()});
 pushUi();setTimeout(pushRelink,3000);
 // opened from a notification
 (()=>{const f=new URLSearchParams(location.search).get('from');if(!f||!/^push/.test(f))return;try{history.replaceState(null,'',location.pathname)}catch(e){}

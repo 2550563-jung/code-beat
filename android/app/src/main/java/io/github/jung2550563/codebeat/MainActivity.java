@@ -103,9 +103,18 @@ public class MainActivity extends Activity {
             }
         });
 
+        String from = getIntent() != null ? getIntent().getStringExtra("from") : null;
         if (state != null) web.restoreState(state);
-        else web.loadUrl(GAME_URL);
+        else web.loadUrl(from != null ? GAME_URL + "?from=" + from : GAME_URL);
         checkForUpdate();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String from = intent.getStringExtra("from");
+        if ("push-inbox".equals(from) && web != null)
+            web.evaluateJavascript("window.dispatchEvent(new CustomEvent('cb-open-inbox'))", null);
     }
 
     @Override
@@ -180,6 +189,29 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String version() { return BuildConfigHolder.versionName(MainActivity.this); }
+
+        /** Notifications: the app polls the server itself (see PushJob). Returns granted / denied / asking. */
+        @JavascriptInterface
+        public String pushEnable(String device, String url, String key) {
+            PushJob.enable(MainActivity.this, device, url, key);
+            if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                runOnUiThread(() -> requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 42));
+                return "asking";
+            }
+            return pushPermission();
+        }
+
+        @JavascriptInterface
+        public void pushDisable() { PushJob.disable(MainActivity.this); }
+
+        @JavascriptInterface
+        public void pushPollNow() { PushJob.pollSoon(MainActivity.this); }
+
+        @JavascriptInterface
+        public String pushPermission() {
+            android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            return nm.areNotificationsEnabled() ? "granted" : "denied";
+        }
     }
 
     private void checkForUpdate() {
